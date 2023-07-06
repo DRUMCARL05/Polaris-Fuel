@@ -26,11 +26,11 @@ class page extends Component {
   state={
     provider:null,
     foodMSRdisplay:0.000529,
-    fuelMSRdisplay:0.001290,
+    fuelMSRdisplay:0.001299,
     ammoMSRdisplay:0.001935,
     toolsMSRdisplay:0.001566,
     foodMSRPbuy:0.000529,
-    fuelMSRPbuy:0.001290,
+    fuelMSRPbuy:0.001299,
     ammoMSRPbuy:0.001935,
     toolsMSRPbuy:0.001566,
     foodMSRPsell:0.000529,
@@ -53,7 +53,7 @@ class page extends Component {
     inActiveColor:"#000814BF",
     marketFee:0.10,
     ammountBoxText:"Buying Ammount",
-    marketQtyBoxText:"Market QTY",
+    marketQtyBoxText:"Mrkt QTY",
 
   }
 
@@ -160,7 +160,7 @@ class page extends Component {
       customerButtonColor:this.state.activeColor,
       actionButton:"Buy",
       ammountBoxText:"Buying Amount",
-      marketQtyBoxText:"Market QTY",
+      marketQtyBoxText:"Mrkt QTY",
       foodMSRdisplay:this.state.foodMSRPbuy,
       fuelMSRdisplay:this.state.fuelMSRPbuy,
       ammoMSRdisplay:this.state.ammoMSRPbuy,
