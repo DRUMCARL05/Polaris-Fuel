@@ -216,7 +216,7 @@ class page extends Component {
         <div className='navBar' style={{display:"flex", justifyContent: "space-between", width:"100%", marginTop: -20}}>
           <div className="logo" style={{ display: "flex"}}>
             <img style={{marginLeft: 50, marginTop: 50}} width={75} height={75} src="https://cdn.discordapp.com/attachments/1119286494453055528/1126142304319717417/PXPbig-RedCirclePLess.png"></img>
-            <h2 style={{color:"white", marginTop:75}}>Polaris</h2>
+            <h2 style={{color:"white", marginTop:75}}>Polaris Fuel</h2>
           </div>
 
           <div className="toggle" style={{ display: "flex", borderRadius: 20, overflow: 'hidden', marginTop: 65, border: '2px solid #E36414', background: '#E3641480'}}>
