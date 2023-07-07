@@ -13,38 +13,70 @@ import {
 } from "@solana/web3.js";
 import { relative } from 'path';
 
+import  { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+
+
+const BufferLayout = require('buffer-layout');
+
+
 let provider: {
   disconnect(): unknown;
   signAndSendTransaction(transaction: Transaction): { signature: any; } | PromiseLike<{ signature: any; }>; connect: (arg0: { onlyIfTrusted: boolean; } | undefined) => void; on: (arg0: string, arg1: () => void) => void; 
 };
 
+  // Define the account data structure
+  const MarketPlaceDataLayout = BufferLayout.struct([
+    BufferLayout.u8('is_initialized'),
+    BufferLayout.u8('reward'),
+    BufferLayout.f64('ammo'),
+    BufferLayout.f64('food'),
+    BufferLayout.f64('fuel'),
+    BufferLayout.f64('tools'),
+    BufferLayout.seq(BufferLayout.u8(), 32, 'admin_pubkey'),
+  ]);
+
+
+//update to mainnet
 let connection = new Connection(clusterApiUrl('devnet'));
+let marketConfigAccount = new PublicKey("DpTW34MTR79ckQHkygyvgDvEMrbdSm5oo83Hdgn9nzGK");
+
+let pda_star_atlas_account = new PublicKey('GJNKMrcsH5m7vem9WSxs7SEpMrHeihNqtQg6CzCFuhPY')
+let pda_tools_mint_tokenAccount = new PublicKey('B9xSJqsBuy9Xj3kCpsh8ZpJpphyU62aaNCqmbL5qsxjC')
+let pda_ammo_mint_tokenAccount = new PublicKey('EtgTTdct3r8kJgUmjiWWBrPHG9g5rBhUFouc9npvG6t9')
+let pda_fuel_mint_tokenAccount = new PublicKey('8LG7PKi9GyxM7Nm3EVaYDG18fBfwjo5boNtAF5ZiW7KL')
+let pda_food_mint_tokenAccount = new PublicKey('BeLzpdSP3bsuieattadMFseup9gkuNfNV1Grde134CFH')
+
+let polaris_exp_mint = new PublicKey('BT8FRmq3K58YTMDVGiu8gevdLQmnVrXNAprJYxwheXtw')
 
 
 class page extends Component {
 
   state={
-    provider:null,
-    foodMSRdisplay:0.000529,
-    fuelMSRdisplay:0.001299,
-    ammoMSRdisplay:0.001935,
-    toolsMSRdisplay:0.001566,
-    foodMSRPbuy:0.000529,
-    fuelMSRPbuy:0.001299,
-    ammoMSRPbuy:0.001935,
-    toolsMSRPbuy:0.001566,
-    foodMSRPsell:0.000529,
-    fuelMSRPsell:0.000529,
-    ammoMSRPsell:0.000529,
-    toolsMSRPsell:0.000529,
-    foodSupplyAmmount:10000,
-    fuelSupplyAmmount:8000,
-    ammoSupplyAmmount:6000,
-    toolsSupplyAmmount:3000,
-    foodAmmount:0,
-    fuelAmmount:0,
-    ammoAmmount:0,
-    toolsAmmount:0,
+    userPubKey:null,
+    foodMSRdisplay:"...",
+    fuelMSRdisplay:"...",
+    ammoMSRdisplay:"...",
+    toolsMSRdisplay:"...",
+    foodMSRP:"...",
+    fuelMSRP:"...",
+    ammoMSRP:"...",
+    toolsMSRP:"...",
+    foodSupplyAmountDisplay:"...",
+    fuelSupplyAmountDisplay:"...",
+    ammoSupplyAmountDisplay:"...",
+    toolsSupplyAmountDisplay:"...",
+    marketFoodSupplyAmount:"...",
+    marketFuelSupplyAmount:"...",
+    marketAmmoSupplyAmount:"...",
+    marketToolsSupplyAmount:"...",
+    userFoodSupplyAmount:"...",
+    userFuelSupplyAmount:"...",
+    userAmmoSupplyAmount:"...",
+    userToolsSupplyAmount:"...",
+    foodAmount:0,
+    fuelAmount:0,
+    ammoAmount:0,
+    toolsAmount:0,
     display:"customer",
     actionButton:"Buy",
     customerButtonColor:"#e36414",
@@ -52,7 +84,7 @@ class page extends Component {
     activeColor:"#e36414",
     inActiveColor:"#000814BF",
     marketFee:0.10,
-    ammountBoxText:"Buying Ammount",
+    amountBoxText:"Buying Amount",
     marketQtyBoxText:"Mrkt QTY",
 
   }
@@ -60,8 +92,6 @@ class page extends Component {
   async getProvider(){
     if ('phantom' in window) {
       const provider = window.phantom?.solana;
-
-      console.log(provider)
   
       if (provider?.isPhantom) {
         return provider;
@@ -71,30 +101,147 @@ class page extends Component {
     window.open('https://phantom.app/', '_blank');
   };
 
-  async componentDidMount(){
+
+
+  async getAndDecodeMarketplaceAccountData(connection, pubKey) {
+    // Fetch the raw account data
+    let accountInfo = await connection.getAccountInfo(pubKey);
+    if (accountInfo === null) {
+        throw 'Invalid public key or the account does not exist.';
+    }
+    
+    // Decode the account data
+    let decodedData = MarketPlaceDataLayout.decode(accountInfo.data);
+  
+    // Convert 'admin_pubkey' from Buffer to a Solana public key object
+    decodedData.admin_pubkey = new PublicKey(decodedData.admin_pubkey);
+    
+    return decodedData;
+  }
+
+  async getBalance(connection, pubKey) {
+    let accountInfo = await connection.getParsedAccountInfo(pubKey);
+    if (accountInfo.value === null) {
+        throw 'Invalid public key or the account does not exist.';
+    }
+    let tokenAccountInfo = accountInfo.value.data.parsed.info;
+    let balance = tokenAccountInfo.tokenAmount.uiAmount;
+    return balance;
+  }
+
+  async checkAccountForMint(ownerPubkeyStringbase58) {
+    console.log("fetching accounts")
+    const MY_WALLET_ADDRESS = ownerPubkeyStringbase58;
+  
+    const accounts = await connection.getParsedProgramAccounts(
+      TOKEN_PROGRAM_ID, // new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
+      {
+        filters: [
+          {
+            dataSize: 165, // number of bytes
+          },
+          {
+            memcmp: {
+              offset: 32, // number of bytes
+              bytes: MY_WALLET_ADDRESS, // base58 encoded string
+            },
+          },
+        ],
+      }
+    );
+  
+    console.log(
+      `Found ${accounts.length} token account(s) for wallet ${MY_WALLET_ADDRESS}: `
+    );
+
+
+    console.log(accounts[1].account.data.parsed.info.mint)
+
+    return accounts
+
+    // Loop through each token account and check if it matches the mint address
+    for (const account of parsedTokenAccounts.value) {
+        const accountMintAddress = account.account.data.parsed.info.mint;
+        if (accountMintAddress === mintAddress.toString()) {
+            console.log(`Account ${account.pubkey.toBase58()} is associated with mint address ${mintAddress.toString()}`);
+            return true;
+        }
+    }
+
+    // If no matching account is found, return false
+    console.log(`No accounts found for owner ${ownerPubkeyString} associated with mint address ${mintAddressString}`);
+    return false;
+}
+
+
+walletConnected()
+{
+  console.log("wallet connected")
+}
+
+async componentDidMount(){
+
+  provider = await this.getProvider()
+    
+  console.log(provider)
+  try {
+    const resp = await provider.connect();
+    console.log(resp.publicKey.toString());
+    this.setState({userPubKey:resp.publicKey.toString()})
+    let parsedTokenAccounts = await this.checkAccountForMint(resp.publicKey.toString())
+    console.log(parsedTokenAccounts)
+  } catch (err) {
+      // { code: 4001, message: 'User rejected the request.' }
+  }
+
+
+  let market_config_data = await this.getAndDecodeMarketplaceAccountData(connection,marketConfigAccount)
+
+  let market_atlas =  await this.getBalance(connection,pda_star_atlas_account)
+  let market_food = await this.getBalance(connection,pda_food_mint_tokenAccount)
+  let market_fuel = await this.getBalance(connection,pda_fuel_mint_tokenAccount)
+  let market_ammo = await this.getBalance(connection,pda_ammo_mint_tokenAccount)
+  let market_tools = await this.getBalance(connection,pda_tools_mint_tokenAccount)
+
+  console.log()
+
+
+  this.setState({
+    foodSupplyAmountDisplay:market_food,
+    fuelSupplyAmountDisplay:market_fuel,
+    ammoSupplyAmountDisplay:market_ammo,
+    toolsSupplyAmountDisplay:market_tools,
+    marketFoodSupplyAmount:market_food,
+    marketFuelSupplyAmount:market_fuel,
+    marketAmmoSupplyAmount:market_ammo,
+    marketToolsSupplyAmount:market_tools,
+  })
+
+
+
+  console.log(market_config_data.admin_pubkey.toBase58())
+
+
 
     this.setState({
-      foodMSRPsell:this.state.foodMSRPbuy+this.state.foodMSRPbuy*this.state.marketFee,
-      fuelMSRPsell:this.state.fuelMSRPbuy+this.state.fuelMSRPbuy*this.state.marketFee,
-      ammoMSRPsell:this.state.ammoMSRPbuy+this.state.ammoMSRPbuy*this.state.marketFee,
-      toolsMSRPsell:this.state.toolsMSRPbuy+this.state.toolsMSRPbuy*this.state.marketFee
+      foodMSRP:market_config_data.food,
+      fuelMSRP:market_config_data.fuel,
+      ammoMSRP:market_config_data.ammo,
+      toolsMSRP:market_config_data.tools,
+      foodMSRdisplay:market_config_data.food,
+      fuelMSRdisplay:market_config_data.fuel,
+      ammoMSRdisplay:market_config_data.ammo,
+      toolsMSRdisplay:market_config_data.tools
+
     })
 
     console.log(window.location.pathname)
 
 
 
-    provider = await this.getProvider()
-    
-    // console.log(provider)
-    // try {
-    //   const resp = await provider.connect();
-    //   console.log(resp.publicKey.toString());
-    // } catch (err) {
-    //     // { code: 4001, message: 'User rejected the request.' }
-    // }
 
-    provider.on("connect", () => console.log("connected!"));
+
+    provider.on("connect", () => console.log("connected"));
 
     provider.on('accountChanged', (publicKey: { toBase58: () => any; }) => {
       if (publicKey) {
@@ -159,12 +306,12 @@ class page extends Component {
     this.setState({providerButtonColor:this.state.inActiveColor,
       customerButtonColor:this.state.activeColor,
       actionButton:"Buy",
-      ammountBoxText:"Buying Amount",
+      amountBoxText:"Buying Amount",
       marketQtyBoxText:"Mrkt QTY",
-      foodMSRdisplay:this.state.foodMSRPbuy,
-      fuelMSRdisplay:this.state.fuelMSRPbuy,
-      ammoMSRdisplay:this.state.ammoMSRPbuy,
-      toolsMSRdisplay:this.state.toolsMSRPbuy,
+      foodMSRdisplay:this.state.foodMSRP,
+      fuelMSRdisplay:this.state.fuelMSRP,
+      ammoMSRdisplay:this.state.ammoMSRP,
+      toolsMSRdisplay:this.state.toolsMSRP,
     })
 
   }
@@ -174,33 +321,33 @@ class page extends Component {
     this.setState({providerButtonColor:this.state.activeColor,
       customerButtonColor:this.state.inActiveColor,
       actionButton:"Sell",
-      ammountBoxText:"Selling Amount",
+      amountBoxText:"Selling Amount",
       marketQtyBoxText:"User QTY",
-      foodMSRdisplay:this.state.foodMSRPsell,
-      fuelMSRdisplay:this.state.fuelMSRPsell,
-      ammoMSRdisplay:this.state.ammoMSRPsell,
-      toolsMSRdisplay:this.state.toolsMSRPsell,
+      foodMSRdisplay:(this.state.foodMSRP + this.state.foodMSRP *this.state.marketFee).toFixed(6),
+      fuelMSRdisplay:(this.state.fuelMSRP + this.state.fuelMSRP *this.state.marketFee).toFixed(6),
+      ammoMSRdisplay:(this.state.ammoMSRP + this.state.ammoMSRP*this.state.marketFee).toFixed(6),
+      toolsMSRdisplay:(this.state.toolsMSRP + this.state.toolsMSRP*this.state.marketFee).toFixed(6),
     })
 
   }
 
-  changeAmmount(event)
+  changeAmount(event)
   {
     console.log(event.target.id)
     console.log(event.target.value)
 
     switch (event.target.id) {
       case "food":
-        this.setState({foodAmmount:event.target.value})
+        this.setState({foodAmount:event.target.value})
       break;
       case "fuel":
-        this.setState({fuelAmmount:event.target.value})
+        this.setState({fuelAmount:event.target.value})
       break;
       case "ammo":
-        this.setState({ammoAmmount:event.target.value})
+        this.setState({ammoAmount:event.target.value})
       break;
       case "tools":
-        this.setState({toolsAmmount:event.target.value})
+        this.setState({toolsAmount:event.target.value})
       break;
     
       default:
@@ -220,7 +367,7 @@ class page extends Component {
           </div>
 
           <div className="toggle" style={{ display: "flex", borderRadius: 20, overflow: 'hidden', marginTop: 65, border: '2px solid #E36414', background: '#E3641480'}}>
-            <button onClick={this.customerClick.bind(this)} style={{width:"170px",height:"60px",backgroundColor:this.state.customerButtonColor,color:"#f0f0f0", border: 'none', outline: 'none', fontSize: '17px', cursor: 'pointer'}}>Customers</button>
+            <button onClick={this.customerClick.bind(this)} style={{width:"170px",height:"60px",backgroundColor:this.state.customerButtonColor,color:"#f0f0f0", border: 'none', outline: 'none', fontSize: '17px', cursor: 'pointer'}}>Customer</button>
             <button onClick={this.providerClick.bind(this)} style={{width:"200px",height:"60px",backgroundColor:this.state.providerButtonColor,color:"#f0f0f0", border: 'none', outline: 'none', fontSize: '17px', cursor: 'pointer'}}>Polaris Provider</button>
           </div>
 
@@ -245,10 +392,10 @@ class page extends Component {
             <div style={{ display: 'flex', flexDirection: 'column', padding: 25, paddingLeft: 50, paddingRight: 50, borderRight: '1px solid #6C757D' }}>
               <h2 style={{ color: '#f0f0f0', fontWeight: 600 }}>{this.state.marketQtyBoxText}</h2>
               <div className="content">
-                <h3 style={{ color: '#f0f0f0', fontWeight: 300, marginBottom: 35}}>{this.state.foodSupplyAmmount}</h3>
-                <h3 style={{ color: '#f0f0f0', fontWeight: 300, marginBottom: 35}}>{this.state.fuelSupplyAmmount}</h3>
-                <h3 style={{ color: '#f0f0f0', fontWeight: 300, marginBottom: 35}}>{this.state.ammoSupplyAmmount}</h3>
-                <h3 style={{ color: '#f0f0f0', fontWeight: 300, marginBottom: 35}}>{this.state.toolsSupplyAmmount}</h3>
+                <h3 style={{ color: '#f0f0f0', fontWeight: 300, marginBottom: 35}}>{this.state.foodSupplyAmountDisplay}</h3>
+                <h3 style={{ color: '#f0f0f0', fontWeight: 300, marginBottom: 35}}>{this.state.fuelSupplyAmountDisplay}</h3>
+                <h3 style={{ color: '#f0f0f0', fontWeight: 300, marginBottom: 35}}>{this.state.ammoSupplyAmountDisplay}</h3>
+                <h3 style={{ color: '#f0f0f0', fontWeight: 300, marginBottom: 35}}>{this.state.toolsSupplyAmountDisplay}</h3>
               </div>
             </div>
 
@@ -263,30 +410,30 @@ class page extends Component {
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', padding: 25, paddingLeft: 50, paddingRight: 50, borderRight: '1px solid #6C757D' }}>
-              <h2 style={{ color: '#f0f0f0', fontWeight: 600 }}>{this.state.ammountBoxText}</h2>
+              <h2 style={{ color: '#f0f0f0', fontWeight: 600 }}>{this.state.amountBoxText}</h2>
               <div className="content" style={{ marginTop: '13px' }}>
                 <div className="buyingAmount">
-                  <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='food' onChange={this.changeAmmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
+                  <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='food' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
                   <button style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{(this.state.foodMSRdisplay*this.state.foodAmmount).toFixed(6)} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <span style={{color: '#E36414', fontSize: 18}}>{(this.state.foodMSRdisplay*this.state.foodAmount).toFixed(6)} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
                 
                 <div style={{marginTop: 12}} className="buyingAmount">
-                  <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='fuel' onChange={this.changeAmmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
+                  <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='fuel' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
                   <button style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{(this.state.fuelMSRdisplay*this.state.fuelAmmount).toFixed(6)} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <span style={{color: '#E36414', fontSize: 18}}>{(this.state.fuelMSRdisplay*this.state.fuelAmount).toFixed(6)} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
                 
                 <div style={{marginTop: 12}} className="buyingAmount">
-                  <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='ammo' onChange={this.changeAmmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
+                  <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='ammo' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
                   <button style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{(this.state.ammoMSRdisplay*this.state.ammoAmmount).toFixed(6)} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <span style={{color: '#E36414', fontSize: 18}}>{(this.state.ammoMSRdisplay*this.state.ammoAmount).toFixed(6)} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
                 
                 <div style={{marginTop: 12}} className="buyingAmount">
-                  <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='tools' onChange={this.changeAmmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
+                  <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='tools' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
                   <button style={{ fontSize: 12, position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{(this.state.toolsMSRdisplay*this.state.toolsAmmount).toFixed(6)} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <span style={{color: '#E36414', fontSize: 18}}>{(this.state.toolsMSRdisplay*this.state.toolsAmount).toFixed(6)} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
               </div>
             </div>
