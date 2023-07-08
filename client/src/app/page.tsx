@@ -9,6 +9,7 @@ import {
   SystemProgram,
   LAMPORTS_PER_SOL,
   Transaction,
+  TransactionInstruction,
   sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import { relative } from 'path';
@@ -35,9 +36,14 @@ let provider: {
     BufferLayout.seq(BufferLayout.u8(), 32, 'admin_pubkey'),
   ]);
 
+//generate pda
+let str = 'POLARIS-VAULT';
+let seeds = Buffer.from(str, 'utf-8');  // or 'ascii', 'base64', etc. depending on your needs
+
 
 //update to mainnet
 let connection = new Connection(clusterApiUrl('devnet'));
+let programId = new PublicKey('ESL7g6h1tZrehkAVXPYmowa43JxurCmJ81A9eFCwZxy9');
 let marketConfigAccount = new PublicKey("DpTW34MTR79ckQHkygyvgDvEMrbdSm5oo83Hdgn9nzGK");
 
 let pda_star_atlas_account = new PublicKey('GJNKMrcsH5m7vem9WSxs7SEpMrHeihNqtQg6CzCFuhPY')
@@ -46,6 +52,11 @@ let pda_ammo_mint_tokenAccount = new PublicKey('EtgTTdct3r8kJgUmjiWWBrPHG9g5rBhU
 let pda_fuel_mint_tokenAccount = new PublicKey('8LG7PKi9GyxM7Nm3EVaYDG18fBfwjo5boNtAF5ZiW7KL')
 let pda_food_mint_tokenAccount = new PublicKey('BeLzpdSP3bsuieattadMFseup9gkuNfNV1Grde134CFH')
 
+let star_atlas_mint = new PublicKey('GpVqpNdUG8hJvyiNaDFnTnuiQV6EGFueduTBXAiPabWj')
+let tools_mint = new PublicKey('3y3D6wHa1dfz8VNVcnejLaLL8Ld41shTaAsjKMBgdzBr')
+let ammo_mint = new PublicKey('9TrKEhszrsMKYHRBuiXxefcQ4Z1WcAjhdGDBqjw7yrY9')
+let fuel_mint = new PublicKey('9htVnjLQByoQnucf5Bf2C7eDkhDax7rdU3FTo1KX3ewo')
+let food_mint = new PublicKey('C769DzsozfZ3SmA8PcScM4hEvkyXiFdhKfKfMiyRVjWG')
 let polaris_exp_mint = new PublicKey('BT8FRmq3K58YTMDVGiu8gevdLQmnVrXNAprJYxwheXtw')
 
 
@@ -69,10 +80,18 @@ class page extends Component {
     marketFuelSupplyAmount:"...",
     marketAmmoSupplyAmount:"...",
     marketToolsSupplyAmount:"...",
+    user_star_atlas_account :null,
+    user_tools_account :null,
+    user_ammo_account :null,
+    user_fuel_account :null,
+    user_food_account :null,
+    user_polaris_exp_account:null,
+    userStarAtlasSupplyAmount:"...",
     userFoodSupplyAmount:"...",
     userFuelSupplyAmount:"...",
     userAmmoSupplyAmount:"...",
     userToolsSupplyAmount:"...",
+    userPolarisExpSupplyAmount:null,
     foodAmount:0,
     fuelAmount:0,
     ammoAmount:0,
@@ -129,7 +148,7 @@ class page extends Component {
     return balance;
   }
 
-  async checkAccountForMint(ownerPubkeyStringbase58) {
+  async checkAccountForMint(ownerPubkeyStringbase58,mintsObj) {
     console.log("fetching accounts")
     const MY_WALLET_ADDRESS = ownerPubkeyStringbase58;
   
@@ -155,28 +174,44 @@ class page extends Component {
     );
 
 
-    console.log(accounts[1].account.data.parsed.info.mint)
+    // Prepare an object to store the results
+    let results = Object.keys(mintsObj).reduce((acc, key) => ({ ...acc, [key]: 'null' }), {});
 
-    return accounts
+    // Array of mints values for checking
+    const mintsValues = Object.values(mintsObj);
 
-    // Loop through each token account and check if it matches the mint address
-    for (const account of parsedTokenAccounts.value) {
-        const accountMintAddress = account.account.data.parsed.info.mint;
-        if (accountMintAddress === mintAddress.toString()) {
-            console.log(`Account ${account.pubkey.toBase58()} is associated with mint address ${mintAddress.toString()}`);
-            return true;
+    // Check each account
+    accounts.forEach(account => {
+        let accountMint = account.account.data.parsed.info.mint;
+        
+        // If the account's mint is in the mints array, mark it as 'found'
+        if (mintsValues.includes(accountMint)) {
+            // Find the key corresponding to this mint value
+            const correspondingKey = Object.keys(mintsObj).find(key => mintsObj[key] === accountMint);
+            results[correspondingKey] = account;
         }
-    }
-
-    // If no matching account is found, return false
-    console.log(`No accounts found for owner ${ownerPubkeyString} associated with mint address ${mintAddressString}`);
-    return false;
+    });
+    
+    return results;
 }
 
 
-walletConnected()
-{
-  console.log("wallet connected")
+
+
+formatNumber(num) {
+  if (num < 1000) {
+      // return the same number to 1 decimal place
+      return num;
+  } else if (num < 1000000) {
+      // convert to K and fix to 1 decimal
+      return (num / 1000).toFixed(1) + 'K';
+  } else if (num < 1000000000) {
+      // convert to M and fix to 1 decimal
+      return (num / 1000000).toFixed(1) + 'M';
+  } else {
+      // convert to B and fix to 1 decimal
+      return (num / 1000000000).toFixed(1) + 'B';
+  }
 }
 
 async componentDidMount(){
@@ -188,8 +223,77 @@ async componentDidMount(){
     const resp = await provider.connect();
     console.log(resp.publicKey.toString());
     this.setState({userPubKey:resp.publicKey.toString()})
-    let parsedTokenAccounts = await this.checkAccountForMint(resp.publicKey.toString())
-    console.log(parsedTokenAccounts)
+    let walletButton = document.getElementById("WalletButton");
+    walletButton.innerHTML = resp.publicKey.toString().slice(0,3) + "..." + resp.publicKey.toString().slice(-3) 
+
+
+
+
+    let retrievedObject = localStorage.getItem(resp.publicKey.toString());
+
+    if (retrievedObject === null) {
+        console.log("No object with this key exists in Local Storage.");
+        let mintFilter =  {
+          "user_star_atlas_account": star_atlas_mint.toBase58(),
+          "user_tools_account": tools_mint.toBase58(),
+          "user_ammo_account": ammo_mint.toBase58(),
+          "user_fuel_account": fuel_mint.toBase58(),
+          "user_food_account": food_mint.toBase58(),
+          "user_polaris_exp_account": polaris_exp_mint.toBase58()
+        }
+    
+        let parsedTokenAccounts = await this.checkAccountForMint(resp.publicKey.toString(),mintFilter )
+
+      
+        console.log(parsedTokenAccounts)
+
+        localStorage.setItem(resp.publicKey.toString(), JSON.stringify(parsedTokenAccounts));
+
+    
+        console.log(this.formatNumber(parsedTokenAccounts.user_star_atlas_account.account.data.parsed.info.tokenAmount.amount))
+        console.log(this.formatNumber(parsedTokenAccounts.user_tools_account.account.data.parsed.info.tokenAmount.amount))
+        console.log(this.formatNumber(parsedTokenAccounts.user_ammo_account.account.data.parsed.info.tokenAmount.amount))
+        console.log(this.formatNumber(parsedTokenAccounts.user_fuel_account.account.data.parsed.info.tokenAmount.amount))
+        console.log(this.formatNumber(parsedTokenAccounts.user_food_account.account.data.parsed.info.tokenAmount.amount))
+        console.log(this.formatNumber(parsedTokenAccounts.user_polaris_exp_account.account.data.parsed.info.tokenAmount.amount))
+    
+    
+        this.setState({
+          user_star_atlas_account :parsedTokenAccounts.user_star_atlas_account.pubkey,
+          user_tools_account :parsedTokenAccounts.user_tools_account.pubkey,
+          user_ammo_account :parsedTokenAccounts.user_ammo_account.pubkey,
+          user_fuel_account :parsedTokenAccounts.user_fuel_account.pubkey,
+          user_food_account :parsedTokenAccounts.user_food_account.pubkey,
+          user_polaris_exp_account :parsedTokenAccounts.user_polaris_exp_account.pubkey,
+          userStarAtlasSupplyAmount: parsedTokenAccounts.user_star_atlas_account.account.data.parsed.info.tokenAmount.amount,
+          userToolsSupplyAmount:parsedTokenAccounts.user_tools_account.account.data.parsed.info.tokenAmount.amount,
+          userAmmoSupplyAmount:parsedTokenAccounts.user_ammo_account.account.data.parsed.info.tokenAmount.amount,
+          userFuelSupplyAmount: parsedTokenAccounts.user_fuel_account.account.data.parsed.info.tokenAmount.amount,
+          userFoodSupplyAmount: parsedTokenAccounts.user_food_account.account.data.parsed.info.tokenAmount.amount,
+          userPolarisExpSupplyAmount: parsedTokenAccounts.user_polaris_exp_account.account.data.parsed.info.tokenAmount.amount,
+    
+        })
+    } else {
+        console.log("returning user")
+        let parsedTokenAccounts = JSON.parse(retrievedObject);
+        console.log(parsedTokenAccounts);
+        this.setState({
+          user_star_atlas_account :parsedTokenAccounts.user_star_atlas_account.pubkey,
+          user_tools_account :parsedTokenAccounts.user_tools_account.pubkey,
+          user_ammo_account :parsedTokenAccounts.user_ammo_account.pubkey,
+          user_fuel_account :parsedTokenAccounts.user_fuel_account.pubkey,
+          user_food_account :parsedTokenAccounts.user_food_account.pubkey,
+          user_polaris_exp_account :parsedTokenAccounts.user_polaris_exp_account.pubkey,
+          userStarAtlasSupplyAmount: parsedTokenAccounts.user_star_atlas_account.account.data.parsed.info.tokenAmount.amount,
+          userToolsSupplyAmount:parsedTokenAccounts.user_tools_account.account.data.parsed.info.tokenAmount.amount,
+          userAmmoSupplyAmount:parsedTokenAccounts.user_ammo_account.account.data.parsed.info.tokenAmount.amount,
+          userFuelSupplyAmount: parsedTokenAccounts.user_fuel_account.account.data.parsed.info.tokenAmount.amount,
+          userFoodSupplyAmount: parsedTokenAccounts.user_food_account.account.data.parsed.info.tokenAmount.amount,
+          userPolarisExpSupplyAmount: parsedTokenAccounts.user_polaris_exp_account.account.data.parsed.info.tokenAmount.amount,
+        })
+    }
+
+
   } catch (err) {
       // { code: 4001, message: 'User rejected the request.' }
   }
@@ -203,14 +307,12 @@ async componentDidMount(){
   let market_ammo = await this.getBalance(connection,pda_ammo_mint_tokenAccount)
   let market_tools = await this.getBalance(connection,pda_tools_mint_tokenAccount)
 
-  console.log()
-
 
   this.setState({
-    foodSupplyAmountDisplay:market_food,
-    fuelSupplyAmountDisplay:market_fuel,
-    ammoSupplyAmountDisplay:market_ammo,
-    toolsSupplyAmountDisplay:market_tools,
+    foodSupplyAmountDisplay:this.formatNumber(market_food),
+    fuelSupplyAmountDisplay:this.formatNumber(market_fuel),
+    ammoSupplyAmountDisplay:this.formatNumber(market_ammo),
+    toolsSupplyAmountDisplay:this.formatNumber(market_tools),
     marketFoodSupplyAmount:market_food,
     marketFuelSupplyAmount:market_fuel,
     marketAmmoSupplyAmount:market_ammo,
@@ -219,7 +321,7 @@ async componentDidMount(){
 
 
 
-  console.log(market_config_data.admin_pubkey.toBase58())
+  console.log("Market Admin: " +market_config_data.admin_pubkey.toBase58())
 
 
 
@@ -236,9 +338,6 @@ async componentDidMount(){
     })
 
     console.log(window.location.pathname)
-
-
-
 
 
     provider.on("connect", () => console.log("connected"));
@@ -284,8 +383,148 @@ async componentDidMount(){
   
   }
 
+
+  async create_polaris_buy_instruction(resource_type,buy_ammount)
+  { 
+  
+    
+    let [pdaPublicKey, _nonce] = await PublicKey.findProgramAddress([seeds], programId);
+    console.log("pda: "+pdaPublicKey.toBase58())
+  
+    var iX = 0;
+    var iXBuffer = Buffer.alloc(1);
+    iXBuffer.writeUint8(iX);
+  
+    var nonceBuffer = Buffer.alloc(1);
+    nonceBuffer.writeUint8(_nonce);
+
+  
+    var buy_ammountBuffer = Buffer.alloc(8);
+    buy_ammountBuffer.write(buy_ammount);
+
+  
+    var dataBuffer = Buffer.concat([iXBuffer, seeds, nonceBuffer,buy_ammountBuffer]);
+
+  
+    let resourceMints = [food_mint,fuel_mint,ammo_mint,tools_mint]
+    let userResourceAccounts=[this.state.user_food_account,this.state.user_fuel_account,this.state.user_ammo_account,this.state.user_tools_account]
+    let pdaResourceAccounts=[pda_food_mint_tokenAccount,pda_fuel_mint_tokenAccount,pda_ammo_mint_tokenAccount,pda_tools_mint_tokenAccount]
+
+  
+    if(resource_type>-1 && resource_type<4)
+    {
+  
+    }else{
+      console.log("Invalid Buy Operation")
+      return 0
+    }
+  
+    // Create the instruction to send data
+    let instructionData2 = {
+      keys: [
+        { pubkey: new PublicKey(this.state.userPubKey), isSigner: true, isWritable: false }, //user + feePayer
+        { pubkey: pdaPublicKey, isSigner: false, isWritable: false }, //pda
+  
+        { pubkey: star_atlas_mint, isSigner: false, isWritable: false }, // star atlas mint
+        { pubkey: new PublicKey(this.state.user_star_atlas_account), isSigner: false, isWritable: true }, //user star atlas account
+        { pubkey: pda_star_atlas_account, isSigner: false, isWritable: true }, //pda star atlas account 
+  
+        { pubkey: resourceMints[resource_type], isSigner: false, isWritable: false }, // resource mint
+        { pubkey: new PublicKey(userResourceAccounts[resource_type]), isSigner: false, isWritable: true }, //user resource account
+        { pubkey: pdaResourceAccounts[resource_type], isSigner: false, isWritable: true }, //pda resource account
+  
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }, //systemProgram
+        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, //token program
+  
+  
+        { pubkey: polaris_exp_mint, isSigner: false, isWritable: true }, //reward mint
+        { pubkey: new PublicKey(this.state.user_polaris_exp_account), isSigner: false, isWritable: true }, //reward account of the user
+        { pubkey: marketConfigAccount, isSigner: false, isWritable: true }, //marketplace account
+      ],
+      programId,
+      data: dataBuffer,
+    };
+  
+    let polaris_buy_instruction = new TransactionInstruction(instructionData2);
+  
+    return polaris_buy_instruction
+  
+  
+  }
+  
+
+
+
   async callProgram()
   {
+
+
+    var walletButton = document.getElementById("WalletButton");
+    try {
+
+        if(walletButton.innerHTML.length==9)
+        {
+   
+        }else
+        {
+          alert("Please Connect Wallet")
+          return 0
+
+        }
+
+    } catch (err) {
+        // { code: 4001, message: 'User rejected the request.' }
+    }
+
+
+    // Create a transaction
+    const transaction = new Transaction();
+    transaction.feePayer =new PublicKey(this.state.userPubKey);
+
+
+
+
+
+    if(this.state.actionButton=="Buy")
+    {
+
+      console.log("buying resources")
+
+      let buyOrder = [
+        this.state.foodAmount,
+        this.state.fuelAmount,
+        this.state.ammoAmount,
+        this.state.toolsAmount
+      ]
+
+      console.log(buyOrder)
+
+      for (let index = 0; index < buyOrder.length; index++) {
+        var element = buyOrder[index];
+     
+          if(element>0)
+          {
+            console.log(index)
+            console.log("creating buy order")
+            let ix = await this.create_polaris_buy_instruction(index,element)
+            transaction.add(ix)
+          }
+       
+      }
+
+
+    }else{
+      //max user
+      alert("selling resources")
+
+
+    }
+
+    console.log(transaction.instructions.length)
+
+    return 0
+
+
     console.log("Calling Program")
     const resp = await provider.connect();
     console.log(resp.publicKey.toString()); 
@@ -293,9 +532,7 @@ async componentDidMount(){
 
     console.log(blockhash)
 
-    // Create a transaction
-    const transaction = new Transaction();
-    transaction.feePayer =new PublicKey(resp.publicKey.toString());
+
     transaction.recentBlockhash =blockhash;
     const { signature } = await provider.signAndSendTransaction(transaction);
     console.log(signature)
@@ -312,7 +549,19 @@ async componentDidMount(){
       fuelMSRdisplay:this.state.fuelMSRP,
       ammoMSRdisplay:this.state.ammoMSRP,
       toolsMSRdisplay:this.state.toolsMSRP,
+      foodSupplyAmountDisplay:this.formatNumber(this.state.marketFoodSupplyAmount),
+      fuelSupplyAmountDisplay:this.formatNumber(this.state.marketFuelSupplyAmount),
+      ammoSupplyAmountDisplay:this.formatNumber(this.state.marketAmmoSupplyAmount),
+      toolsSupplyAmountDisplay:this.formatNumber(this.state.marketToolsSupplyAmount),
     })
+    document.getElementById("food").value = null
+    document.getElementById("fuel").value = null
+    document.getElementById("ammo").value = null
+    document.getElementById("tools").value = null
+    this.setState({foodAmount:0})
+    this.setState({fuelAmount:0})
+    this.setState({ammoAmount:0})
+    this.setState({toolsAmount:0})
 
   }
 
@@ -327,7 +576,21 @@ async componentDidMount(){
       fuelMSRdisplay:(this.state.fuelMSRP + this.state.fuelMSRP *this.state.marketFee).toFixed(6),
       ammoMSRdisplay:(this.state.ammoMSRP + this.state.ammoMSRP*this.state.marketFee).toFixed(6),
       toolsMSRdisplay:(this.state.toolsMSRP + this.state.toolsMSRP*this.state.marketFee).toFixed(6),
+      foodSupplyAmountDisplay:this.formatNumber(this.state.userFoodSupplyAmount),
+      fuelSupplyAmountDisplay:this.formatNumber(this.state.userFuelSupplyAmount),
+      ammoSupplyAmountDisplay:this.formatNumber(this.state.userAmmoSupplyAmount),
+      toolsSupplyAmountDisplay:this.formatNumber(this.state.userToolsSupplyAmount)
     })
+    document.getElementById("food").value = null
+    document.getElementById("fuel").value = null
+    document.getElementById("ammo").value = null
+    document.getElementById("tools").value = null
+
+    this.setState({foodAmount:0})
+    this.setState({fuelAmount:0})
+    this.setState({ammoAmount:0})
+    this.setState({toolsAmount:0})
+
 
   }
 
@@ -353,6 +616,95 @@ async componentDidMount(){
       default:
         break;
     }
+  }
+
+  foodMaxClicked()
+  {
+    let foodInput = document.getElementById("food");
+
+
+    if(this.state.actionButton=="Buy")
+    {
+     //max market
+     foodInput.value = this.state.marketFoodSupplyAmount
+     this.setState({foodAmount:this.state.marketFoodSupplyAmount})
+
+
+    }else{
+      //max user
+      foodInput.value = this.state.userFoodSupplyAmount
+      this.setState({foodAmount:this.state.userFoodSupplyAmount})
+
+
+    }
+
+
+  }
+
+  fuelMaxClicked()
+  {
+    let fuelInput = document.getElementById("fuel");
+
+
+    if(this.state.actionButton=="Buy")
+    {
+     //max market
+     fuelInput.value = this.state.marketFuelSupplyAmount
+     this.setState({fuelAmount:this.state.marketFuelSupplyAmount})
+
+
+    }else{
+      //max user
+      fuelInput.value = this.state.userFuelSupplyAmount
+      this.setState({fuelAmount:this.state.userFuelSupplyAmount})
+
+
+    }
+    
+  }
+
+  ammoMaxClicked()
+  {
+    let ammoInput = document.getElementById("ammo");
+
+
+    if(this.state.actionButton=="Buy")
+    {
+     //max market
+     ammoInput.value = this.state.marketAmmoSupplyAmount
+     this.setState({ammoAmount: this.state.marketAmmoSupplyAmount})
+
+
+    }else{
+      //max user
+      ammoInput.value = this.state.userAmmoSupplyAmount
+      this.setState({ammoAmount:this.state.userAmmoSupplyAmount})
+
+
+    }
+    
+  }
+
+  toolsMaxClicked()
+  {
+    let toolsInput = document.getElementById("tools");
+
+
+    if(this.state.actionButton=="Buy")
+    {
+     //max market
+     toolsInput.value = this.state.marketToolsSupplyAmount
+     this.setState({toolsAmount:this.state.marketToolsSupplyAmount})
+
+
+    }else{
+      //max user
+      toolsInput.value = this.state.userToolsSupplyAmount
+      this.setState({toolsAmount: this.state.userToolsSupplyAmount})
+
+
+    }
+    
   }
 
 
@@ -414,26 +766,26 @@ async componentDidMount(){
               <div className="content" style={{ marginTop: '13px' }}>
                 <div className="buyingAmount">
                   <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='food' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
-                  <button style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{(this.state.foodMSRdisplay*this.state.foodAmount).toFixed(6)} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <button onClick={this.foodMaxClicked.bind(this)} style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
+                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((this.state.foodMSRdisplay*this.state.foodAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
                 
                 <div style={{marginTop: 12}} className="buyingAmount">
                   <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='fuel' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
-                  <button style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{(this.state.fuelMSRdisplay*this.state.fuelAmount).toFixed(6)} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <button onClick={this.fuelMaxClicked.bind(this)} style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
+                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((this.state.fuelMSRdisplay*this.state.fuelAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
                 
                 <div style={{marginTop: 12}} className="buyingAmount">
                   <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='ammo' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
-                  <button style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{(this.state.ammoMSRdisplay*this.state.ammoAmount).toFixed(6)} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <button onClick={this.ammoMaxClicked.bind(this)} style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
+                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((this.state.ammoMSRdisplay*this.state.ammoAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
                 
                 <div style={{marginTop: 12}} className="buyingAmount">
                   <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='tools' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
-                  <button style={{ fontSize: 12, position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{(this.state.toolsMSRdisplay*this.state.toolsAmount).toFixed(6)} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <button onClick={this.toolsMaxClicked.bind(this)} style={{ fontSize: 12, position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontWeight: 200}}>Max</button>
+                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((this.state.toolsMSRdisplay*this.state.toolsAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
               </div>
             </div>
@@ -444,7 +796,7 @@ async componentDidMount(){
 
       
       {/* Action Button Starts HERE */}
-        <button style={{marginTop:"50px", width:"200px", marginLeft: "auto", marginRight: "auto", display: "block", height:50, fontSize: 18, color: '#E36414', background: 'none', border: '1px solid #E36414', borderRadius: 10, outline: 'none', cursor: 'pointer'}} id="Send" onClick={this.callProgram}>{this.state.actionButton}</button>
+        <button style={{marginTop:"50px", width:"200px", marginLeft: "auto", marginRight: "auto", display: "block", height:50, fontSize: 18, color: '#E36414', background: 'none', border: '1px solid #E36414', borderRadius: 10, outline: 'none', cursor: 'pointer'}} id="Send" onClick={this.callProgram.bind(this)}>{this.state.actionButton}</button>
       {/* Action Button ends HERE */}
 
 
@@ -458,7 +810,7 @@ async componentDidMount(){
           
           <div className="currentPxp" style={{display: 'flex', marginRight: 75}}>
             <h3 style={{color: '#f0f0f0'}}>Current PXP: </h3>
-            <h3 className="pxp" style={{ color: '#E36414', marginLeft: '0.5rem' }}>126,000</h3>
+            <h3 className="pxp" style={{ color: '#E36414', marginLeft: '0.5rem' }}>{this.formatNumber(this.state.userPolarisExpSupplyAmount)}</h3>
           </div>
         </div>
       {/* FOOTER ENDS HERE */}
