@@ -59,6 +59,13 @@ let fuel_mint = new PublicKey('9htVnjLQByoQnucf5Bf2C7eDkhDax7rdU3FTo1KX3ewo')
 let food_mint = new PublicKey('C769DzsozfZ3SmA8PcScM4hEvkyXiFdhKfKfMiyRVjWG')
 let polaris_exp_mint = new PublicKey('BT8FRmq3K58YTMDVGiu8gevdLQmnVrXNAprJYxwheXtw')
 
+//destination wallet when resources are sold
+//PLRSGTRwq2rz8S62JFWbtFEixvetZ4v58KQWi21kLxg
+let polaris_tools_account = new PublicKey('51CQRTPagzt8MX6KBAoAyTfDqM9n4NvepjC4fuZ5fgqu')
+let polaris_ammo_account = new PublicKey('HhZpu7GvaAcU752HeYCApTvjLd9yY66hyRqvbfFxCXd4')
+let polaris_fuel_account = new PublicKey('Gdghebj3V9deG9FuNfS43kDmzTsL5keHYXeCeReaH1bX')
+let polaris_food_account = new PublicKey('9RQnXdVethx19HF9eaT688Sux5t6WcQcycLCJgKJGDru')
+
 
 class page extends Component {
 
@@ -400,7 +407,7 @@ async componentDidMount(){
 
   
     var buy_ammountBuffer = Buffer.alloc(8);
-    buy_ammountBuffer.write(buy_ammount);
+    buy_ammountBuffer.writeUint8(buy_ammount);
 
   
     var dataBuffer = Buffer.concat([iXBuffer, seeds, nonceBuffer,buy_ammountBuffer]);
@@ -432,6 +439,8 @@ async componentDidMount(){
         { pubkey: resourceMints[resource_type], isSigner: false, isWritable: false }, // resource mint
         { pubkey: new PublicKey(userResourceAccounts[resource_type]), isSigner: false, isWritable: true }, //user resource account
         { pubkey: pdaResourceAccounts[resource_type], isSigner: false, isWritable: true }, //pda resource account
+        { pubkey: new PublicKey("5RWZnLxovGyWsn3KuWbcBnBNpbJ8FH8eLvxztZaZmWzh"), isSigner: false, isWritable: true }, //fee account
+
   
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }, //systemProgram
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, //token program
@@ -446,6 +455,8 @@ async componentDidMount(){
     };
   
     let polaris_buy_instruction = new TransactionInstruction(instructionData2);
+
+    console.log("PDA resource account: "+pdaResourceAccounts[resource_type])
   
     return polaris_buy_instruction
   
@@ -453,7 +464,76 @@ async componentDidMount(){
   }
   
 
+  async create_polaris_sell_instruction(resource_type,sell_ammount)
+  { 
+  
+    let [pdaPublicKey, _nonce] = await PublicKey.findProgramAddress([seeds], programId);
+    console.log("pda: "+pdaPublicKey.toBase58())
+  
+  
+    var iX = 3;
+    var iXBuffer = Buffer.alloc(1);
+    iXBuffer.writeUint8(iX);
+  
+    var nonceBuffer = Buffer.alloc(1);
+    nonceBuffer.writeUint8(_nonce);
+    var dataBuffer = Buffer.concat([iXBuffer, seeds, nonceBuffer]);
+  
 
+    var sell_ammountBuffer = Buffer.alloc(8);
+    sell_ammountBuffer.writeUint8(sell_ammount);
+  
+    var dataBuffer = Buffer.concat([iXBuffer, seeds, nonceBuffer,sell_ammountBuffer]);
+  
+  
+    let resourceMints = [food_mint,fuel_mint,ammo_mint,tools_mint]
+    let userResourceAccounts=[this.state.user_food_account,this.state.user_fuel_account,this.state.user_ammo_account,this.state.user_tools_account]
+    let pdaResourceAccounts=[polaris_food_account,polaris_fuel_account,polaris_ammo_account,polaris_tools_account]
+
+  
+  
+    if(resource_type>-1 && resource_type<4)
+    {
+  
+    }else{
+      console.log("Invalid Sell Operation")
+      return 0
+    }
+  
+    // Create the instruction to send data
+    let instructionData2 = {
+      keys: [
+        { pubkey: new PublicKey(this.state.userPubKey), isSigner: true, isWritable: false }, //user + feePayer
+        { pubkey: pdaPublicKey, isSigner: false, isWritable: false }, //pda
+  
+        { pubkey: star_atlas_mint, isSigner: false, isWritable: false }, // star atlas mint
+        { pubkey: new PublicKey(this.state.user_star_atlas_account), isSigner: false, isWritable: true }, //user star atlas account
+        { pubkey: pda_star_atlas_account, isSigner: false, isWritable: true }, //pda star atlas account 
+  
+        { pubkey: resourceMints[resource_type], isSigner: false, isWritable: false }, // resource mint
+        { pubkey: new PublicKey(userResourceAccounts[resource_type]), isSigner: false, isWritable: true }, //user resource account
+        { pubkey: pdaResourceAccounts[resource_type], isSigner: false, isWritable: true }, //pda resource account -> 6/27 asked to move to polaris account instead
+  
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }, //systemProgram
+        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, //token program
+  
+  
+        { pubkey: polaris_exp_mint, isSigner: false, isWritable: true }, //reward mint
+        { pubkey: new PublicKey(this.state.user_polaris_exp_account), isSigner: false, isWritable: true }, //reward account of the user
+        { pubkey: marketConfigAccount, isSigner: false, isWritable: true }, //marketplace account
+      ],
+      programId,
+      data: dataBuffer,
+    };
+  
+    let sendDataIx2 = new TransactionInstruction(instructionData2);
+  
+    return sendDataIx2
+  
+  
+  }
+  
+  
 
   async callProgram()
   {
@@ -483,19 +563,18 @@ async componentDidMount(){
 
 
 
-
+    let buyOrder = [
+      this.state.foodAmount,
+      this.state.fuelAmount,
+      this.state.ammoAmount,
+      this.state.toolsAmount
+    ]
 
     if(this.state.actionButton=="Buy")
     {
 
       console.log("buying resources")
 
-      let buyOrder = [
-        this.state.foodAmount,
-        this.state.fuelAmount,
-        this.state.ammoAmount,
-        this.state.toolsAmount
-      ]
 
       console.log(buyOrder)
 
@@ -515,26 +594,40 @@ async componentDidMount(){
 
     }else{
       //max user
-      alert("selling resources")
+      console.log("selling resources")
+
+      
+      console.log(buyOrder)
+
+      for (let index = 0; index < buyOrder.length; index++) {
+        var element = buyOrder[index];
+     
+          if(element>0)
+          {
+            console.log(index)
+            console.log("creating buy order")
+            let ix = await this.create_polaris_sell_instruction(index,element)
+            transaction.add(ix)
+          }
+       
+      }
+
 
 
     }
 
     console.log(transaction.instructions.length)
 
-    return 0
 
-
-    console.log("Calling Program")
-    const resp = await provider.connect();
-    console.log(resp.publicKey.toString()); 
     var { blockhash } = await connection.getRecentBlockhash();
 
     console.log(blockhash)
 
 
     transaction.recentBlockhash =blockhash;
-    const { signature } = await provider.signAndSendTransaction(transaction);
+    const signedTransaction = await provider.signTransaction(transaction);
+    const signature = await connection.sendRawTransaction(signedTransaction.serialize(),{skipPreflight:true});
+  
     console.log(signature)
   }
 
@@ -765,7 +858,7 @@ async componentDidMount(){
               <h2 style={{ color: '#f0f0f0', fontWeight: 600 }}>{this.state.amountBoxText}</h2>
               <div className="content" style={{ marginTop: '13px' }}>
                 <div className="buyingAmount">
-                  <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='food' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
+                  <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='food' onChange={this.changeAmount.bind(this)}  onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
                   <button onClick={this.foodMaxClicked.bind(this)} style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
                   <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((this.state.foodMSRdisplay*this.state.foodAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
@@ -805,7 +898,7 @@ async componentDidMount(){
           <div className="memberShipLevel" style={{display: 'flex', left: 75, position: 'relative'}}>
             <h3 style={{color: '#f0f0f0'}}>Membership Level: </h3>
             <div className="icon" style={{ width: '1rem', height: '1rem', borderRadius: 50, border: '5px solid #E36414', position: 'relative', top: '1rem', marginLeft: '1rem' }}></div>
-            <h3 className="rank" style={{ color: '#E36414', marginLeft: '0.5rem' }}>Gold</h3>
+            <h3 className="rank" style={{ color: '#E36414', marginLeft: '0.5rem' }}>Bronze</h3>
           </div>
           
           <div className="currentPxp" style={{display: 'flex', marginRight: 75}}>
