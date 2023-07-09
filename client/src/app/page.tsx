@@ -17,13 +17,13 @@ import { relative } from 'path';
 import  { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 
+let provider : any;
+
+
 const BufferLayout = require('buffer-layout');
 
 
-let provider: {
-  disconnect(): unknown;
-  signAndSendTransaction(transaction: Transaction): { signature: any; } | PromiseLike<{ signature: any; }>; connect: (arg0: { onlyIfTrusted: boolean; } | undefined) => void; on: (arg0: string, arg1: () => void) => void; 
-};
+
 
   // Define the account data structure
   const MarketPlaceDataLayout = BufferLayout.struct([
@@ -129,7 +129,7 @@ class page extends Component {
 
 
 
-  async getAndDecodeMarketplaceAccountData(connection, pubKey) {
+  async getAndDecodeMarketplaceAccountData(connection : Connection, pubKey : PublicKey) {
     // Fetch the raw account data
     let accountInfo = await connection.getAccountInfo(pubKey);
     if (accountInfo === null) {
@@ -145,17 +145,26 @@ class page extends Component {
     return decodedData;
   }
 
-  async getBalance(connection, pubKey) {
+  async getBalance(connection: Connection, pubKey : PublicKey) {
     let accountInfo = await connection.getParsedAccountInfo(pubKey);
     if (accountInfo.value === null) {
         throw 'Invalid public key or the account does not exist.';
     }
+
+    if('parsed' in accountInfo.value.data)
+    {
+
+    }else{
+      alert("Problem Deserializing Account Ammount")
+      return 0
+    }
+
     let tokenAccountInfo = accountInfo.value.data.parsed.info;
     let balance = tokenAccountInfo.tokenAmount.uiAmount;
     return balance;
   }
 
-  async checkAccountForMint(ownerPubkeyStringbase58,mintsObj) {
+  async checkAccountForMint(ownerPubkeyStringbase58 : any,mintsObj : any) {
     console.log("fetching accounts")
     const MY_WALLET_ADDRESS = ownerPubkeyStringbase58;
   
@@ -182,20 +191,37 @@ class page extends Component {
 
 
     // Prepare an object to store the results
-    let results = Object.keys(mintsObj).reduce((acc, key) => ({ ...acc, [key]: 'null' }), {});
+    let results: Record<string, any | 'null'> = Object.keys(mintsObj).reduce((acc, key) => ({ ...acc, [key]: 'null' }), {});
 
     // Array of mints values for checking
     const mintsValues = Object.values(mintsObj);
 
     // Check each account
     accounts.forEach(account => {
+
+
+
+        if('parsed' in account.account.data)
+        {
+    
+        }else{
+          alert("Problem Deserializing Account Ammount")
+          return 0
+        }
+
+
         let accountMint = account.account.data.parsed.info.mint;
         
         // If the account's mint is in the mints array, mark it as 'found'
         if (mintsValues.includes(accountMint)) {
             // Find the key corresponding to this mint value
             const correspondingKey = Object.keys(mintsObj).find(key => mintsObj[key] === accountMint);
-            results[correspondingKey] = account;
+            
+            if (correspondingKey !== undefined) {
+              results[correspondingKey] = account;
+            } else {
+              // Handle the case where correspondingKey is undefined
+            }
         }
     });
     
@@ -205,7 +231,7 @@ class page extends Component {
 
 
 
-formatNumber(num) {
+formatNumber(num : any) {
   if (num < 1000) {
       // return the same number to 1 decimal place
       return num;
@@ -231,8 +257,12 @@ async componentDidMount(){
     console.log(resp.publicKey.toString());
     this.setState({userPubKey:resp.publicKey.toString()})
     let walletButton = document.getElementById("WalletButton");
-    walletButton.innerHTML = resp.publicKey.toString().slice(0,3) + "..." + resp.publicKey.toString().slice(-3) 
 
+    if(walletButton!==null)
+    {
+      walletButton.innerHTML = resp.publicKey.toString().slice(0,3) + "..." + resp.publicKey.toString().slice(-3) 
+  
+    }
 
 
 
@@ -365,6 +395,15 @@ async componentDidMount(){
   async walletClick()
   {
     var walletButton = document.getElementById("WalletButton");
+
+
+    if(walletButton!==null)
+    {
+  
+    }else{
+      alert("Error in Wallet")
+      return 0
+    }
     try {
 
         if(walletButton.innerHTML.length==9)
@@ -391,7 +430,7 @@ async componentDidMount(){
   }
 
 
-  async create_polaris_buy_instruction(resource_type,buy_ammount)
+  async create_polaris_buy_instruction(resource_type : any,buy_ammount : any)
   { 
   
     
@@ -425,6 +464,61 @@ async componentDidMount(){
       console.log("Invalid Buy Operation")
       return 0
     }
+
+    if(this.state.userPubKey !== null)
+    {
+
+    }else{
+      alert("User Pubkey Undefined")
+      return 0
+    }
+
+    if(this.state.user_star_atlas_account !== null)
+    {
+
+    }else{
+      alert("User Star Atlas Account Undefined")
+      return 0
+    }
+
+    
+    if(this.state.user_polaris_exp_account !== null)
+    {
+
+    }else{
+      alert("User PXP account is Undefined")
+      return 0
+    }
+
+    let userResAccountFix=null;
+
+    let resourceAccount = userResourceAccounts[resource_type];
+    if (resourceAccount !== null) {
+        userResAccountFix = new PublicKey(resourceAccount);
+    } else {
+        // Handle the case where resourceAccount is null
+
+      switch (resource_type) {
+        case 0:
+          alert("User Food Account Undefined")
+        break;
+        case 1:
+          alert("User Fuel Account Undefined")
+        break;
+
+        case 2:
+          alert("User Ammo Account Undefined")
+        break;
+
+        case 3:          
+          alert("User Tools Account Undefined")
+        break;
+      
+        default:
+          break;
+      }
+      return 0
+    }
   
     // Create the instruction to send data
     let instructionData2 = {
@@ -437,7 +531,7 @@ async componentDidMount(){
         { pubkey: pda_star_atlas_account, isSigner: false, isWritable: true }, //pda star atlas account 
   
         { pubkey: resourceMints[resource_type], isSigner: false, isWritable: false }, // resource mint
-        { pubkey: new PublicKey(userResourceAccounts[resource_type]), isSigner: false, isWritable: true }, //user resource account
+        { pubkey: userResAccountFix, isSigner: false, isWritable: true }, //user resource account
         { pubkey: pdaResourceAccounts[resource_type], isSigner: false, isWritable: true }, //pda resource account
         { pubkey: new PublicKey("5RWZnLxovGyWsn3KuWbcBnBNpbJ8FH8eLvxztZaZmWzh"), isSigner: false, isWritable: true }, //fee account
 
@@ -464,7 +558,7 @@ async componentDidMount(){
   }
   
 
-  async create_polaris_sell_instruction(resource_type,sell_ammount)
+  async create_polaris_sell_instruction(resource_type : any,sell_ammount : any)
   { 
   
     let [pdaPublicKey, _nonce] = await PublicKey.findProgramAddress([seeds], programId);
@@ -499,6 +593,62 @@ async componentDidMount(){
       console.log("Invalid Sell Operation")
       return 0
     }
+
+
+    if(this.state.userPubKey !== null)
+    {
+
+    }else{
+      alert("User Pubkey Undefined")
+      return 0
+    }
+
+    if(this.state.user_star_atlas_account !== null)
+    {
+
+    }else{
+      alert("User Star Atlas Account Undefined")
+      return 0
+    }
+
+    
+    if(this.state.user_polaris_exp_account !== null)
+    {
+
+    }else{
+      alert("User PXP account is Undefined")
+      return 0
+    }
+
+    let userResAccountFix=null;
+
+    let resourceAccount = userResourceAccounts[resource_type];
+    if (resourceAccount !== null) {
+        userResAccountFix = new PublicKey(resourceAccount);
+    } else {
+        // Handle the case where resourceAccount is null
+
+      switch (resource_type) {
+        case 0:
+          alert("User Food Account Undefined")
+        break;
+        case 1:
+          alert("User Fuel Account Undefined")
+        break;
+
+        case 2:
+          alert("User Ammo Account Undefined")
+        break;
+
+        case 3:          
+          alert("User Tools Account Undefined")
+        break;
+      
+        default:
+          break;
+      }
+      return 0
+    }
   
     // Create the instruction to send data
     let instructionData2 = {
@@ -511,7 +661,7 @@ async componentDidMount(){
         { pubkey: pda_star_atlas_account, isSigner: false, isWritable: true }, //pda star atlas account 
   
         { pubkey: resourceMints[resource_type], isSigner: false, isWritable: false }, // resource mint
-        { pubkey: new PublicKey(userResourceAccounts[resource_type]), isSigner: false, isWritable: true }, //user resource account
+        { pubkey: userResAccountFix, isSigner: false, isWritable: true }, //user resource account
         { pubkey: pdaResourceAccounts[resource_type], isSigner: false, isWritable: true }, //pda resource account -> 6/27 asked to move to polaris account instead
   
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }, //systemProgram
@@ -540,6 +690,14 @@ async componentDidMount(){
 
 
     var walletButton = document.getElementById("WalletButton");
+    
+    if(walletButton!==null)
+    {
+  
+    }else{
+      alert("Error in Wallet")
+      return 0
+    }
     try {
 
         if(walletButton.innerHTML.length==9)
@@ -554,6 +712,14 @@ async componentDidMount(){
 
     } catch (err) {
         // { code: 4001, message: 'User rejected the request.' }
+    }
+
+    if(this.state.userPubKey !== null)
+    {
+
+    }else{
+      alert("User Pubkey Undefined")
+      return 0
     }
 
 
@@ -585,8 +751,15 @@ async componentDidMount(){
           {
             console.log(index)
             console.log("creating buy order")
-            let ix = await this.create_polaris_buy_instruction(index,element)
-            transaction.add(ix)
+            let result = await this.create_polaris_sell_instruction(index,element);
+            if (result instanceof TransactionInstruction) {
+              let ix: TransactionInstruction = result;
+              transaction.add(ix);
+            } else {
+              {
+                alert("Error in Creating Instruction")
+              }
+           }
           }
        
       }
@@ -604,10 +777,15 @@ async componentDidMount(){
      
           if(element>0)
           {
-            console.log(index)
-            console.log("creating buy order")
-            let ix = await this.create_polaris_sell_instruction(index,element)
-            transaction.add(ix)
+            let result = await this.create_polaris_sell_instruction(index,element);
+            if (result instanceof TransactionInstruction) {
+              let ix: TransactionInstruction = result;
+              transaction.add(ix);
+            } else {
+              {
+                alert("Error in Creating Instruction")
+              }
+           }
           }
        
       }
@@ -647,10 +825,27 @@ async componentDidMount(){
       ammoSupplyAmountDisplay:this.formatNumber(this.state.marketAmmoSupplyAmount),
       toolsSupplyAmountDisplay:this.formatNumber(this.state.marketToolsSupplyAmount),
     })
-    document.getElementById("food").value = null
-    document.getElementById("fuel").value = null
-    document.getElementById("ammo").value = null
-    document.getElementById("tools").value = null
+    
+    let foodElement = document.getElementById("food");
+    if (foodElement !== null && 'value' in foodElement) {
+      foodElement.value = null;
+    }
+    
+    let fuelElement = document.getElementById("fuel");
+    if (fuelElement !== null && 'value' in fuelElement) {
+      fuelElement.value = null;
+    }
+    
+    let ammoElement = document.getElementById("ammo");
+    if (ammoElement !== null && 'value' in ammoElement) {
+      ammoElement.value = null;
+    }
+    
+    let toolsElement = document.getElementById("tools");
+    if (toolsElement !== null && 'value' in toolsElement) {
+      toolsElement.value = null;
+    }
+    
     this.setState({foodAmount:0})
     this.setState({fuelAmount:0})
     this.setState({ammoAmount:0})
@@ -665,19 +860,34 @@ async componentDidMount(){
       actionButton:"Sell",
       amountBoxText:"Selling Amount",
       marketQtyBoxText:"User QTY",
-      foodMSRdisplay:(this.state.foodMSRP + this.state.foodMSRP *this.state.marketFee).toFixed(6),
-      fuelMSRdisplay:(this.state.fuelMSRP + this.state.fuelMSRP *this.state.marketFee).toFixed(6),
-      ammoMSRdisplay:(this.state.ammoMSRP + this.state.ammoMSRP*this.state.marketFee).toFixed(6),
-      toolsMSRdisplay:(this.state.toolsMSRP + this.state.toolsMSRP*this.state.marketFee).toFixed(6),
+      foodMSRdisplay:Number(this.state.foodMSRP + Number(this.state.foodMSRP) *this.state.marketFee).toFixed(6),
+      fuelMSRdisplay:Number(this.state.fuelMSRP + Number(this.state.fuelMSRP) *this.state.marketFee).toFixed(6),
+      ammoMSRdisplay:Number(this.state.ammoMSRP + Number(this.state.ammoMSRP)*this.state.marketFee).toFixed(6),
+      toolsMSRdisplay:Number(this.state.toolsMSRP + Number(this.state.toolsMSRP)*this.state.marketFee).toFixed(6),
       foodSupplyAmountDisplay:this.formatNumber(this.state.userFoodSupplyAmount),
       fuelSupplyAmountDisplay:this.formatNumber(this.state.userFuelSupplyAmount),
       ammoSupplyAmountDisplay:this.formatNumber(this.state.userAmmoSupplyAmount),
       toolsSupplyAmountDisplay:this.formatNumber(this.state.userToolsSupplyAmount)
     })
-    document.getElementById("food").value = null
-    document.getElementById("fuel").value = null
-    document.getElementById("ammo").value = null
-    document.getElementById("tools").value = null
+    let foodElement = document.getElementById("food");
+    if (foodElement !== null && 'value' in foodElement) {
+      foodElement.value = null;
+    }
+    
+    let fuelElement = document.getElementById("fuel");
+    if (fuelElement !== null && 'value' in fuelElement) {
+      fuelElement.value = null;
+    }
+    
+    let ammoElement = document.getElementById("ammo");
+    if (ammoElement !== null && 'value' in ammoElement) {
+      ammoElement.value = null;
+    }
+    
+    let toolsElement = document.getElementById("tools");
+    if (toolsElement !== null && 'value' in toolsElement) {
+      toolsElement.value = null;
+    }
 
     this.setState({foodAmount:0})
     this.setState({fuelAmount:0})
@@ -687,7 +897,7 @@ async componentDidMount(){
 
   }
 
-  changeAmount(event)
+  changeAmount(event : any)
   {
     console.log(event.target.id)
     console.log(event.target.value)
@@ -719,15 +929,23 @@ async componentDidMount(){
     if(this.state.actionButton=="Buy")
     {
      //max market
-     foodInput.value = this.state.marketFoodSupplyAmount
-     this.setState({foodAmount:this.state.marketFoodSupplyAmount})
+
+     if(foodInput!==null &&'value' in foodInput)
+     {
+      foodInput.value = this.state.marketFoodSupplyAmount
+      this.setState({foodAmount:this.state.marketFoodSupplyAmount})
+
+     }
+
 
 
     }else{
       //max user
+      if(foodInput!==null &&'value' in foodInput)
+      {
       foodInput.value = this.state.userFoodSupplyAmount
       this.setState({foodAmount:this.state.userFoodSupplyAmount})
-
+      }
 
     }
 
@@ -742,14 +960,19 @@ async componentDidMount(){
     if(this.state.actionButton=="Buy")
     {
      //max market
+     if(fuelInput!==null &&'value' in fuelInput)
+     {
      fuelInput.value = this.state.marketFuelSupplyAmount
      this.setState({fuelAmount:this.state.marketFuelSupplyAmount})
-
+     }
 
     }else{
       //max user
+      if(fuelInput!==null &&'value' in fuelInput)
+      {
       fuelInput.value = this.state.userFuelSupplyAmount
       this.setState({fuelAmount:this.state.userFuelSupplyAmount})
+      }
 
 
     }
@@ -764,15 +987,20 @@ async componentDidMount(){
     if(this.state.actionButton=="Buy")
     {
      //max market
+     if(ammoInput!==null &&'value' in ammoInput)
+     {
      ammoInput.value = this.state.marketAmmoSupplyAmount
      this.setState({ammoAmount: this.state.marketAmmoSupplyAmount})
+     }
 
 
     }else{
       //max user
+      if(ammoInput!==null &&'value' in ammoInput)
+      {
       ammoInput.value = this.state.userAmmoSupplyAmount
       this.setState({ammoAmount:this.state.userAmmoSupplyAmount})
-
+      }
 
     }
     
@@ -786,15 +1014,19 @@ async componentDidMount(){
     if(this.state.actionButton=="Buy")
     {
      //max market
+     if(toolsInput!==null &&'value' in toolsInput)
+     {
      toolsInput.value = this.state.marketToolsSupplyAmount
      this.setState({toolsAmount:this.state.marketToolsSupplyAmount})
-
+     }
 
     }else{
       //max user
+      if(toolsInput!==null &&'value' in toolsInput)
+      {
       toolsInput.value = this.state.userToolsSupplyAmount
       this.setState({toolsAmount: this.state.userToolsSupplyAmount})
-
+      }
 
     }
     
@@ -860,25 +1092,25 @@ async componentDidMount(){
                 <div className="buyingAmount">
                   <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='food' onChange={this.changeAmount.bind(this)}  onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
                   <button onClick={this.foodMaxClicked.bind(this)} style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((this.state.foodMSRdisplay*this.state.foodAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((Number(this.state.foodMSRdisplay)*this.state.foodAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
                 
                 <div style={{marginTop: 12}} className="buyingAmount">
                   <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='fuel' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
                   <button onClick={this.fuelMaxClicked.bind(this)} style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((this.state.fuelMSRdisplay*this.state.fuelAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((Number(this.state.fuelMSRdisplay)*this.state.fuelAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
                 
                 <div style={{marginTop: 12}} className="buyingAmount">
                   <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='ammo' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
                   <button onClick={this.ammoMaxClicked.bind(this)} style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((this.state.ammoMSRdisplay*this.state.ammoAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((Number(this.state.ammoMSRdisplay)*this.state.ammoAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
                 
                 <div style={{marginTop: 12}} className="buyingAmount">
                   <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='tools' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
                   <button onClick={this.toolsMaxClicked.bind(this)} style={{ fontSize: 12, position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((this.state.toolsMSRdisplay*this.state.toolsAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((Number(this.state.toolsMSRdisplay)*this.state.toolsAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
               </div>
             </div>
