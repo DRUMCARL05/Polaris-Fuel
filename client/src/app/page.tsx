@@ -108,7 +108,7 @@ class page extends Component {
     customerButtonColor:"#e36414",
     providerButtonColor:"#000815CF",
     activeColor:"#e36414",
-    inActiveColor:"#000814BF",
+    inActiveColor:"#e3631415",
     marketFee:0.10,
     amountBoxText:"Buying Amount",
     marketQtyBoxText:"Mrkt QTY",
@@ -1037,15 +1037,15 @@ async componentDidMount(){
     return (
       <div>
         {/* NAVBAR START HERE */}
-        <div className='navBar' style={{display:"flex", justifyContent: "space-between", width:"100%", marginTop: -20}}>
-          <div className="logo" style={{ display: "flex"}}>
-            <img style={{marginLeft: 50, marginTop: 50}} width={75} height={75} src="https://cdn.discordapp.com/attachments/1119286494453055528/1126142304319717417/PXPbig-RedCirclePLess.png"></img>
-            <h2 style={{color:"white", marginTop:75}}>Polaris Fuel</h2>
+        <div className='navBar'>
+          <div className="logo">
+            <img className='logo-image' src="https://cdn.discordapp.com/attachments/1119286494453055528/1126142304319717417/PXPbig-RedCirclePLess.png"></img>
+            <h2 className='heading'>Polaris Fuel</h2>
           </div>
 
-          <div className="toggle" style={{ display: "flex", borderRadius: 20, overflow: 'hidden', marginTop: 65, border: '2px solid #E36414', background: '#E3641480'}}>
-            <button onClick={this.customerClick.bind(this)} style={{width:"170px",height:"60px",backgroundColor:this.state.customerButtonColor,color:"#f0f0f0", border: 'none', outline: 'none', fontSize: '17px', cursor: 'pointer'}}>Customer</button>
-            <button onClick={this.providerClick.bind(this)} style={{width:"200px",height:"60px",backgroundColor:this.state.providerButtonColor,color:"#f0f0f0", border: 'none', outline: 'none', fontSize: '17px', cursor: 'pointer'}}>Polaris Provider</button>
+          <div className="toggle">
+            <button onClick={this.customerClick.bind(this)} style={{backgroundColor:this.state.customerButtonColor}} className='toggleChild'>Customer</button>
+            <button onClick={this.providerClick.bind(this)} style={{backgroundColor:this.state.providerButtonColor}} className='toggleChild'>Polaris Provider</button>
           </div>
 
           <button style={{position:"relative",top:65,width:225,height:60,backgroundColor:"#e36414",color:"white", marginRight: 60, border: 'none', outline: 'none', borderRadius: '20px', fontSize: 18, cursor: 'pointer'}} id="WalletButton" onClick={this.walletClick}>Connect Wallet</button>
@@ -1054,63 +1054,63 @@ async componentDidMount(){
 
 
        {/* MARKET UI STARTS HERE */}
-       <div style={{display:"flex", justifyContent: "center", marginTop:"75px"}}>
-          <div style={{display:"flex", border: '1px solid #6C757D', borderRadius: 15, overflow: 'hidden'}}>
-            <div style={{ display: 'flex', flexDirection: 'column', padding: 25, paddingLeft: 50, paddingRight: 50, borderRight: '1px solid #6C757D' }}>
-              <h2 style={{ color: '#000814' }}>.</h2>
+       <div className='marketUi'>
+          <div className='smallContainer'>
+            <div className='sectionContainer'>
+              <h2>.</h2>
               <div className="content">
-                <h3 style={{ color: '#f0f0f0', fontWeight: 600, marginBottom: 35 }}>FOOD</h3>
-                <h3 style={{ color: '#f0f0f0', fontWeight: 600, marginBottom: 35 }}>FUEL</h3>
-                <h3 style={{ color: '#f0f0f0', fontWeight: 600, marginBottom: 35 }}>AMMO</h3>
-                <h3 style={{ color: '#f0f0f0', fontWeight: 600, marginBottom: 35 }}>TOOLS</h3>
+                <h3>FOOD</h3>
+                <h3>FUEL</h3>
+                <h3>AMMO</h3>
+                <h3>TOOLS</h3>
               </div>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', padding: 25, paddingLeft: 50, paddingRight: 50, borderRight: '1px solid #6C757D' }}>
-              <h2 style={{ color: '#f0f0f0', fontWeight: 600 }}>{this.state.marketQtyBoxText}</h2>
+            <div className='sectionContainer'>
+              <h2 className='headingSection'>{this.state.marketQtyBoxText}</h2>
               <div className="content">
-                <h3 style={{ color: '#f0f0f0', fontWeight: 300, marginBottom: 35}}>{this.state.foodSupplyAmountDisplay}</h3>
-                <h3 style={{ color: '#f0f0f0', fontWeight: 300, marginBottom: 35}}>{this.state.fuelSupplyAmountDisplay}</h3>
-                <h3 style={{ color: '#f0f0f0', fontWeight: 300, marginBottom: 35}}>{this.state.ammoSupplyAmountDisplay}</h3>
-                <h3 style={{ color: '#f0f0f0', fontWeight: 300, marginBottom: 35}}>{this.state.toolsSupplyAmountDisplay}</h3>
+                <h3>{this.state.foodSupplyAmountDisplay}</h3>
+                <h3>{this.state.fuelSupplyAmountDisplay}</h3>
+                <h3>{this.state.ammoSupplyAmountDisplay}</h3>
+                <h3>{this.state.toolsSupplyAmountDisplay}</h3>
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', padding: 25, paddingLeft: 50, paddingRight: 50, borderRight: '1px solid #6C757D' }}>
-              <h2 style={{ color: '#f0f0f0', fontWeight: 600 }}>Current Price</h2>
+            <div className='sectionContainer'>
+              <h2 className='headingSection'>Current Price</h2>
               <div className="content">
-                <h3 style={{ color: '#E36414', fontWeight: 300, textAlign: 'left', marginBottom: 35}}>{this.state.foodMSRdisplay} <span style={{ color: '#f0f0f0', paddingLeft: 15 }}> Atlas</span></h3>
-                <h3 style={{ color: '#E36414', fontWeight: 300, textAlign: 'left', marginBottom: 35}}>{this.state.fuelMSRdisplay} <span style={{ color: '#f0f0f0', paddingLeft: 15 }}> Atlas</span></h3>
-                <h3 style={{ color: '#E36414', fontWeight: 300, textAlign: 'left', marginBottom: 35}}>{this.state.ammoMSRdisplay} <span style={{ color: '#f0f0f0', paddingLeft: 15 }}> Atlas</span></h3>
-                <h3 style={{ color: '#E36414', fontWeight: 300, textAlign: 'left', marginBottom: 35}}>{this.state.toolsMSRdisplay} <span style={{ color: '#f0f0f0', paddingLeft: 15 }}> Atlas</span></h3>
+                <h3 className='quantity'>{this.state.foodMSRdisplay} <span> Atlas</span></h3>
+                <h3 className='quantity'>{this.state.fuelMSRdisplay} <span> Atlas</span></h3>
+                <h3 className='quantity'>{this.state.ammoMSRdisplay} <span> Atlas</span></h3>
+                <h3 className='quantity'>{this.state.toolsMSRdisplay} <span> Atlas</span></h3>
               </div>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', padding: 25, paddingLeft: 50, paddingRight: 50, borderRight: '1px solid #6C757D' }}>
-              <h2 style={{ color: '#f0f0f0', fontWeight: 600 }}>{this.state.amountBoxText}</h2>
-              <div className="content" style={{ marginTop: '13px' }}>
+            <div className='sectionContainer'>
+              <h2 className='headingSection'>{this.state.amountBoxText}</h2>
+              <div className="content">
                 <div className="buyingAmount">
-                  <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='food' onChange={this.changeAmount.bind(this)}  onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
-                  <button onClick={this.foodMaxClicked.bind(this)} style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((Number(this.state.foodMSRdisplay)*this.state.foodAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <input type="text" placeholder='Enter Amount' id='food' onChange={this.changeAmount.bind(this)}  onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
+                  <button onClick={this.foodMaxClicked.bind(this)}>Max</button>
+                  <span>{this.formatNumber((Number(this.state.foodMSRdisplay)*this.state.foodAmount).toFixed(6))} <span>  Atlas</span></span>
                 </div>
                 
                 <div style={{marginTop: 12}} className="buyingAmount">
-                  <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='fuel' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
-                  <button onClick={this.fuelMaxClicked.bind(this)} style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((Number(this.state.fuelMSRdisplay)*this.state.fuelAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <input type="text" placeholder='Enter Amount' id='fuel' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
+                  <button onClick={this.fuelMaxClicked.bind(this)}>Max</button>
+                  <span>{this.formatNumber((Number(this.state.fuelMSRdisplay)*this.state.fuelAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
                 
                 <div style={{marginTop: 12}} className="buyingAmount">
-                  <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='ammo' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
-                  <button onClick={this.ammoMaxClicked.bind(this)} style={{ position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontSize: 12, fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((Number(this.state.ammoMSRdisplay)*this.state.ammoAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <input type="text" placeholder='Enter Amount' id='ammo' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
+                  <button onClick={this.ammoMaxClicked.bind(this)}>Max</button>
+                  <span>{this.formatNumber((Number(this.state.ammoMSRdisplay)*this.state.ammoAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
                 
                 <div style={{marginTop: 12}} className="buyingAmount">
-                  <input type="text" style={{ border: 'none', fontSize: 16, background: '#1C1E20', padding: '0.8rem', outline: '#E36414', color: '#f0f0f0', borderRadius: '5px' }}  placeholder='Enter Amount' id='tools' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
-                  <button onClick={this.toolsMaxClicked.bind(this)} style={{ fontSize: 12, position: 'relative', left: '-2.5rem',cursor: 'pointer', background: 'none', outline: 'none', border: 'none', backgroundColor: 'none', color: '#E36414', fontWeight: 200}}>Max</button>
-                  <span style={{color: '#E36414', fontSize: 18}}>{this.formatNumber((Number(this.state.toolsMSRdisplay)*this.state.toolsAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  <input type="text" placeholder='Enter Amount' id='tools' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
+                  <button onClick={this.toolsMaxClicked.bind(this)}>Max</button>
+                  <span>{this.formatNumber((Number(this.state.toolsMSRdisplay)*this.state.toolsAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
                 </div>
               </div>
             </div>
@@ -1121,21 +1121,21 @@ async componentDidMount(){
 
       
       {/* Action Button Starts HERE */}
-        <button style={{marginTop:"50px", width:"200px", marginLeft: "auto", marginRight: "auto", display: "block", height:50, fontSize: 18, color: '#E36414', background: 'none', border: '1px solid #E36414', borderRadius: 10, outline: 'none', cursor: 'pointer'}} id="Send" onClick={this.callProgram.bind(this)}>{this.state.actionButton}</button>
+        <button id="Send" onClick={this.callProgram.bind(this)}>{this.state.actionButton}</button>
       {/* Action Button ends HERE */}
 
 
       {/* FOOTER STARTS HERE */}
-        <div className="footer" style={{position: 'absolute', padding: '15px 0', left: 0, width: '100vw', bottom: 0, display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #EDF2F4'}}>
-          <div className="memberShipLevel" style={{display: 'flex', left: 75, position: 'relative'}}>
-            <h3 style={{color: '#f0f0f0'}}>Membership Level: </h3>
-            <div className="icon" style={{ width: '1rem', height: '1rem', borderRadius: 50, border: '5px solid #E36414', position: 'relative', top: '1rem', marginLeft: '1rem' }}></div>
-            <h3 className="rank" style={{ color: '#E36414', marginLeft: '0.5rem' }}>Bronze</h3>
+        <div className="footer">
+          <div className="memberShipLevel">
+            <h3 className='footerHeading'>Membership Level: </h3>
+            <div className="icon"></div>
+            <h3 className="rank">Bronze</h3>
           </div>
           
-          <div className="currentPxp" style={{display: 'flex', marginRight: 75}}>
-            <h3 style={{color: '#f0f0f0'}}>Current PXP: </h3>
-            <h3 className="pxp" style={{ color: '#E36414', marginLeft: '0.5rem' }}>{this.formatNumber(this.state.userPolarisExpSupplyAmount)}</h3>
+          <div className="currentPxp">
+            <h3 className='footerHeading'>Current PXP: </h3>
+            <h3 className="pxp">{this.formatNumber(this.state.userPolarisExpSupplyAmount)}</h3>
           </div>
         </div>
       {/* FOOTER ENDS HERE */}
