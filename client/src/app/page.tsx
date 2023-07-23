@@ -1,5 +1,4 @@
 "use client"
-
 import React, { Component } from 'react';
 import {
   Connection,
@@ -13,16 +12,12 @@ import {
   sendAndConfirmTransaction,
 } from "@solana/web3.js";
 import { relative } from 'path';
+import  { TOKEN_PROGRAM_ID, MINT_SIZE, getMinimumBalanceForRentExemptMint,getAssociatedTokenAddress,createAssociatedTokenAccountInstruction } from '@solana/spl-token';
 
-import  { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 
 
 let provider : any;
-
-
 const BufferLayout = require('buffer-layout');
-
-
 
 
   // Define the account data structure
@@ -40,8 +35,13 @@ const BufferLayout = require('buffer-layout');
 let str = 'POLARIS-VAULT';
 let seeds = Buffer.from(str, 'utf-8');  // or 'ascii', 'base64', etc. depending on your needs
 
+let createAccountInstructionArray :any = []
 
-//update to mainnet
+//let star_atlas_mint = new solanaWeb3.PublicKey('ATLASXmbPQxBUYbxPsV97usA3fPQYEqzQBUHgiFCUsXx');
+
+
+
+//devnet accounts
 let connection = new Connection(clusterApiUrl('devnet'));
 let programId = new PublicKey('ESL7g6h1tZrehkAVXPYmowa43JxurCmJ81A9eFCwZxy9');
 let marketConfigAccount = new PublicKey("DpTW34MTR79ckQHkygyvgDvEMrbdSm5oo83Hdgn9nzGK");
@@ -52,11 +52,11 @@ let pda_ammo_mint_tokenAccount = new PublicKey('EtgTTdct3r8kJgUmjiWWBrPHG9g5rBhU
 let pda_fuel_mint_tokenAccount = new PublicKey('8LG7PKi9GyxM7Nm3EVaYDG18fBfwjo5boNtAF5ZiW7KL')
 let pda_food_mint_tokenAccount = new PublicKey('BeLzpdSP3bsuieattadMFseup9gkuNfNV1Grde134CFH')
 
-let star_atlas_mint = new PublicKey('GpVqpNdUG8hJvyiNaDFnTnuiQV6EGFueduTBXAiPabWj')
-let tools_mint = new PublicKey('3y3D6wHa1dfz8VNVcnejLaLL8Ld41shTaAsjKMBgdzBr')
-let ammo_mint = new PublicKey('9TrKEhszrsMKYHRBuiXxefcQ4Z1WcAjhdGDBqjw7yrY9')
-let fuel_mint = new PublicKey('9htVnjLQByoQnucf5Bf2C7eDkhDax7rdU3FTo1KX3ewo')
-let food_mint = new PublicKey('C769DzsozfZ3SmA8PcScM4hEvkyXiFdhKfKfMiyRVjWG')
+let star_atlas_mint = new PublicKey('ATLASXmbPQxBUYbxPsV97usA3fPQYEqzQBUHgiFCUsXx');
+let tools_mint = new PublicKey('tooLsNYLiVqzg8o4m3L2Uetbn62mvMWRqkog6PQeYKL');
+let ammo_mint = new PublicKey('ammoK8AkX2wnebQb35cDAZtTkvsXQbi82cGeTnUvvfK');
+let fuel_mint = new PublicKey('fueL3hBZjLLLJHiFH9cqZoozTG3XQZ53diwFPwbzNim');
+let food_mint = new PublicKey('foodQJAztMzX1DKpLaiounNe2BDMds5RNuPC6jsNrDG');
 let polaris_exp_mint = new PublicKey('BT8FRmq3K58YTMDVGiu8gevdLQmnVrXNAprJYxwheXtw')
 
 //destination wallet when resources are sold
@@ -65,6 +65,9 @@ let polaris_tools_account = new PublicKey('51CQRTPagzt8MX6KBAoAyTfDqM9n4NvepjC4f
 let polaris_ammo_account = new PublicKey('HhZpu7GvaAcU752HeYCApTvjLd9yY66hyRqvbfFxCXd4')
 let polaris_fuel_account = new PublicKey('Gdghebj3V9deG9FuNfS43kDmzTsL5keHYXeCeReaH1bX')
 let polaris_food_account = new PublicKey('9RQnXdVethx19HF9eaT688Sux5t6WcQcycLCJgKJGDru')
+
+
+
 
 
 class page extends Component {
@@ -247,15 +250,217 @@ formatNumber(num : any) {
   }
 }
 
+
+async sendRawTransaction(instructionArray : [],userPubKey:PublicKey)
+{
+  // Create a transaction
+  const transaction = new Transaction();
+  transaction.feePayer =new PublicKey(userPubKey);
+
+  instructionArray.forEach(element => {
+    transaction.add(element);
+  });
+
+
+  var { blockhash } = await connection.getRecentBlockhash();
+
+  console.log(blockhash)
+  transaction.recentBlockhash =blockhash;
+  const signedTransaction = await provider.signTransaction(transaction);
+  const signature = await connection.sendRawTransaction(signedTransaction.serialize(),{skipPreflight:true});
+
+  console.log(signature)
+
+}
+
+
+async createAccountForUserIx(mintPubkey:PublicKey,userPubKey:PublicKey)
+{
+      // calculate ATA
+      let ata = await getAssociatedTokenAddress(
+        mintPubkey, // mint
+        userPubKey // owner
+      );
+      console.log(`ATA: ${ata.toBase58()}`);
+  
+      // if your wallet is off-curve, you should use
+      // let ata = await getAssociatedTokenAddress(
+      //   mintPubkey, // mint
+      //   alice.publicKey // owner
+      //   true, // allowOwnerOffCurve
+      // );
+  
+     return createAssociatedTokenAccountInstruction(
+          userPubKey, // payer
+          ata, // ata
+          userPubKey, // owner
+          mintPubkey // mint
+        )
+
+    //createAssociatedTokenAccountInstruction(userPubKey,ata,userPubKey,mintPubkey)
+
+}
+
+
+
+async setAccounts(parsedTokenAccounts:any,userPubKey:string)
+{
+
+  console.log(userPubKey)
+
+        //atlas
+        try {
+            this.setState({user_star_atlas_account :parsedTokenAccounts.user_star_atlas_account.pubkey,
+              userStarAtlasSupplyAmount: parsedTokenAccounts.user_star_atlas_account.account.data.parsed.info.tokenAmount.amount,
+        })
+        } catch (error) {
+
+                console.log("User has no Atlas Account")
+                createAccountInstructionArray.push(await this.createAccountForUserIx( star_atlas_mint ,new PublicKey(userPubKey)))
+        }
+
+        //tool
+        try {
+          this.setState({user_tools_account :parsedTokenAccounts.user_tools_account.pubkey,
+          userToolsSupplyAmount:parsedTokenAccounts.user_tools_account.account.data.parsed.info.tokenAmount.amount})
+        } catch (error) {
+        console.log("User has no tools account")
+
+              createAccountInstructionArray.push(await this.createAccountForUserIx(tools_mint,new PublicKey(userPubKey)))
+
+        }
+
+        //ammo
+        try {
+          this.setState({
+            user_ammo_account :parsedTokenAccounts.user_ammo_account.pubkey,
+            userAmmoSupplyAmount:parsedTokenAccounts.user_ammo_account.account.data.parsed.info.tokenAmount.amount
+          })
+        } catch (error) {
+        console.log("User has no anmmo account")
+                  // create user account
+
+              createAccountInstructionArray.push(await this.createAccountForUserIx(ammo_mint,new PublicKey(userPubKey)))
+
+
+                  
+        }
+
+        //fuel
+        try {
+          this.setState({
+            user_fuel_account :parsedTokenAccounts.user_fuel_account.pubkey,
+            userFuelSupplyAmount: parsedTokenAccounts.user_fuel_account.account.data.parsed.info.tokenAmount.amount,
+          })
+        } catch (error) {
+        console.log("User has no fuel account")
+
+             createAccountInstructionArray.push(await this.createAccountForUserIx(fuel_mint,new PublicKey(userPubKey)))
+
+        }
+
+        //food
+        try {
+          this.setState({
+            user_food_account :parsedTokenAccounts.user_food_account.pubkey,
+            userFoodSupplyAmount: parsedTokenAccounts.user_food_account.account.data.parsed.info.tokenAmount.amount,
+          })
+        } catch (error) {
+        console.log("User has no food account")
+
+            createAccountInstructionArray.push(await this.createAccountForUserIx(food_mint,new PublicKey(userPubKey)))
+
+        }
+
+        //polaris exp
+        try {
+          this.setState({
+            user_polaris_exp_account :parsedTokenAccounts.user_polaris_exp_account.pubkey,
+            userPolarisExpSupplyAmount: parsedTokenAccounts.user_polaris_exp_account.account.data.parsed.info.tokenAmount.amount,
+          })
+        } catch (error) {
+        console.log("User has no polaris account")
+            createAccountInstructionArray.push(await this.createAccountForUserIx(polaris_exp_mint,new PublicKey(userPubKey)))
+
+        }
+
+        console.log(createAccountInstructionArray)
+
+
+        if(createAccountInstructionArray.length > 0)
+        {
+          alert("Wallet:"+userPubKey+"\nIs missing PolarisExp or Resource Accounts")
+          await this.sendRawTransaction(createAccountInstructionArray,new PublicKey(userPubKey))
+
+        }
+
+
+
+}
+
+
+async changeToDevNet()
+{
+
+  console.log("Chaning to Devnet")
+  //devnet accounts
+  connection = new Connection(clusterApiUrl('devnet'));
+  marketConfigAccount = new PublicKey("DpTW34MTR79ckQHkygyvgDvEMrbdSm5oo83Hdgn9nzGK");
+
+  pda_star_atlas_account = new PublicKey('GJNKMrcsH5m7vem9WSxs7SEpMrHeihNqtQg6CzCFuhPY')
+  pda_tools_mint_tokenAccount = new PublicKey('B9xSJqsBuy9Xj3kCpsh8ZpJpphyU62aaNCqmbL5qsxjC')
+  pda_ammo_mint_tokenAccount = new PublicKey('EtgTTdct3r8kJgUmjiWWBrPHG9g5rBhUFouc9npvG6t9')
+  pda_fuel_mint_tokenAccount = new PublicKey('8LG7PKi9GyxM7Nm3EVaYDG18fBfwjo5boNtAF5ZiW7KL')
+  pda_food_mint_tokenAccount = new PublicKey('BeLzpdSP3bsuieattadMFseup9gkuNfNV1Grde134CFH')
+
+  star_atlas_mint = new PublicKey('GpVqpNdUG8hJvyiNaDFnTnuiQV6EGFueduTBXAiPabWj')
+  tools_mint = new PublicKey('3y3D6wHa1dfz8VNVcnejLaLL8Ld41shTaAsjKMBgdzBr')
+  ammo_mint = new PublicKey('9TrKEhszrsMKYHRBuiXxefcQ4Z1WcAjhdGDBqjw7yrY9')
+  fuel_mint = new PublicKey('9htVnjLQByoQnucf5Bf2C7eDkhDax7rdU3FTo1KX3ewo')
+  food_mint = new PublicKey('C769DzsozfZ3SmA8PcScM4hEvkyXiFdhKfKfMiyRVjWG')
+  polaris_exp_mint = new PublicKey('BT8FRmq3K58YTMDVGiu8gevdLQmnVrXNAprJYxwheXtw')
+
+  //destination wallet when resources are sold
+  //PLRSGTRwq2rz8S62JFWbtFEixvetZ4v58KQWi21kLxg
+  polaris_tools_account = new PublicKey('51CQRTPagzt8MX6KBAoAyTfDqM9n4NvepjC4fuZ5fgqu')
+  polaris_ammo_account = new PublicKey('HhZpu7GvaAcU752HeYCApTvjLd9yY66hyRqvbfFxCXd4')
+  polaris_fuel_account = new PublicKey('Gdghebj3V9deG9FuNfS43kDmzTsL5keHYXeCeReaH1bX')
+  polaris_food_account = new PublicKey('9RQnXdVethx19HF9eaT688Sux5t6WcQcycLCJgKJGDru')
+
+
+}
+
+
+
 async componentDidMount(){
+
+
+  console.log(window.location.origin)
+
+  if(window.location.origin.includes("localhost"))
+  {
+    console.log("Assuming Devnet Deployment")
+
+    await this.changeToDevNet();
+  }
+
 
   provider = await this.getProvider()
     
   console.log(provider)
   try {
     const resp = await provider.connect();
-    console.log(resp.publicKey.toString());
-    this.setState({userPubKey:resp.publicKey.toString()})
+    console.log("FeePayer:"+resp.publicKey.toString());
+
+    try {
+      this.setState({userPubKey:resp.publicKey.toString()},()=>{
+        //console.log(this.state.userPubKey)
+      })
+
+    } catch (error) {
+      console.log(error)
+    }
+
     let walletButton = document.getElementById("WalletButton");
 
     if(walletButton!==null)
@@ -286,52 +491,64 @@ async componentDidMount(){
 
         localStorage.setItem(resp.publicKey.toString(), JSON.stringify(parsedTokenAccounts));
 
-    
-        console.log(this.formatNumber(parsedTokenAccounts.user_star_atlas_account.account.data.parsed.info.tokenAmount.amount))
-        console.log(this.formatNumber(parsedTokenAccounts.user_tools_account.account.data.parsed.info.tokenAmount.amount))
-        console.log(this.formatNumber(parsedTokenAccounts.user_ammo_account.account.data.parsed.info.tokenAmount.amount))
-        console.log(this.formatNumber(parsedTokenAccounts.user_fuel_account.account.data.parsed.info.tokenAmount.amount))
-        console.log(this.formatNumber(parsedTokenAccounts.user_food_account.account.data.parsed.info.tokenAmount.amount))
-        console.log(this.formatNumber(parsedTokenAccounts.user_polaris_exp_account.account.data.parsed.info.tokenAmount.amount))
-    
-    
-        this.setState({
-          user_star_atlas_account :parsedTokenAccounts.user_star_atlas_account.pubkey,
-          user_tools_account :parsedTokenAccounts.user_tools_account.pubkey,
-          user_ammo_account :parsedTokenAccounts.user_ammo_account.pubkey,
-          user_fuel_account :parsedTokenAccounts.user_fuel_account.pubkey,
-          user_food_account :parsedTokenAccounts.user_food_account.pubkey,
-          user_polaris_exp_account :parsedTokenAccounts.user_polaris_exp_account.pubkey,
-          userStarAtlasSupplyAmount: parsedTokenAccounts.user_star_atlas_account.account.data.parsed.info.tokenAmount.amount,
-          userToolsSupplyAmount:parsedTokenAccounts.user_tools_account.account.data.parsed.info.tokenAmount.amount,
-          userAmmoSupplyAmount:parsedTokenAccounts.user_ammo_account.account.data.parsed.info.tokenAmount.amount,
-          userFuelSupplyAmount: parsedTokenAccounts.user_fuel_account.account.data.parsed.info.tokenAmount.amount,
-          userFoodSupplyAmount: parsedTokenAccounts.user_food_account.account.data.parsed.info.tokenAmount.amount,
-          userPolarisExpSupplyAmount: parsedTokenAccounts.user_polaris_exp_account.account.data.parsed.info.tokenAmount.amount,
-    
-        })
+
+        await this.setAccounts(parsedTokenAccounts,resp.publicKey.toString())
+
     } else {
         console.log("returning user")
         let parsedTokenAccounts = JSON.parse(retrievedObject);
         console.log(parsedTokenAccounts);
-        this.setState({
-          user_star_atlas_account :parsedTokenAccounts.user_star_atlas_account.pubkey,
-          user_tools_account :parsedTokenAccounts.user_tools_account.pubkey,
-          user_ammo_account :parsedTokenAccounts.user_ammo_account.pubkey,
-          user_fuel_account :parsedTokenAccounts.user_fuel_account.pubkey,
-          user_food_account :parsedTokenAccounts.user_food_account.pubkey,
-          user_polaris_exp_account :parsedTokenAccounts.user_polaris_exp_account.pubkey,
-          userStarAtlasSupplyAmount: parsedTokenAccounts.user_star_atlas_account.account.data.parsed.info.tokenAmount.amount,
-          userToolsSupplyAmount:parsedTokenAccounts.user_tools_account.account.data.parsed.info.tokenAmount.amount,
-          userAmmoSupplyAmount:parsedTokenAccounts.user_ammo_account.account.data.parsed.info.tokenAmount.amount,
-          userFuelSupplyAmount: parsedTokenAccounts.user_fuel_account.account.data.parsed.info.tokenAmount.amount,
-          userFoodSupplyAmount: parsedTokenAccounts.user_food_account.account.data.parsed.info.tokenAmount.amount,
-          userPolarisExpSupplyAmount: parsedTokenAccounts.user_polaris_exp_account.account.data.parsed.info.tokenAmount.amount,
-        })
+
+        //SA account
+        if(parsedTokenAccounts.user_star_atlas_account == 'null')
+        {
+          console.log("User has no star atlas account in cache")
+          localStorage.clear();
+        }
+
+        //tools
+        if(parsedTokenAccounts.user_tools_account == 'null')
+        {
+          console.log("User has no tools account in cache")
+          localStorage.clear();
+        }
+
+        //ammo
+        if(parsedTokenAccounts.user_ammo_account == 'null')
+        {
+          console.log("User has no ammo account in cache")
+          localStorage.clear();
+        }
+
+        //fuel
+        if(parsedTokenAccounts.user_fuel_account == 'null')
+        {
+          console.log("User has no fuel account in cache")
+          localStorage.clear();
+        }
+
+        //food
+        if(parsedTokenAccounts.user_food_account == 'null')
+        {
+          console.log("User has no food account in cache")
+          localStorage.clear();
+        }
+
+        //polaris exp
+        if(parsedTokenAccounts.user_polaris_exp_account == 'null')
+        {
+          console.log("User has no polaris exp account in cache")
+          localStorage.clear();
+        }
+
+
+        await this.setAccounts(parsedTokenAccounts,resp.publicKey.toString())
+
     }
 
 
   } catch (err) {
+    window.location.reload()
       // { code: 4001, message: 'User rejected the request.' }
   }
 
@@ -358,7 +575,7 @@ async componentDidMount(){
 
 
 
-  console.log("Market Admin: " +market_config_data.admin_pubkey.toBase58())
+  console.log("Market Admin:" +market_config_data.admin_pubkey.toBase58())
 
 
 
@@ -382,7 +599,7 @@ async componentDidMount(){
     provider.on('accountChanged', (publicKey: { toBase58: () => any; }) => {
       if (publicKey) {
         // Set new public key and continue as usual
-        console.log(`Switched to account ${publicKey.toBase58()}`);
+        window.location.reload()
       } else {
         // Attempt to reconnect to Phantom
         provider.connect().catch((error: any) => {
@@ -757,7 +974,8 @@ async componentDidMount(){
               transaction.add(ix);
             } else {
               {
-                alert("Error in Creating Instruction")
+                alert("Accounts Needed for Instruction Undefined please Try Again")
+                window.location.reload()
               }
            }
           }
@@ -783,7 +1001,9 @@ async componentDidMount(){
               transaction.add(ix);
             } else {
               {
-                alert("Error in Creating Instruction")
+                alert("Accounts Needed for Instruction Undefined please Try Again")
+                window.location.reload()
+
               }
            }
           }
