@@ -73,6 +73,7 @@ let polaris_food_account = new PublicKey('9RQnXdVethx19HF9eaT688Sux5t6WcQcycLCJg
 class page extends Component {
 
   state={
+    renderControl:"...",
     userPubKey:null,
     foodMSRdisplay:"...",
     fuelMSRdisplay:"...",
@@ -124,10 +125,15 @@ class page extends Component {
   
       if (provider?.isPhantom) {
         return provider;
+      }else{
+      
       }
+    }else{
+      
+      return false;
+
     }
   
-    window.open('https://phantom.app/', '_blank');
   };
 
 
@@ -430,25 +436,24 @@ async changeToDevNet()
 
 }
 
+async componentDidMount(): void {
 
 
-async componentDidMount(){
+  
+
+  console.log("Here");
 
 
-  console.log(window.location.origin)
+  let provider = await this.getProvider();
 
-  if(window.location.origin.includes("localhost"))
+  if(provider==false)
   {
-    console.log("Assuming Devnet Deployment")
+    this.setState({renderControl:"noWallet"})
+    //window.open('https://phantom.app/', '_blank');
 
-    await this.changeToDevNet();
-  }
-
-
-  provider = await this.getProvider()
-    
-  console.log(provider)
-  try {
+  }else{
+    this.setState({renderControl:"main"})
+   
     const resp = await provider.connect();
     console.log("FeePayer:"+resp.publicKey.toString());
 
@@ -470,11 +475,6 @@ async componentDidMount(){
     }
 
 
-
-    let retrievedObject = localStorage.getItem(resp.publicKey.toString());
-
-    if (retrievedObject === null) {
-        console.log("No object with this key exists in Local Storage.");
         let mintFilter =  {
           "user_star_atlas_account": star_atlas_mint.toBase58(),
           "user_tools_account": tools_mint.toBase58(),
@@ -494,120 +494,190 @@ async componentDidMount(){
 
         await this.setAccounts(parsedTokenAccounts,resp.publicKey.toString())
 
-    } else {
-        console.log("returning user")
-        let parsedTokenAccounts = JSON.parse(retrievedObject);
-        console.log(parsedTokenAccounts);
-
-        //SA account
-        if(parsedTokenAccounts.user_star_atlas_account == 'null')
-        {
-          console.log("User has no star atlas account in cache")
-          localStorage.clear();
-        }
-
-        //tools
-        if(parsedTokenAccounts.user_tools_account == 'null')
-        {
-          console.log("User has no tools account in cache")
-          localStorage.clear();
-        }
-
-        //ammo
-        if(parsedTokenAccounts.user_ammo_account == 'null')
-        {
-          console.log("User has no ammo account in cache")
-          localStorage.clear();
-        }
-
-        //fuel
-        if(parsedTokenAccounts.user_fuel_account == 'null')
-        {
-          console.log("User has no fuel account in cache")
-          localStorage.clear();
-        }
-
-        //food
-        if(parsedTokenAccounts.user_food_account == 'null')
-        {
-          console.log("User has no food account in cache")
-          localStorage.clear();
-        }
-
-        //polaris exp
-        if(parsedTokenAccounts.user_polaris_exp_account == 'null')
-        {
-          console.log("User has no polaris exp account in cache")
-          localStorage.clear();
-        }
 
 
-        await this.setAccounts(parsedTokenAccounts,resp.publicKey.toString())
-
-    }
-
-
-  } catch (err) {
-    window.location.reload()
-      // { code: 4001, message: 'User rejected the request.' }
   }
 
 
-  let market_config_data = await this.getAndDecodeMarketplaceAccountData(connection,marketConfigAccount)
 
-  let market_atlas =  await this.getBalance(connection,pda_star_atlas_account)
-  let market_food = await this.getBalance(connection,pda_food_mint_tokenAccount)
-  let market_fuel = await this.getBalance(connection,pda_fuel_mint_tokenAccount)
-  let market_ammo = await this.getBalance(connection,pda_ammo_mint_tokenAccount)
-  let market_tools = await this.getBalance(connection,pda_tools_mint_tokenAccount)
+}
+
+// async componentDidMount(){
 
 
-  this.setState({
-    foodSupplyAmountDisplay:this.formatNumber(market_food),
-    fuelSupplyAmountDisplay:this.formatNumber(market_fuel),
-    ammoSupplyAmountDisplay:this.formatNumber(market_ammo),
-    toolsSupplyAmountDisplay:this.formatNumber(market_tools),
-    marketFoodSupplyAmount:market_food,
-    marketFuelSupplyAmount:market_fuel,
-    marketAmmoSupplyAmount:market_ammo,
-    marketToolsSupplyAmount:market_tools,
-  })
+//   console.log(window.location.origin)
+
+//   if(window.location.origin.includes("localhost"))
+//   {
+//     console.log("Assuming Devnet Deployment")
+
+//     await this.changeToDevNet();
+//   }
+
+
+//   provider = await this.getProvider()
+    
+//   console.log(provider)
+//   try {
+//     const resp = await provider.connect();
+//     console.log("FeePayer:"+resp.publicKey.toString());
+
+//     try {
+//       this.setState({userPubKey:resp.publicKey.toString()},()=>{
+//         //console.log(this.state.userPubKey)
+//       })
+
+//     } catch (error) {
+//       console.log(error)
+//     }
+
+//     let walletButton = document.getElementById("WalletButton");
+
+//     if(walletButton!==null)
+//     {
+//       walletButton.innerHTML = resp.publicKey.toString().slice(0,3) + "..." + resp.publicKey.toString().slice(-3) 
+  
+//     }
 
 
 
-  console.log("Market Admin:" +market_config_data.admin_pubkey.toBase58())
+//     let retrievedObject = localStorage.getItem(resp.publicKey.toString());
+
+//     if (retrievedObject === null) {
+//         console.log("No object with this key exists in Local Storage.");
+//         let mintFilter =  {
+//           "user_star_atlas_account": star_atlas_mint.toBase58(),
+//           "user_tools_account": tools_mint.toBase58(),
+//           "user_ammo_account": ammo_mint.toBase58(),
+//           "user_fuel_account": fuel_mint.toBase58(),
+//           "user_food_account": food_mint.toBase58(),
+//           "user_polaris_exp_account": polaris_exp_mint.toBase58()
+//         }
+    
+//         let parsedTokenAccounts = await this.checkAccountForMint(resp.publicKey.toString(),mintFilter )
+
+      
+//         console.log(parsedTokenAccounts)
+
+//         localStorage.setItem(resp.publicKey.toString(), JSON.stringify(parsedTokenAccounts));
+
+
+//         await this.setAccounts(parsedTokenAccounts,resp.publicKey.toString())
+
+//     } else {
+//         console.log("returning user")
+//         let parsedTokenAccounts = JSON.parse(retrievedObject);
+//         console.log(parsedTokenAccounts);
+
+//         //SA account
+//         if(parsedTokenAccounts.user_star_atlas_account == 'null')
+//         {
+//           console.log("User has no star atlas account in cache")
+//           localStorage.clear();
+//         }
+
+//         //tools
+//         if(parsedTokenAccounts.user_tools_account == 'null')
+//         {
+//           console.log("User has no tools account in cache")
+//           localStorage.clear();
+//         }
+
+//         //ammo
+//         if(parsedTokenAccounts.user_ammo_account == 'null')
+//         {
+//           console.log("User has no ammo account in cache")
+//           localStorage.clear();
+//         }
+
+//         //fuel
+//         if(parsedTokenAccounts.user_fuel_account == 'null')
+//         {
+//           console.log("User has no fuel account in cache")
+//           localStorage.clear();
+//         }
+
+//         //food
+//         if(parsedTokenAccounts.user_food_account == 'null')
+//         {
+//           console.log("User has no food account in cache")
+//           localStorage.clear();
+//         }
+
+//         //polaris exp
+//         if(parsedTokenAccounts.user_polaris_exp_account == 'null')
+//         {
+//           console.log("User has no polaris exp account in cache")
+//           localStorage.clear();
+//         }
+
+
+//         await this.setAccounts(parsedTokenAccounts,resp.publicKey.toString())
+
+//     }
+
+
+//   } catch (err) {
+//     window.location.reload()
+//       // { code: 4001, message: 'User rejected the request.' }
+//   }
+
+
+//   let market_config_data = await this.getAndDecodeMarketplaceAccountData(connection,marketConfigAccount)
+
+//   let market_atlas =  await this.getBalance(connection,pda_star_atlas_account)
+//   let market_food = await this.getBalance(connection,pda_food_mint_tokenAccount)
+//   let market_fuel = await this.getBalance(connection,pda_fuel_mint_tokenAccount)
+//   let market_ammo = await this.getBalance(connection,pda_ammo_mint_tokenAccount)
+//   let market_tools = await this.getBalance(connection,pda_tools_mint_tokenAccount)
+
+
+//   this.setState({
+//     foodSupplyAmountDisplay:this.formatNumber(market_food),
+//     fuelSupplyAmountDisplay:this.formatNumber(market_fuel),
+//     ammoSupplyAmountDisplay:this.formatNumber(market_ammo),
+//     toolsSupplyAmountDisplay:this.formatNumber(market_tools),
+//     marketFoodSupplyAmount:market_food,
+//     marketFuelSupplyAmount:market_fuel,
+//     marketAmmoSupplyAmount:market_ammo,
+//     marketToolsSupplyAmount:market_tools,
+//   })
 
 
 
-    this.setState({
-      foodMSRP:market_config_data.food,
-      fuelMSRP:market_config_data.fuel,
-      ammoMSRP:market_config_data.ammo,
-      toolsMSRP:market_config_data.tools,
-      foodMSRdisplay:market_config_data.food,
-      fuelMSRdisplay:market_config_data.fuel,
-      ammoMSRdisplay:market_config_data.ammo,
-      toolsMSRdisplay:market_config_data.tools
-
-    })
-
-    console.log(window.location.pathname)
+//   console.log("Market Admin:" +market_config_data.admin_pubkey.toBase58())
 
 
-    provider.on("connect", () => console.log("connected"));
 
-    provider.on('accountChanged', (publicKey: { toBase58: () => any; }) => {
-      if (publicKey) {
-        // Set new public key and continue as usual
-        window.location.reload()
-      } else {
-        // Attempt to reconnect to Phantom
-        provider.connect().catch((error: any) => {
-          // Handle connection failure
-        });
-      }
-  });
-  }
+//     this.setState({
+//       foodMSRP:market_config_data.food,
+//       fuelMSRP:market_config_data.fuel,
+//       ammoMSRP:market_config_data.ammo,
+//       toolsMSRP:market_config_data.tools,
+//       foodMSRdisplay:market_config_data.food,
+//       fuelMSRdisplay:market_config_data.fuel,
+//       ammoMSRdisplay:market_config_data.ammo,
+//       toolsMSRdisplay:market_config_data.tools
+
+//     })
+
+//     console.log(window.location.pathname)
+
+
+//     provider.on("connect", () => console.log("connected"));
+
+//     provider.on('accountChanged', (publicKey: { toBase58: () => any; }) => {
+//       if (publicKey) {
+//         // Set new public key and continue as usual
+//         window.location.reload()
+//       } else {
+//         // Attempt to reconnect to Phantom
+//         provider.connect().catch((error: any) => {
+//           // Handle connection failure
+//         });
+//       }
+//   });
+//   }
 
   async walletClick()
   {
@@ -1254,115 +1324,156 @@ async componentDidMount(){
 
 
   render() {
-    return (
-      <div>
-        {/* NAVBAR START HERE */}
-        <div className='navBar'>
-          <div className="logo">
-            <img className='logo-image' src="https://cdn.discordapp.com/attachments/1119286494453055528/1126142304319717417/PXPbig-RedCirclePLess.png"></img>
-            <h2 className='heading'>Polaris Fuel</h2>
-          </div>
 
-          <div className="toggle">
-            <button onClick={this.customerClick.bind(this)} style={{backgroundColor:this.state.customerButtonColor}} className='toggleChild'>Customer</button>
-            <button onClick={this.providerClick.bind(this)} style={{backgroundColor:this.state.providerButtonColor}} className='toggleChild'>Polaris Provider</button>
-          </div>
-
-          <button style={{position:"relative",top:65,width:225,height:60,backgroundColor:"#e36414",color:"white", marginRight: 60, border: 'none', outline: 'none', borderRadius: '20px', fontSize: 18, cursor: 'pointer'}} id="WalletButton" onClick={this.walletClick}>Connect Wallet</button>
+    if(window.screen.availWidth<600)
+    {
+      return (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh', // Use 100% of the viewport height
+        }}>
+          <div style={{color:'white'}}>Desktop Required</div>
         </div>
-        {/* NAVBAR ENDS HERE */}
+      );
+    }
 
+    else if(this.state.renderControl=="noWallet")
+    {
+      return(
+          <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100vh', // Use 100% of the viewport height
+              flexDirection: 'column' // Stack children vertically
+            }}>
+              <div style={{color:"white"}}>Phantom Wallet is Required to Use Polaris Fuel</div>
+              <button style={{marginTop:20}} onClick={() => window.open('https://phantom.app/download', '_blank')}>
+                Click to Navigate
+              </button>
+          </div>
+      )
+    }
+    
+    
+    else if(this.state.renderControl=="main"){
 
-       {/* MARKET UI STARTS HERE */}
-       <div className='marketUi'>
-          <div className='smallContainer'>
-            <div className='sectionContainer'>
-              <h2>.</h2>
-              <div className="content">
-                <h3>FOOD</h3>
-                <h3>FUEL</h3>
-                <h3>AMMO</h3>
-                <h3>TOOLS</h3>
+      return (
+        <div>
+          {/* NAVBAR START HERE */}
+          <div className='navBar'>
+            <div className="logo">
+              <img className='logo-image' src="https://cdn.discordapp.com/attachments/1119286494453055528/1126142304319717417/PXPbig-RedCirclePLess.png"></img>
+              <h2 className='heading'>Polaris Fuel</h2>
+            </div>
+  
+            <div className="toggle">
+              <button onClick={this.customerClick.bind(this)} style={{backgroundColor:this.state.customerButtonColor}} className='toggleChild'>Customer</button>
+              <button onClick={this.providerClick.bind(this)} style={{backgroundColor:this.state.providerButtonColor}} className='toggleChild'>Polaris Provider</button>
+            </div>
+  
+            <button style={{position:"relative",top:65,width:225,height:60,backgroundColor:"#e36414",color:"white", marginRight: 60, border: 'none', outline: 'none', borderRadius: '20px', fontSize: 18, cursor: 'pointer'}} id="WalletButton" onClick={this.walletClick}>Connect Wallet</button>
+          </div>
+          {/* NAVBAR ENDS HERE */}
+  
+  
+         {/* MARKET UI STARTS HERE */}
+         <div className='marketUi'>
+            <div className='smallContainer'>
+              <div className='sectionContainer'>
+                <h2>.</h2>
+                <div className="content">
+                  <h3>FOOD</h3>
+                  <h3>FUEL</h3>
+                  <h3>AMMO</h3>
+                  <h3>TOOLS</h3>
+                </div>
               </div>
+              
+              <div className='sectionContainer'>
+                <h2 className='headingSection'>{this.state.marketQtyBoxText}</h2>
+                <div className="content">
+                  <h3>{this.state.foodSupplyAmountDisplay}</h3>
+                  <h3>{this.state.fuelSupplyAmountDisplay}</h3>
+                  <h3>{this.state.ammoSupplyAmountDisplay}</h3>
+                  <h3>{this.state.toolsSupplyAmountDisplay}</h3>
+                </div>
+              </div>
+  
+              <div className='sectionContainer'>
+                <h2 className='headingSection'>Current Price</h2>
+                <div className="content">
+                  <h3 className='quantity'>{this.state.foodMSRdisplay} <span> Atlas</span></h3>
+                  <h3 className='quantity'>{this.state.fuelMSRdisplay} <span> Atlas</span></h3>
+                  <h3 className='quantity'>{this.state.ammoMSRdisplay} <span> Atlas</span></h3>
+                  <h3 className='quantity'>{this.state.toolsMSRdisplay} <span> Atlas</span></h3>
+                </div>
+              </div>
+              
+              <div className='sectionContainer'>
+                <h2 className='headingSection'>{this.state.amountBoxText}</h2>
+                <div className="content">
+                  <div className="buyingAmount">
+                    <input type="text" placeholder='Enter Amount' id='food' onChange={this.changeAmount.bind(this)}  onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
+                    <button onClick={this.foodMaxClicked.bind(this)}>Max</button>
+                    <span>{this.formatNumber((Number(this.state.foodMSRdisplay)*this.state.foodAmount).toFixed(6))} <span>  Atlas</span></span>
+                  </div>
+                  
+                  <div style={{marginTop: 12}} className="buyingAmount">
+                    <input type="text" placeholder='Enter Amount' id='fuel' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
+                    <button onClick={this.fuelMaxClicked.bind(this)}>Max</button>
+                    <span>{this.formatNumber((Number(this.state.fuelMSRdisplay)*this.state.fuelAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  </div>
+                  
+                  <div style={{marginTop: 12}} className="buyingAmount">
+                    <input type="text" placeholder='Enter Amount' id='ammo' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
+                    <button onClick={this.ammoMaxClicked.bind(this)}>Max</button>
+                    <span>{this.formatNumber((Number(this.state.ammoMSRdisplay)*this.state.ammoAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  </div>
+                  
+                  <div style={{marginTop: 12}} className="buyingAmount">
+                    <input type="text" placeholder='Enter Amount' id='tools' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
+                    <button onClick={this.toolsMaxClicked.bind(this)}>Max</button>
+                    <span>{this.formatNumber((Number(this.state.toolsMSRdisplay)*this.state.toolsAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+  
+        {/* MARKET UI ENDS HERE */}
+  
+        
+        {/* Action Button Starts HERE */}
+          <button id="Send" onClick={this.callProgram.bind(this)}>{this.state.actionButton}</button>
+        {/* Action Button ends HERE */}
+  
+  
+        {/* FOOTER STARTS HERE */}
+          <div className="footer">
+            <div className="memberShipLevel">
+              <h3 className='footerHeading'>Membership Level: </h3>
+              <div className="icon"></div>
+              <h3 className="rank">Bronze</h3>
             </div>
             
-            <div className='sectionContainer'>
-              <h2 className='headingSection'>{this.state.marketQtyBoxText}</h2>
-              <div className="content">
-                <h3>{this.state.foodSupplyAmountDisplay}</h3>
-                <h3>{this.state.fuelSupplyAmountDisplay}</h3>
-                <h3>{this.state.ammoSupplyAmountDisplay}</h3>
-                <h3>{this.state.toolsSupplyAmountDisplay}</h3>
-              </div>
-            </div>
-
-            <div className='sectionContainer'>
-              <h2 className='headingSection'>Current Price</h2>
-              <div className="content">
-                <h3 className='quantity'>{this.state.foodMSRdisplay} <span> Atlas</span></h3>
-                <h3 className='quantity'>{this.state.fuelMSRdisplay} <span> Atlas</span></h3>
-                <h3 className='quantity'>{this.state.ammoMSRdisplay} <span> Atlas</span></h3>
-                <h3 className='quantity'>{this.state.toolsMSRdisplay} <span> Atlas</span></h3>
-              </div>
-            </div>
-            
-            <div className='sectionContainer'>
-              <h2 className='headingSection'>{this.state.amountBoxText}</h2>
-              <div className="content">
-                <div className="buyingAmount">
-                  <input type="text" placeholder='Enter Amount' id='food' onChange={this.changeAmount.bind(this)}  onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
-                  <button onClick={this.foodMaxClicked.bind(this)}>Max</button>
-                  <span>{this.formatNumber((Number(this.state.foodMSRdisplay)*this.state.foodAmount).toFixed(6))} <span>  Atlas</span></span>
-                </div>
-                
-                <div style={{marginTop: 12}} className="buyingAmount">
-                  <input type="text" placeholder='Enter Amount' id='fuel' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
-                  <button onClick={this.fuelMaxClicked.bind(this)}>Max</button>
-                  <span>{this.formatNumber((Number(this.state.fuelMSRdisplay)*this.state.fuelAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
-                </div>
-                
-                <div style={{marginTop: 12}} className="buyingAmount">
-                  <input type="text" placeholder='Enter Amount' id='ammo' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
-                  <button onClick={this.ammoMaxClicked.bind(this)}>Max</button>
-                  <span>{this.formatNumber((Number(this.state.ammoMSRdisplay)*this.state.ammoAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
-                </div>
-                
-                <div style={{marginTop: 12}} className="buyingAmount">
-                  <input type="text" placeholder='Enter Amount' id='tools' onChange={this.changeAmount.bind(this)} onKeyPress={event => {if(event.key === '.') event.preventDefault();}}/>
-                  <button onClick={this.toolsMaxClicked.bind(this)}>Max</button>
-                  <span>{this.formatNumber((Number(this.state.toolsMSRdisplay)*this.state.toolsAmount).toFixed(6))} <span style={{color: '#f0f0f0', paddingLeft: 15}}>  Atlas</span></span>
-                </div>
-              </div>
+            <div className="currentPxp">
+              <h3 className='footerHeading'>Current PXP: </h3>
+              <h3 className="pxp">{this.formatNumber(this.state.userPolarisExpSupplyAmount)}</h3>
             </div>
           </div>
-      </div>
-
-      {/* MARKET UI ENDS HERE */}
-
-      
-      {/* Action Button Starts HERE */}
-        <button id="Send" onClick={this.callProgram.bind(this)}>{this.state.actionButton}</button>
-      {/* Action Button ends HERE */}
-
-
-      {/* FOOTER STARTS HERE */}
-        <div className="footer">
-          <div className="memberShipLevel">
-            <h3 className='footerHeading'>Membership Level: </h3>
-            <div className="icon"></div>
-            <h3 className="rank">Bronze</h3>
-          </div>
-          
-          <div className="currentPxp">
-            <h3 className='footerHeading'>Current PXP: </h3>
-            <h3 className="pxp">{this.formatNumber(this.state.userPolarisExpSupplyAmount)}</h3>
-          </div>
+        {/* FOOTER ENDS HERE */}
+  
+  
         </div>
-      {/* FOOTER ENDS HERE */}
+      );
+
+    }
 
 
-      </div>
-    );
+
   }
 }
 
