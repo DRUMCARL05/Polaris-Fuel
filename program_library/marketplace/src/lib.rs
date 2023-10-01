@@ -2,20 +2,20 @@ use solana_program::{
     account_info::{ next_account_info, AccountInfo },
     entrypoint,
     entrypoint::ProgramResult,
-    program::{ self, invoke, invoke_signed },
+    program::{ invoke, invoke_signed },
     program_error::ProgramError,
     pubkey::Pubkey,
-    rent::Rent,
-    system_instruction,
-    sysvar::Sysvar,
+    //rent::Rent,
+    //system_instruction,
+    //sysvar::Sysvar,
     msg,
 };
 
 use solana_program::instruction::Instruction;
 use solana_program::instruction::AccountMeta;
 use borsh::{ BorshDeserialize, BorshSerialize };
-use spl_token::state::Account as TokenAccount;
-use solana_program::program_pack::Pack;
+//use spl_token::state::Account as TokenAccount;
+//use solana_program::program_pack::Pack;
 use std::convert::TryInto;
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
@@ -40,26 +40,59 @@ pub fn process_instruction(
         return Err(ProgramError::InvalidInstructionData);
     }
 
-    let polaris_admin_pubkey_string = "9z8eyT5meZsQK79Pm2rmqBQcQKfj6tWJfRVbjQczyKcK".to_string();
 
-    let pda_star_atlas_account_string = "GJNKMrcsH5m7vem9WSxs7SEpMrHeihNqtQg6CzCFuhPY".to_string();
-    let pda_tools_account_string = "B9xSJqsBuy9Xj3kCpsh8ZpJpphyU62aaNCqmbL5qsxjC".to_string();
-    let pda_ammo_account_string = "EtgTTdct3r8kJgUmjiWWBrPHG9g5rBhUFouc9npvG6t9".to_string();
-    let pda_fuel_account_string = "8LG7PKi9GyxM7Nm3EVaYDG18fBfwjo5boNtAF5ZiW7KL".to_string();
-    let pda_food_account_string = "BeLzpdSP3bsuieattadMFseup9gkuNfNV1Grde134CFH".to_string();
+    // Define public key strings for devnet and mainnet.
+    let (polaris_admin_pubkey_string, 
+        pda_star_atlas_account_string, 
+        pda_tools_account_string, 
+        pda_ammo_account_string, 
+        pda_fuel_account_string, 
+        pda_food_account_string,
+        polaris_tools_account_string, 
+        polaris_ammo_account_string, 
+        polaris_fuel_account_string, 
+        polaris_food_account_string, 
+        allowed_fee_star_atlas_account_string) = if instruction_data[0] == 1 {
+        // devnet keys
+        (
+            "9z8eyT5meZsQK79Pm2rmqBQcQKfj6tWJfRVbjQczyKcK".to_string(),
+            "GJNKMrcsH5m7vem9WSxs7SEpMrHeihNqtQg6CzCFuhPY".to_string(),
+            "B9xSJqsBuy9Xj3kCpsh8ZpJpphyU62aaNCqmbL5qsxjC".to_string(),
+            "EtgTTdct3r8kJgUmjiWWBrPHG9g5rBhUFouc9npvG6t9".to_string(),
+            "8LG7PKi9GyxM7Nm3EVaYDG18fBfwjo5boNtAF5ZiW7KL".to_string(),
+            "BeLzpdSP3bsuieattadMFseup9gkuNfNV1Grde134CFH".to_string(),
+            "51CQRTPagzt8MX6KBAoAyTfDqM9n4NvepjC4fuZ5fgqu".to_string(),
+            "HhZpu7GvaAcU752HeYCApTvjLd9yY66hyRqvbfFxCXd4".to_string(),
+            "Gdghebj3V9deG9FuNfS43kDmzTsL5keHYXeCeReaH1bX".to_string(),
+            "9RQnXdVethx19HF9eaT688Sux5t6WcQcycLCJgKJGDru".to_string(),
+            "5RWZnLxovGyWsn3KuWbcBnBNpbJ8FH8eLvxztZaZmWzh".to_string(),
+        )
+    } else {
+    // mainnet keys
+        (
+            "9z8eyT5meZsQK79Pm2rmqBQcQKfj6tWJfRVbjQczyKcK".to_string(),
+            "GJNKMrcsH5m7vem9WSxs7SEpMrHeihNqtQg6CzCFuhPY".to_string(),
+            "B9xSJqsBuy9Xj3kCpsh8ZpJpphyU62aaNCqmbL5qsxjC".to_string(),
+            "EtgTTdct3r8kJgUmjiWWBrPHG9g5rBhUFouc9npvG6t9".to_string(),
+            "8LG7PKi9GyxM7Nm3EVaYDG18fBfwjo5boNtAF5ZiW7KL".to_string(),
+            "BeLzpdSP3bsuieattadMFseup9gkuNfNV1Grde134CFH".to_string(),
+            "51CQRTPagzt8MX6KBAoAyTfDqM9n4NvepjC4fuZ5fgqu".to_string(),
+            "HhZpu7GvaAcU752HeYCApTvjLd9yY66hyRqvbfFxCXd4".to_string(),
+            "Gdghebj3V9deG9FuNfS43kDmzTsL5keHYXeCeReaH1bX".to_string(),
+            "9RQnXdVethx19HF9eaT688Sux5t6WcQcycLCJgKJGDru".to_string(),
+            "5RWZnLxovGyWsn3KuWbcBnBNpbJ8FH8eLvxztZaZmWzh".to_string(),
+        )
+    };
 
-    let polaris_tools_account_string = "51CQRTPagzt8MX6KBAoAyTfDqM9n4NvepjC4fuZ5fgqu".to_string();
-    let polaris_ammo_account_string = "HhZpu7GvaAcU752HeYCApTvjLd9yY66hyRqvbfFxCXd4".to_string();
-    let polaris_fuel_account_string = "Gdghebj3V9deG9FuNfS43kDmzTsL5keHYXeCeReaH1bX".to_string();
-    let polaris_food_account_string = "9RQnXdVethx19HF9eaT688Sux5t6WcQcycLCJgKJGDru".to_string();
 
-    let allowed_fee_star_atlas_account_string =
-        "5RWZnLxovGyWsn3KuWbcBnBNpbJ8FH8eLvxztZaZmWzh".to_string();
 
-    match instruction_data[0] {
+
+
+
+    match instruction_data[1] {
         0 => {
             msg!("Instruction: 0");
-            buy_resource(
+            user_is_buying_resource(
                 _program_id,
                 accounts,
                 instruction_data,
@@ -81,7 +114,7 @@ pub fn process_instruction(
         }
         3 => {
             msg!("Instruction: 3");
-            sell_resource(
+            user_is_selling_resource(
                 _program_id,
                 accounts,
                 instruction_data,
@@ -107,7 +140,7 @@ pub fn process_instruction(
     }
 }
 
-pub fn buy_resource(
+pub fn user_is_buying_resource(
     _program_id: &Pubkey,
     accounts: &[AccountInfo],
     instruction_data: &[u8],
@@ -125,11 +158,11 @@ pub fn buy_resource(
     let payer_account = next_account_info(accounts_iter)?;
     let pda_account = next_account_info(accounts_iter)?;
 
-    let star_atlas_mint = next_account_info(accounts_iter)?;
+    //let star_atlas_mint = next_account_info(accounts_iter)?;
     let user_star_atlas_account = next_account_info(accounts_iter)?;
     let pda_star_atlas_account = next_account_info(accounts_iter)?;
 
-    let resource_mint = next_account_info(accounts_iter)?;
+    //let resource_mint = next_account_info(accounts_iter)?;
     let user_resource_account = next_account_info(accounts_iter)?;
     let pda_resource_account = next_account_info(accounts_iter)?;
     let fee_star_atlas_account = next_account_info(accounts_iter)?;
@@ -137,13 +170,13 @@ pub fn buy_resource(
     let system_program = next_account_info(accounts_iter)?;
     let token_program = next_account_info(accounts_iter)?;
 
-    let reward_mint = next_account_info(accounts_iter)?;
-    let reward_recepient_account = next_account_info(accounts_iter)?;
+    //let reward_mint = next_account_info(accounts_iter)?;
+    //let reward_recepient_account = next_account_info(accounts_iter)?;
     let marketplace_account = next_account_info(accounts_iter)?;
 
-    let seed = &instruction_data[1..14];
-    let bump = instruction_data[14];
-    let amount = u64::from_be_bytes((&instruction_data[15..23]).try_into().unwrap()).to_be();
+    let seed = &instruction_data[2..15];
+    let bump = instruction_data[15];
+    let amount = u64::from_be_bytes((&instruction_data[16..24]).try_into().unwrap()).to_be();
 
     //security check
     let allowed_resource_accounts = vec![
@@ -338,7 +371,7 @@ pub fn configure_vault(
 
     msg!("Configuring Data Length {:?}", instruction_data.len());
 
-    let mut data = &mut *marketplace_config_account.data.borrow_mut();
+    let data = &mut *marketplace_config_account.data.borrow_mut();
     msg!("Configuring Marketplace Config Data Length {:?}", data.len());
     msg!("Configuring Marketplace Config Data {:?}", data);
 
@@ -353,16 +386,16 @@ pub fn configure_vault(
         marketplace_data.is_initialized != 0 &&
         marketplace_data.admin_pubkey == *feepayer_account.key.as_ref()
     {
-        if instruction_data.len() == data.len() + 1 {
-            data[0..instruction_data.len() - 1].copy_from_slice(&instruction_data[1..]);
+        if instruction_data.len() == data.len() + 2 {
+            data[0..instruction_data.len() - 2].copy_from_slice(&instruction_data[2..]);
         } else {
             return Err(ProgramError::InvalidAccountData);
         }
     }
 
     if marketplace_data.is_initialized == 0 {
-        if instruction_data.len() == data.len() + 1 {
-            data[0..instruction_data.len() - 1].copy_from_slice(&instruction_data[1..]);
+        if instruction_data.len() == data.len() + 2 {
+            data[0..instruction_data.len() - 2].copy_from_slice(&instruction_data[2..]);
         } else {
             return Err(ProgramError::InvalidAccountData);
         }
@@ -398,9 +431,9 @@ pub fn update_meta_data(
     let system_program_account = next_account_info(accounts_iter)?;
     // msg!("Accounts passed in system_program_account: {:?}", system_program_account);
 
-    let seed = &instruction_data[1..14];
-    let bump = instruction_data[14];
-    let meta_data_data = &instruction_data[15..instruction_data.len()];
+    let seed = &instruction_data[2..15];
+    let bump = instruction_data[15];
+    let meta_data_data = &instruction_data[16..instruction_data.len()];
 
     // msg!("Passed in seed: {:?}", seed);
     // msg!("Passed in bump: {:?}", bump);
@@ -437,7 +470,7 @@ pub fn update_meta_data(
     Ok(())
 }
 
-pub fn sell_resource(
+pub fn user_is_selling_resource(
     _program_id: &Pubkey,
     accounts: &[AccountInfo],
     instruction_data: &[u8],
@@ -453,11 +486,12 @@ pub fn sell_resource(
     let payer_account = next_account_info(accounts_iter)?;
     let pda_account = next_account_info(accounts_iter)?;
 
-    let star_atlas_mint = next_account_info(accounts_iter)?;
+    //let star_atlas_mint = next_account_info(accounts_iter)?;
     let user_star_atlas_account = next_account_info(accounts_iter)?;
     let pda_star_atlas_account = next_account_info(accounts_iter)?;
 
-    let resource_mint = next_account_info(accounts_iter)?;
+    //tranfers only need the account 
+    //let resource_mint = next_account_info(accounts_iter)?;
     let user_resource_account = next_account_info(accounts_iter)?;
     let pda_resource_account = next_account_info(accounts_iter)?;
 
@@ -468,9 +502,9 @@ pub fn sell_resource(
     let reward_recepient_account = next_account_info(accounts_iter)?;
     let marketplace_account = next_account_info(accounts_iter)?;
 
-    let seed = &instruction_data[1..14];
-    let bump = instruction_data[14];
-    let amount = u64::from_be_bytes((&instruction_data[15..23]).try_into().unwrap()).to_be();
+    let seed = &instruction_data[2..15];
+    let bump = instruction_data[15];
+    let amount = u64::from_be_bytes((&instruction_data[16..24]).try_into().unwrap()).to_be();
 
     // msg!("Accounts passed in from_account: {:?}", from_account);
     // msg!("Accounts passed i to_accountn: {:?}", to_account);
@@ -637,9 +671,9 @@ pub fn admin_liquidate_market(
     let system_program = next_account_info(accounts_iter)?;
 
     //instruction data
-    let seed = &instruction_data[1..14];
-    let bump = instruction_data[14];
-    let amount = u64::from_be_bytes((&instruction_data[15..23]).try_into().unwrap()).to_be();
+    let seed = &instruction_data[2..15];
+    let bump = instruction_data[15];
+    let amount = u64::from_be_bytes((&instruction_data[16..24]).try_into().unwrap()).to_be();
 
     // Checking if passed PDA and expected PDA are equal
     let signers_seeds: &[&[u8]; 2] = &[seed, &[bump]];

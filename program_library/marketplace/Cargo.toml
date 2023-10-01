@@ -7,6 +7,6 @@ edition = "2021"
 crate-type = ["cdylib", "lib"]
 
 [dependencies]
-solana-program = "1.16.0"
+solana-program = "1.16.15"
 spl-token = { version="3.5.0", features = [ "no-entrypoint" ] }
 borsh = "0.10.3"
