@@ -39,6 +39,6 @@ Using the Polaris Fuel app is straightforward. Users can:
 
 ## Team Members
 
-- **Developer Studio:** Sealó Studio
+- **Developer Studio:** Seal6 Studio
 - **Project Manager:** azuldev
 - **Project Owner:** Polaris Fuel DAC - DRUMCARL05
