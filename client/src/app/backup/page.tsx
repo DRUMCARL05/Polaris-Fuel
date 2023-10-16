@@ -137,6 +137,9 @@ class page extends Component {
     marketFee: 0.1,
     amountBoxText: "Buying Amount",
     marketQtyBoxText: "Mrkt QTY",
+
+    // Alex Update
+    activeToggleBtn: "customer",
   };
 
   async getProvider() {
@@ -538,168 +541,6 @@ class page extends Component {
       await this.setAccounts(parsedTokenAccounts, resp.publicKey.toString());
     }
   }
-
-  // async componentDidMount(){
-
-  //   console.log(window.location.origin)
-
-  //   if(window.location.origin.includes("localhost"))
-  //   {
-  //     console.log("Assuming Devnet Deployment")
-
-  //     await this.changeToDevNet();
-  //   }
-
-  //   provider = await this.getProvider()
-
-  //   console.log(provider)
-  //   try {
-  //     const resp = await provider.connect();
-  //     console.log("FeePayer:"+resp.publicKey.toString());
-
-  //     try {
-  //       this.setState({userPubKey:resp.publicKey.toString()},()=>{
-  //         //console.log(this.state.userPubKey)
-  //       })
-
-  //     } catch (error) {
-  //       console.log(error)
-  //     }
-
-  //     let walletButton = document.getElementById("WalletButton");
-
-  //     if(walletButton!==null)
-  //     {
-  //       walletButton.innerHTML = resp.publicKey.toString().slice(0,3) + "..." + resp.publicKey.toString().slice(-3)
-
-  //     }
-
-  //     let retrievedObject = localStorage.getItem(resp.publicKey.toString());
-
-  //     if (retrievedObject === null) {
-  //         console.log("No object with this key exists in Local Storage.");
-  //         let mintFilter =  {
-  //           "user_star_atlas_account": star_atlas_mint.toBase58(),
-  //           "user_tools_account": tools_mint.toBase58(),
-  //           "user_ammo_account": ammo_mint.toBase58(),
-  //           "user_fuel_account": fuel_mint.toBase58(),
-  //           "user_food_account": food_mint.toBase58(),
-  //           "user_polaris_exp_account": polaris_exp_mint.toBase58()
-  //         }
-
-  //         let parsedTokenAccounts = await this.checkAccountForMint(resp.publicKey.toString(),mintFilter )
-
-  //         console.log(parsedTokenAccounts)
-
-  //         localStorage.setItem(resp.publicKey.toString(), JSON.stringify(parsedTokenAccounts));
-
-  //         await this.setAccounts(parsedTokenAccounts,resp.publicKey.toString())
-
-  //     } else {
-  //         console.log("returning user")
-  //         let parsedTokenAccounts = JSON.parse(retrievedObject);
-  //         console.log(parsedTokenAccounts);
-
-  //         //SA account
-  //         if(parsedTokenAccounts.user_star_atlas_account == 'null')
-  //         {
-  //           console.log("User has no star atlas account in cache")
-  //           localStorage.clear();
-  //         }
-
-  //         //tools
-  //         if(parsedTokenAccounts.user_tools_account == 'null')
-  //         {
-  //           console.log("User has no tools account in cache")
-  //           localStorage.clear();
-  //         }
-
-  //         //ammo
-  //         if(parsedTokenAccounts.user_ammo_account == 'null')
-  //         {
-  //           console.log("User has no ammo account in cache")
-  //           localStorage.clear();
-  //         }
-
-  //         //fuel
-  //         if(parsedTokenAccounts.user_fuel_account == 'null')
-  //         {
-  //           console.log("User has no fuel account in cache")
-  //           localStorage.clear();
-  //         }
-
-  //         //food
-  //         if(parsedTokenAccounts.user_food_account == 'null')
-  //         {
-  //           console.log("User has no food account in cache")
-  //           localStorage.clear();
-  //         }
-
-  //         //polaris exp
-  //         if(parsedTokenAccounts.user_polaris_exp_account == 'null')
-  //         {
-  //           console.log("User has no polaris exp account in cache")
-  //           localStorage.clear();
-  //         }
-
-  //         await this.setAccounts(parsedTokenAccounts,resp.publicKey.toString())
-
-  //     }
-
-  //   } catch (err) {
-  //     window.location.reload()
-  //       // { code: 4001, message: 'User rejected the request.' }
-  //   }
-
-  //   let market_config_data = await this.getAndDecodeMarketplaceAccountData(connection,marketConfigAccount)
-
-  //   let market_atlas =  await this.getBalance(connection,pda_star_atlas_account)
-  //   let market_food = await this.getBalance(connection,pda_food_mint_tokenAccount)
-  //   let market_fuel = await this.getBalance(connection,pda_fuel_mint_tokenAccount)
-  //   let market_ammo = await this.getBalance(connection,pda_ammo_mint_tokenAccount)
-  //   let market_tools = await this.getBalance(connection,pda_tools_mint_tokenAccount)
-
-  //   this.setState({
-  //     foodSupplyAmountDisplay:this.formatNumber(market_food),
-  //     fuelSupplyAmountDisplay:this.formatNumber(market_fuel),
-  //     ammoSupplyAmountDisplay:this.formatNumber(market_ammo),
-  //     toolsSupplyAmountDisplay:this.formatNumber(market_tools),
-  //     marketFoodSupplyAmount:market_food,
-  //     marketFuelSupplyAmount:market_fuel,
-  //     marketAmmoSupplyAmount:market_ammo,
-  //     marketToolsSupplyAmount:market_tools,
-  //   })
-
-  //   console.log("Market Admin:" +market_config_data.admin_pubkey.toBase58())
-
-  //     this.setState({
-  //       foodMSRP:market_config_data.food,
-  //       fuelMSRP:market_config_data.fuel,
-  //       ammoMSRP:market_config_data.ammo,
-  //       toolsMSRP:market_config_data.tools,
-  //       foodMSRdisplay:market_config_data.food,
-  //       fuelMSRdisplay:market_config_data.fuel,
-  //       ammoMSRdisplay:market_config_data.ammo,
-  //       toolsMSRdisplay:market_config_data.tools
-
-  //     })
-
-  //     console.log(window.location.pathname)
-
-  //     provider.on("connect", () => console.log("connected"));
-
-  //     provider.on('accountChanged', (publicKey: { toBase58: () => any; }) => {
-  //       if (publicKey) {
-  //         // Set new public key and continue as usual
-  //         window.location.reload()
-  //       } else {
-  //         // Attempt to reconnect to Phantom
-  //         provider.connect().catch((error: any) => {
-  //           // Handle connection failure
-  //         });
-  //       }
-  //   });
-  //   }
 
   async walletClick() {
     var walletButton = document.getElementById("WalletButton");
@@ -1366,39 +1207,49 @@ class page extends Component {
         <div>
           {/* NAVBAR START HERE */}
           <div className='navBar'>
-            <div className="logo">
-              <img className='logo-image' src="https://cdn.discordapp.com/attachments/1119286494453055528/1126142304319717417/PXPbig-RedCirclePLess.png"></img>
+            <div className='logo flex items-center'>
+              <img
+                className='logo-image'
+                src='https://cdn.discordapp.com/attachments/1119286494453055528/1126142304319717417/PXPbig-RedCirclePLess.png'></img>
               <h2 className='heading'>Polaris Fuel</h2>
             </div>
-  
-            <div className="toggle">
-              <button onClick={this.customerClick.bind(this)} style={{backgroundColor:this.state.customerButtonColor}} className='toggleChild'>Customer</button>
-              <button onClick={this.providerClick.bind(this)} style={{backgroundColor:this.state.providerButtonColor}} className='toggleChild'>Polaris Provider</button>
+
+            <div className='toggle'>
+              <button
+                onClick={this.customerClick.bind(this)}
+                style={{ backgroundColor: this.state.customerButtonColor }}
+                className='toggleChild'>
+                Customer
+              </button>
+              <button
+                onClick={this.providerClick.bind(this)}
+                style={{ backgroundColor: this.state.providerButtonColor }}
+                className='toggleChild'>
+                Polaris Provider
+              </button>
             </div>
-  
-            <button style={{position:"relative",top:65,width:225,height:60,backgroundColor:"#e36414",color:"white", marginRight: 60, border: 'none', outline: 'none', borderRadius: '20px', fontSize: 18, cursor: 'pointer'}} id="WalletButton" onClick={this.walletClick}>Connect Wallet</button>
+
+            <button
+              style={{
+                position: "relative",
+                top: 65,
+                width: 225,
+                height: 60,
+                backgroundColor: "#e36414",
+                color: "white",
+                marginRight: 60,
+                border: "none",
+                outline: "none",
+                borderRadius: "20px",
+                fontSize: 18,
+                cursor: "pointer",
+              }}
+              id='WalletButton'
+              onClick={this.walletClick}>
+              Connect Wallet
+            </button>
           </div>
           {/* NAVBAR ENDS HERE */}
-
-
-          <main>
-            <div>
-              <div className='toggle'>
-                <button
-                  onClick={this.customerClick.bind(this)}
-                  style={{ backgroundColor: this.state.customerButtonColor }}
-                  className='toggleChild'>
-                  Customer
-                </button>
-                <button
-                  onClick={this.providerClick.bind(this)}
-                  style={{ backgroundColor: this.state.providerButtonColor }}
-                  className='toggleChild'>
-                  Polaris Provider
-                </button>
-              </div>
-            </div>
-          </main>
 
           {/* MARKET UI STARTS HERE */}
           <div className='marketUi'>
