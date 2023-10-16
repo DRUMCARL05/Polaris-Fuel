@@ -213,19 +213,3 @@ input {
 .footerHeading {
   color: #edf2f4;
 }
-
-#Send {
-  margin-top: 50px;
-  width: 200px;
-  margin-left: auto;
-  margin-right: auto;
-  display: block;
-  height: 50px;
-  font-size: 18px;
-  color: #e36414;
-  background: none;
-  border: 1px solid #e36414;
-  border-radius: 10px;
-  outline: none;
-  cursor: pointer;
-}
