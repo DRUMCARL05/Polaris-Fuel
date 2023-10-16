@@ -137,6 +137,9 @@ class page extends Component {
     marketFee: 0.1,
     amountBoxText: "Buying Amount",
     marketQtyBoxText: "Mrkt QTY",
+
+    // Alex Update
+    activeToggleBtn: "customer",
   };
 
   async getProvider() {
@@ -1129,8 +1132,7 @@ class page extends Component {
 
   customerClick() {
     this.setState({
-      providerButtonColor: this.state.inActiveColor,
-      customerButtonColor: this.state.activeColor,
+      activeToggleBtn: "customer",
       actionButton: "Buy",
       amountBoxText: "Buying Amount",
       marketQtyBoxText: "Mrkt QTY",
@@ -1180,8 +1182,7 @@ class page extends Component {
 
   providerClick() {
     this.setState({
-      providerButtonColor: this.state.activeColor,
-      customerButtonColor: this.state.inActiveColor,
+      activeToggleBtn: "provider",
       actionButton: "Sell",
       amountBoxText: "Selling Amount",
       marketQtyBoxText: "User QTY",
@@ -1359,12 +1360,20 @@ class page extends Component {
                 <div className='max-w-xs md:max-w-sm w-full mx-auto flex items-center rounded-2xl xl:rounded-base text-sm xl:text-base border-[1.5px] border-brand-primary overflow-hidden'>
                   <button
                     onClick={this.customerClick.bind(this)}
-                    className='flex-1 bg-brand-primary text-white font-medium py-3 xl:py-4 px-5'>
+                    className={`${
+                      this.state.activeToggleBtn == "customer"
+                        ? "bg-brand-primary"
+                        : "bg-brand-primary/10"
+                    } flex-1 text-white font-medium py-3 xl:py-4 px-5`}>
                     Customer
                   </button>
                   <button
                     onClick={this.providerClick.bind(this)}
-                    className='flex-1 text-white font-medium py-3 xl:py-4 px-5'>
+                    className={`${
+                      this.state.activeToggleBtn == "provider"
+                        ? "bg-brand-primary"
+                        : "bg-brand-primary/10"
+                    } flex-1 text-white font-medium py-3 xl:py-4 px-5`}>
                     Polaris Provider
                   </button>
                 </div>
