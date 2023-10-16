@@ -1,12 +1,16 @@
-.navBar{
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input {
+  @apply focus:outline-none;
+}
+
+.navBar {
   display: flex;
   justify-content: space-between;
   width: 100%;
   margin-top: -20px;
-}
-
-.logo{
-  display: flex;
 }
 
 .toggle {
@@ -14,11 +18,11 @@
   border-radius: 20px;
   overflow: hidden;
   margin-top: 65px;
-  border: 2px solid #E36414;
+  border: 2px solid #e36414;
   background: #e3631415;
 }
 
-.toggleChild{
+.toggleChild {
   width: 170px;
   height: 60px;
   background: #e3631415;
@@ -26,11 +30,11 @@
   border: none;
   outline: none;
   font-size: 17px;
-  cursor: pointer
+  cursor: pointer;
 }
 
-.activeToggle{
-  background: #E36414;
+.activeToggle {
+  background: #e36414;
 }
 
 .logo-image {
@@ -58,7 +62,7 @@
 /* Component for the smallContainer */
 .smallContainer {
   display: flex;
-  border: 1px solid #6C757D;
+  border: 1px solid #6c757d;
   border-radius: 15px;
   overflow: hidden;
 }
@@ -70,7 +74,7 @@
   padding: 25px;
   padding-left: 50px;
   padding-right: 50px;
-  border-right: 1px solid #6C757D;
+  border-right: 1px solid #6c757d;
 }
 
 /* Component for the heading h2 inside sectionContainer */
@@ -109,9 +113,9 @@
 .buyingAmount input {
   border: none;
   font-size: 16px;
-  background: #1C1E20;
+  background: #1c1e20;
   padding: 0.8rem;
-  outline: #E36414;
+  outline: #e36414;
   color: #f0f0f0;
   border-radius: 5px;
 }
@@ -125,14 +129,14 @@
   outline: none;
   border: none;
   background-color: none;
-  color: #E36414;
+  color: #e36414;
   font-size: 12px;
   font-weight: 200;
 }
 
 /* Component for the price span inside buyingAmount */
 .buyingAmount span {
-  color: #E36414;
+  color: #e36414;
   font-size: 18px;
 }
 
@@ -142,34 +146,18 @@
   padding-left: 15px;
 }
 
-.headingSection{
+.headingSection {
   color: #f0f0f0 !important;
-  font-weight: 600
+  font-weight: 600;
 }
 
-.quantity{
-  color: #E36414 !important;
+.quantity {
+  color: #e36414 !important;
 }
 
-.quantity span{
+.quantity span {
   color: #f0f0f0;
-  padding-left: 15px
-}
-
-#Send {
-  margin-top: 50px;
-  width: 200px;
-  margin-left: auto;
-  margin-right: auto;
-  display: block;
-  height: 50px;
-  font-size: 18px;
-  color: #E36414;
-  background: none;
-  border: 1px solid #E36414;
-  border-radius: 10px;
-  outline: none;
-  cursor: pointer;
+  padding-left: 15px;
 }
 
 /* styles.css */
@@ -183,7 +171,7 @@
   bottom: 0;
   display: flex;
   justify-content: space-between;
-  border-top: 1px solid #EDF2F4;
+  border-top: 1px solid #edf2f4;
 }
 
 /* Component for the memberShipLevel section */
@@ -198,7 +186,7 @@
   width: 1rem;
   height: 1rem;
   border-radius: 50%;
-  border: 5px solid #E36414;
+  border: 5px solid #e36414;
   position: relative;
   top: 1rem;
   margin-left: 1rem;
@@ -206,7 +194,7 @@
 
 /* Component for the rank */
 .memberShipLevel .rank {
-  color: #E36414;
+  color: #e36414;
   margin-left: 0.5rem;
 }
 
@@ -218,10 +206,10 @@
 
 /* Component for the pxp */
 .currentPxp .pxp {
-  color: #E36414;
+  color: #e36414;
   margin-left: 0.5rem;
 }
 
-.footerHeading{
-  color: #EDF2F4;
+.footerHeading {
+  color: #edf2f4;
 }

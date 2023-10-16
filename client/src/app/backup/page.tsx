@@ -1333,276 +1333,253 @@ class page extends Component {
     }
   }
 
-  renderNoWallet() {
-    <div className='h-screen flex items-center flex-col justify-center text-white'>
-      <p className='text-lg'>
-        Phantom Wallet is Required to Use <strong>Polaris Fuel</strong>
-      </p>
-      <button
-        className='bg-[#ab9ff2] hover:bg-[#e2dffe] text-black rounded-md mt-8 px-5 py-3'
-        onClick={() => window.open("https://phantom.app/download", "_blank")}>
-        Click to Navigate
-      </button>
-    </div>;
-  }
-
   render() {
-    if (this.state.renderControl == "noWallet") {
-      this.renderNoWallet();
-    } else {
+    if (window.screen.availWidth < 600) {
       return (
-        <>
-          <AppNavbar connectWallet={this.walletClick} />
-          <main className='min-h-full h-full flex-1 flex items-center justify-center p-5 pt-24 lg:p-10'>
-            <div className='max-w-lg lg:max-w-5xl w-full mx-auto'>
-              <div className='px-3'>
-                <div className='max-w-xs md:max-w-sm w-full mx-auto flex items-center rounded-2xl xl:rounded-base text-sm xl:text-base border-[1.5px] border-brand-primary overflow-hidden'>
-                  <button
-                    onClick={this.customerClick.bind(this)}
-                    className='flex-1 bg-brand-primary text-white font-medium py-3 xl:py-4 px-5'>
-                    Customer
-                  </button>
-                  <button
-                    onClick={this.providerClick.bind(this)}
-                    className='flex-1 text-white font-medium py-3 xl:py-4 px-5'>
-                    Polaris Provider
-                  </button>
-                </div>
-              </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh", // Use 100% of the viewport height
+          }}>
+          <div style={{ color: "white" }}>Desktop Required</div>
+        </div>
+      );
+    } else if (this.state.renderControl == "noWallet") {
+      return (
+        <div className='h-screen flex items-center flex-col justify-center text-white'>
+          <p className='text-lg'>
+            Phantom Wallet is Required to Use <strong>Polaris Fuel</strong>
+          </p>
+          <button
+            className='bg-[#ab9ff2] hover:bg-[#e2dffe] text-black rounded-md mt-8 px-5 py-3'
+            onClick={() =>
+              window.open("https://phantom.app/download", "_blank")
+            }>
+            Click to Navigate
+          </button>
+        </div>
+      );
+    } else if (this.state.renderControl == "main") {
+      return (
+        <div>
+          {/* NAVBAR START HERE */}
+          <div className='navBar'>
+            <div className="logo">
+              <img className='logo-image' src="https://cdn.discordapp.com/attachments/1119286494453055528/1126142304319717417/PXPbig-RedCirclePLess.png"></img>
+              <h2 className='heading'>Polaris Fuel</h2>
+            </div>
+  
+            <div className="toggle">
+              <button onClick={this.customerClick.bind(this)} style={{backgroundColor:this.state.customerButtonColor}} className='toggleChild'>Customer</button>
+              <button onClick={this.providerClick.bind(this)} style={{backgroundColor:this.state.providerButtonColor}} className='toggleChild'>Polaris Provider</button>
+            </div>
+  
+            <button style={{position:"relative",top:65,width:225,height:60,backgroundColor:"#e36414",color:"white", marginRight: 60, border: 'none', outline: 'none', borderRadius: '20px', fontSize: 18, cursor: 'pointer'}} id="WalletButton" onClick={this.walletClick}>Connect Wallet</button>
+          </div>
+          {/* NAVBAR ENDS HERE */}
 
-              <div className='lg:grid grid-cols-5 text-white border border-slate-100/50 rounded-2xl divide-y lg:divide-y-0 lg:divide-x divide-slate-100/50 mt-5 lg:mt-10'>
-                {/* Titles */}
-                <div className='uppercase font-semibold py-2 lg:py-5'>
-                  <h2 className='h-6 hidden lg:block'> {` `}</h2>
-                  <div className='grid grid-cols-4 lg:block text-xs lg:text-sm xl:text-base text-center lg:space-y-3 px-5 lg:px-10 lg:mt-3'>
-                    <p className='py-1.5 lg:py-3'>Food</p>
-                    <p className='py-1.5 lg:py-3'>Fuel</p>
-                    <p className='py-1.5 lg:py-3'>Ammo</p>
-                    <p className='py-1.5 lg:py-3'>Tools</p>
-                  </div>
-                </div>
-                <div className='py-3.5 lg:py-5'>
-                  <h2 className='font-semibold text-sm xl:text-base text-center'>
-                    {this.state.marketQtyBoxText}
-                  </h2>
-                  <div className='grid grid-cols-4 lg:block font-semibold text-center lg:space-y-3 px-2 lg:px-10 lg:mt-4'>
-                    <p className='h-12 py-3'>
-                      {this.state.foodSupplyAmountDisplay}
-                    </p>
-                    <p className='h-12 py-3'>
-                      {this.state.fuelSupplyAmountDisplay}
-                    </p>
-                    <p className='h-12 py-3'>
-                      {this.state.ammoSupplyAmountDisplay}
-                    </p>
-                    <p className='h-12 py-3'>
-                      {this.state.toolsSupplyAmountDisplay}
-                    </p>
-                  </div>
-                </div>
-                {/* Current Price */}
-                <div className='py-3.5 lg:py-5'>
-                  <h2 className='font-semibold text-sm xl:text-base text-center'>
-                    Current Price
-                  </h2>
-                  <div className='grid grid-cols-4 lg:block font-semibold lg:space-y-3 px-3 lg:px-10 mt-2 lg:mt-4'>
-                    <p className='flex items-center justify-center lg:justify-start space-x-3 py-3'>
-                      <span className='text-brand-primary'>
-                        {this.state.foodMSRdisplay}
-                      </span>
-                      <span className='text-xs'> Atlas</span>
-                    </p>
-                    <p className='flex items-center justify-center lg:justify-start space-x-3 py-3'>
-                      <span className='text-brand-primary'>
-                        {this.state.fuelMSRdisplay}
-                      </span>
-                      <span className='text-xs'> Atlas</span>
-                    </p>
-                    <p className='flex items-center justify-center lg:justify-start space-x-3 py-3'>
-                      <span className='text-brand-primary'>
-                        {this.state.ammoMSRdisplay}
-                      </span>
-                      <span className='text-xs'> Atlas</span>
-                    </p>
-                    <p className='flex items-center justify-center lg:justify-start space-x-3 py-3'>
-                      <span className='text-brand-primary'>
-                        {this.state.toolsMSRdisplay}
-                      </span>
-                      <span className='text-xs'> Atlas</span>
-                    </p>
-                  </div>
-                </div>
 
-                {/* Buying / Selling Amount */}
-                <div className='lg:col-span-2 py-3.5 lg:py-5'>
-                  <h2 className='font-semibold text-sm xl:text-base text-center px-8'>
-                    {this.state.amountBoxText}
-                  </h2>
-                  <div className='space-y-3 px-3 xl:pl-8 mt-4'>
-                    {/* Food */}
-                    <div className='flex items-center space-x-3 lg:space-x-5'>
-                      <div className='w-52 shrink-0 relative bg-[#1c1e20] rounded-md py-2 px-3 lg:py-3'>
-                        <input
-                          id='food'
-                          type='text'
-                          className='bg-transparent text-sm'
-                          placeholder='Enter Amount'
-                          onChange={this.changeAmount.bind(this)}
-                          onKeyPress={(event) => {
-                            if (event.key === ".") event.preventDefault();
-                          }}
-                        />
-                        <button
-                          type='button'
-                          className='absolute top-1/2 -translate-y-1/2 right-3 text-xs text-brand-primary font-extralight hover:font-light py-4'
-                          onClick={this.foodMaxClicked.bind(this)}>
-                          Max
-                        </button>
-                      </div>
-                      <p className='flex items-center font-medium text-xs lg:text-sm xl:text-lg space-x-3 lg:space-x-5'>
-                        <span className='text-brand-primary'>
-                          {/* {this.formatNumber(
-                            (
-                              Number(this.state.foodMSRdisplay) *
-                              this.state.foodAmount
-                            ).toFixed(6)
-                          )} */}
-                          0.0000
-                        </span>
-                        <span> Atlas</span>
-                      </p>
-                    </div>
-
-                    {/* Fuel */}
-                    <div className='flex items-center space-x-3 lg:space-x-5'>
-                      <div className='w-52 shrink-0 relative bg-[#1c1e20] rounded-md py-2 px-3 lg:py-3'>
-                        <input
-                          id='fuel'
-                          type='text'
-                          className='bg-transparent text-sm'
-                          placeholder='Enter Amount'
-                          onChange={this.changeAmount.bind(this)}
-                          onKeyPress={(event) => {
-                            if (event.key === ".") event.preventDefault();
-                          }}
-                        />
-                        <button
-                          type='button'
-                          className='absolute top-1/2 -translate-y-1/2 right-3 text-xs text-brand-primary font-extralight hover:font-light py-4'
-                          onClick={this.fuelMaxClicked.bind(this)}>
-                          Max
-                        </button>
-                      </div>
-                      <p className='flex items-center font-medium text-xs lg:text-sm xl:text-lg space-x-3 lg:space-x-5'>
-                        <span className='text-brand-primary'>
-                          {/* {this.formatNumber(
-                            (
-                              Number(this.state.fuelMSRdisplay) *
-                              this.state.fuelAmount
-                            ).toFixed(6)
-                          )} */}
-                          0.0000
-                        </span>
-                        <span> Atlas</span>
-                      </p>
-                    </div>
-
-                    {/* Ammo */}
-                    <div className='flex items-center space-x-3 lg:space-x-5'>
-                      <div className='w-52 shrink-0 relative bg-[#1c1e20] rounded-md py-2 px-3 lg:py-3'>
-                        <input
-                          id='fuel'
-                          type='ammo'
-                          className='bg-transparent text-sm'
-                          placeholder='Enter Amount'
-                          onChange={this.changeAmount.bind(this)}
-                          onKeyPress={(event) => {
-                            if (event.key === ".") event.preventDefault();
-                          }}
-                        />
-                        <button
-                          type='button'
-                          className='absolute top-1/2 -translate-y-1/2 right-3 text-xs text-brand-primary font-extralight hover:font-light py-4'
-                          onClick={this.ammoMaxClicked.bind(this)}>
-                          Max
-                        </button>
-                      </div>
-                      <p className='flex items-center font-medium text-xs lg:text-sm xl:text-lg space-x-3 lg:space-x-5'>
-                        <span className='text-brand-primary'>
-                          {this.formatNumber(
-                            (
-                              Number(this.state.ammoMSRdisplay) *
-                              this.state.ammoAmount
-                            ).toFixed(6)
-                          )}
-                        </span>
-                        <span> Atlas</span>
-                      </p>
-                    </div>
-
-                    {/* Tools */}
-                    <div className='flex items-center space-x-3 lg:space-x-5'>
-                      <div className='w-52 shrink-0 relative bg-[#1c1e20] rounded-md py-2 px-3 lg:py-3'>
-                        <input
-                          id='fuel'
-                          type='ammo'
-                          className='bg-transparent text-sm'
-                          placeholder='Enter Amount'
-                          onChange={this.changeAmount.bind(this)}
-                          onKeyPress={(event) => {
-                            if (event.key === ".") event.preventDefault();
-                          }}
-                        />
-                        <button
-                          type='button'
-                          className='absolute top-1/2 -translate-y-1/2 right-3 text-xs text-brand-primary font-extralight hover:font-light py-4'
-                          onClick={this.toolsMaxClicked.bind(this)}>
-                          Max
-                        </button>
-                      </div>
-                      <p className='flex items-center font-medium text-xs lg:text-sm xl:text-lg space-x-3 lg:space-x-5'>
-                        <span className='text-brand-primary'>
-                          {this.formatNumber(
-                            (
-                              Number(this.state.toolsMSRdisplay) *
-                              this.state.toolsAmount
-                            ).toFixed(6)
-                          )}
-                        </span>
-                        <span> Atlas</span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className='text-center mt-6 lg:mt-8 xl:mt-12'>
+          <main>
+            <div>
+              <div className='toggle'>
                 <button
-                  id='Send'
-                  className='hover:bg-brand-primary border border-brand-primary text-brand-primary hover:text-white lg:text-lg rounded-lg transition-colors duration-200 px-10 lg:px-16 py-2'
-                  onClick={this.callProgram.bind(this)}>
-                  {this.state.actionButton}
+                  onClick={this.customerClick.bind(this)}
+                  style={{ backgroundColor: this.state.customerButtonColor }}
+                  className='toggleChild'>
+                  Customer
+                </button>
+                <button
+                  onClick={this.providerClick.bind(this)}
+                  style={{ backgroundColor: this.state.providerButtonColor }}
+                  className='toggleChild'>
+                  Polaris Provider
                 </button>
               </div>
             </div>
           </main>
-          <footer className='border-t border-gray-100/60 px-4 lg:px-10 py-5'>
-            <div className='max-w-screen-2xl mx-auto flex items-center justify-between text-sm'>
-              <div className='flex items-center space-x-2'>
-                <p className='text-white font-medium'>Membership Level: </p>
-                <div className='w-4 h-4 shrink-0 border-4 border-brand-primary rounded-full'></div>
-                <p className='text-brand-primary'>Bronze</p>
+
+          {/* MARKET UI STARTS HERE */}
+          <div className='marketUi'>
+            <div className='smallContainer'>
+              <div className='sectionContainer'>
+                <h2>.</h2>
+                <div className='content'>
+                  <h3>FOOD</h3>
+                  <h3>FUEL</h3>
+                  <h3>AMMO</h3>
+                  <h3>TOOLS</h3>
+                </div>
               </div>
 
-              <div className='flex items-center space-x-2'>
-                <p className='text-white font-medium'>Current PXP: </p>
-                <p className='text-brand-primary'>
-                  {this.formatNumber(this.state.userPolarisExpSupplyAmount)}
-                </p>
+              <div className='sectionContainer'>
+                <h2 className='headingSection'>
+                  {this.state.marketQtyBoxText}
+                </h2>
+                <div className='content'>
+                  <h3>{this.state.foodSupplyAmountDisplay}</h3>
+                  <h3>{this.state.fuelSupplyAmountDisplay}</h3>
+                  <h3>{this.state.ammoSupplyAmountDisplay}</h3>
+                  <h3>{this.state.toolsSupplyAmountDisplay}</h3>
+                </div>
+              </div>
+
+              <div className='sectionContainer'>
+                <h2 className='headingSection'>Current Price</h2>
+                <div className='content'>
+                  <h3 className='quantity'>
+                    {this.state.foodMSRdisplay} <span> Atlas</span>
+                  </h3>
+                  <h3 className='quantity'>
+                    {this.state.fuelMSRdisplay} <span> Atlas</span>
+                  </h3>
+                  <h3 className='quantity'>
+                    {this.state.ammoMSRdisplay} <span> Atlas</span>
+                  </h3>
+                  <h3 className='quantity'>
+                    {this.state.toolsMSRdisplay} <span> Atlas</span>
+                  </h3>
+                </div>
+              </div>
+
+              <div className='sectionContainer'>
+                <h2 className='headingSection'>{this.state.amountBoxText}</h2>
+                <div className='content'>
+                  <div className='buyingAmount'>
+                    <input
+                      type='text'
+                      placeholder='Enter Amount'
+                      id='food'
+                      onChange={this.changeAmount.bind(this)}
+                      onKeyPress={(event) => {
+                        if (event.key === ".") event.preventDefault();
+                      }}
+                    />
+                    <button onClick={this.foodMaxClicked.bind(this)}>
+                      Max
+                    </button>
+                    <span>
+                      {this.formatNumber(
+                        (
+                          Number(this.state.foodMSRdisplay) *
+                          this.state.foodAmount
+                        ).toFixed(6)
+                      )}{" "}
+                      <span> Atlas</span>
+                    </span>
+                  </div>
+
+                  <div style={{ marginTop: 12 }} className='buyingAmount'>
+                    <input
+                      type='text'
+                      placeholder='Enter Amount'
+                      id='fuel'
+                      onChange={this.changeAmount.bind(this)}
+                      onKeyPress={(event) => {
+                        if (event.key === ".") event.preventDefault();
+                      }}
+                    />
+                    <button onClick={this.fuelMaxClicked.bind(this)}>
+                      Max
+                    </button>
+                    <span>
+                      {this.formatNumber(
+                        (
+                          Number(this.state.fuelMSRdisplay) *
+                          this.state.fuelAmount
+                        ).toFixed(6)
+                      )}{" "}
+                      <span style={{ color: "#f0f0f0", paddingLeft: 15 }}>
+                        {" "}
+                        Atlas
+                      </span>
+                    </span>
+                  </div>
+
+                  <div style={{ marginTop: 12 }} className='buyingAmount'>
+                    <input
+                      type='text'
+                      placeholder='Enter Amount'
+                      id='ammo'
+                      onChange={this.changeAmount.bind(this)}
+                      onKeyPress={(event) => {
+                        if (event.key === ".") event.preventDefault();
+                      }}
+                    />
+                    <button onClick={this.ammoMaxClicked.bind(this)}>
+                      Max
+                    </button>
+                    <span>
+                      {this.formatNumber(
+                        (
+                          Number(this.state.ammoMSRdisplay) *
+                          this.state.ammoAmount
+                        ).toFixed(6)
+                      )}{" "}
+                      <span style={{ color: "#f0f0f0", paddingLeft: 15 }}>
+                        {" "}
+                        Atlas
+                      </span>
+                    </span>
+                  </div>
+
+                  <div style={{ marginTop: 12 }} className='buyingAmount'>
+                    <input
+                      type='text'
+                      placeholder='Enter Amount'
+                      id='tools'
+                      onChange={this.changeAmount.bind(this)}
+                      onKeyPress={(event) => {
+                        if (event.key === ".") event.preventDefault();
+                      }}
+                    />
+                    <button onClick={this.toolsMaxClicked.bind(this)}>
+                      Max
+                    </button>
+                    <span>
+                      {this.formatNumber(
+                        (
+                          Number(this.state.toolsMSRdisplay) *
+                          this.state.toolsAmount
+                        ).toFixed(6)
+                      )}{" "}
+                      <span style={{ color: "#f0f0f0", paddingLeft: 15 }}>
+                        {" "}
+                        Atlas
+                      </span>
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-          </footer>
-        </>
+          </div>
+
+          {/* MARKET UI ENDS HERE */}
+
+          {/* Action Button Starts HERE */}
+          <button id='Send' onClick={this.callProgram.bind(this)}>
+            {this.state.actionButton}
+          </button>
+          {/* Action Button ends HERE */}
+
+          {/* FOOTER STARTS HERE */}
+          <div className='footer'>
+            <div className='memberShipLevel'>
+              <h3 className='footerHeading'>Membership Level: </h3>
+              <div className='icon'></div>
+              <h3 className='rank'>Bronze</h3>
+            </div>
+
+            <div className='currentPxp'>
+              <h3 className='footerHeading'>Current PXP: </h3>
+              <h3 className='pxp'>
+                {this.formatNumber(this.state.userPolarisExpSupplyAmount)}
+              </h3>
+            </div>
+          </div>
+          {/* FOOTER ENDS HERE */}
+        </div>
       );
     }
   }
