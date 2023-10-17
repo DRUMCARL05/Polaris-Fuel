@@ -493,7 +493,6 @@ class page extends Component {
 
     if (provider == false) {
       this.setState({ renderControl: "noWallet" });
-      //window.open('https://phantom.app/', '_blank');
     } else {
       this.setState({ renderControl: "main" });
 
@@ -1173,22 +1172,24 @@ class page extends Component {
   }
 
   renderNoWallet() {
-    <div className='h-screen flex items-center flex-col justify-center text-white'>
-      <p className='text-lg'>
-        Phantom Wallet is Required to Use <strong>Polaris Fuel</strong>
-      </p>
-      <button
-        className='bg-[#ab9ff2] hover:bg-[#e2dffe] text-black rounded-md mt-8 px-5 py-3'
-        onClick={() => window.open("https://phantom.app/download", "_blank")}>
-        Click to Navigate
-      </button>
-    </div>;
+    return (
+      <div className='h-screen flex items-center flex-col justify-center text-white'>
+        <p className='text-lg'>
+          Phantom Wallet is Required to Use <strong>Polaris Fuel</strong>
+        </p>
+        <button
+          className='bg-[#ab9ff2] hover:bg-[#e2dffe] text-black rounded-md mt-8 px-5 py-3'
+          onClick={() => window.open("https://phantom.app/download", "_blank")}>
+          Click to Navigate
+        </button>
+      </div>
+    );
   }
 
   render() {
     if (this.state.renderControl == "noWallet") {
-      this.renderNoWallet();
-    } else {
+      return this.renderNoWallet();
+    } else if (this.state.renderControl == "main") {
       return (
         <>
           <AppNavbar connectWallet={this.walletClick} />
