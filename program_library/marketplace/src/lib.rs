@@ -5,17 +5,12 @@ use solana_program::{
     program::{ invoke, invoke_signed },
     program_error::ProgramError,
     pubkey::Pubkey,
-    //rent::Rent,
-    //system_instruction,
-    //sysvar::Sysvar,
     msg,
 };
 
 use solana_program::instruction::Instruction;
 use solana_program::instruction::AccountMeta;
 use borsh::{ BorshDeserialize, BorshSerialize };
-//use spl_token::state::Account as TokenAccount;
-//use solana_program::program_pack::Pack;
 use std::convert::TryInto;
 
 #[derive(BorshSerialize, BorshDeserialize, Debug)]
@@ -27,6 +22,11 @@ pub struct MarketPlaceData {
     pub fuel: f64,
     pub tool: f64,
     pub admin_pubkey: [u8; 32],
+    pub destination_atlas_account: [u8; 32],
+    pub destination_tools_account: [u8; 32],
+    pub destination_ammo_account: [u8; 32],
+    pub destination_fuel_account: [u8; 32],
+    pub destination_food_account: [u8; 32],
 }
 
 entrypoint!(process_instruction);
@@ -40,69 +40,31 @@ pub fn process_instruction(
         return Err(ProgramError::InvalidInstructionData);
     }
 
-
     // Define public key strings for devnet and mainnet.
-    let (polaris_admin_pubkey_string, 
-        pda_star_atlas_account_string, 
-        pda_tools_account_string, 
-        pda_ammo_account_string, 
-        pda_fuel_account_string, 
-        pda_food_account_string,
-        polaris_tools_account_string, 
-        polaris_ammo_account_string, 
-        polaris_fuel_account_string, 
-        polaris_food_account_string, 
-        allowed_fee_star_atlas_account_string) = if instruction_data[0] == 1 {
+    let (
+        allowed_market_config_account,
+        allowed_fee_star_atlas_account_string,
+        ) = if instruction_data[0] == 1 {
         // devnet keys
         (
-            "9z8eyT5meZsQK79Pm2rmqBQcQKfj6tWJfRVbjQczyKcK".to_string(),
-            "GJNKMrcsH5m7vem9WSxs7SEpMrHeihNqtQg6CzCFuhPY".to_string(),
-            "B9xSJqsBuy9Xj3kCpsh8ZpJpphyU62aaNCqmbL5qsxjC".to_string(),
-            "EtgTTdct3r8kJgUmjiWWBrPHG9g5rBhUFouc9npvG6t9".to_string(),
-            "8LG7PKi9GyxM7Nm3EVaYDG18fBfwjo5boNtAF5ZiW7KL".to_string(),
-            "BeLzpdSP3bsuieattadMFseup9gkuNfNV1Grde134CFH".to_string(),
-            "51CQRTPagzt8MX6KBAoAyTfDqM9n4NvepjC4fuZ5fgqu".to_string(),
-            "HhZpu7GvaAcU752HeYCApTvjLd9yY66hyRqvbfFxCXd4".to_string(),
-            "Gdghebj3V9deG9FuNfS43kDmzTsL5keHYXeCeReaH1bX".to_string(),
-            "9RQnXdVethx19HF9eaT688Sux5t6WcQcycLCJgKJGDru".to_string(),
-            "5RWZnLxovGyWsn3KuWbcBnBNpbJ8FH8eLvxztZaZmWzh".to_string(),
+            "4UHduKEwYEG9pGEXZiakoHS561Fm9RkSHa1jQrnqGVoh".to_string(),
+            "5RWZnLxovGyWsn3KuWbcBnBNpbJ8FH8eLvxztZaZmWzh".to_string()
         )
     } else {
-    // mainnet keys
+        // mainnet keys
         (
-            "9z8eyT5meZsQK79Pm2rmqBQcQKfj6tWJfRVbjQczyKcK".to_string(),
-            "GJNKMrcsH5m7vem9WSxs7SEpMrHeihNqtQg6CzCFuhPY".to_string(),
-            "B9xSJqsBuy9Xj3kCpsh8ZpJpphyU62aaNCqmbL5qsxjC".to_string(),
-            "EtgTTdct3r8kJgUmjiWWBrPHG9g5rBhUFouc9npvG6t9".to_string(),
-            "8LG7PKi9GyxM7Nm3EVaYDG18fBfwjo5boNtAF5ZiW7KL".to_string(),
-            "BeLzpdSP3bsuieattadMFseup9gkuNfNV1Grde134CFH".to_string(),
-            "51CQRTPagzt8MX6KBAoAyTfDqM9n4NvepjC4fuZ5fgqu".to_string(),
-            "HhZpu7GvaAcU752HeYCApTvjLd9yY66hyRqvbfFxCXd4".to_string(),
-            "Gdghebj3V9deG9FuNfS43kDmzTsL5keHYXeCeReaH1bX".to_string(),
-            "9RQnXdVethx19HF9eaT688Sux5t6WcQcycLCJgKJGDru".to_string(),
-            "5RWZnLxovGyWsn3KuWbcBnBNpbJ8FH8eLvxztZaZmWzh".to_string(),
+            "4UHduKEwYEG9pGEXZiakoHS561Fm9RkSHa1jQrnqGVoh".to_string(),
+            "2yins5xXP58bGpYQPXAEXkfT9t27ukfoMPzvbeevL1jH".to_string()
         )
     };
-
-
-
-
-
 
     match instruction_data[1] {
         0 => {
             msg!("Instruction: 0");
             user_is_buying_resource(
-                _program_id,
-                accounts,
-                instruction_data,
-                pda_tools_account_string,
-                pda_ammo_account_string,
-                pda_fuel_account_string,
-                pda_food_account_string,
-                pda_star_atlas_account_string,
-                allowed_fee_star_atlas_account_string
-            )
+                _program_id, accounts, instruction_data,
+                allowed_market_config_account,
+                allowed_fee_star_atlas_account_string)
         }
         1 => {
             msg!("Instruction: 1");
@@ -115,23 +77,11 @@ pub fn process_instruction(
         3 => {
             msg!("Instruction: 3");
             user_is_selling_resource(
-                _program_id,
-                accounts,
-                instruction_data,
-                polaris_tools_account_string,
-                polaris_ammo_account_string,
-                polaris_fuel_account_string,
-                polaris_food_account_string
-            )
+                _program_id, accounts, instruction_data ,allowed_market_config_account)
         }
         4 => {
             msg!("Instruction: 4");
-            admin_liquidate_market(
-                _program_id,
-                accounts,
-                instruction_data,
-                polaris_admin_pubkey_string
-            )
+            admin_liquidate_market(_program_id, accounts, instruction_data)
         }
         // Add more instructions as needed...
         _ => {
@@ -144,11 +94,7 @@ pub fn user_is_buying_resource(
     _program_id: &Pubkey,
     accounts: &[AccountInfo],
     instruction_data: &[u8],
-    pda_tools_account_string: String,
-    pda_ammo_account_string: String,
-    pda_fuel_account_string: String,
-    pda_food_account_string: String,
-    pda_star_atlas_account_string: String,
+    allowed_market_config_account: String,
     allowed_fee_star_atlas_account_string: String
 ) -> ProgramResult {
     msg!("Sending ATLAS");
@@ -170,79 +116,42 @@ pub fn user_is_buying_resource(
     let system_program = next_account_info(accounts_iter)?;
     let token_program = next_account_info(accounts_iter)?;
 
-    //let reward_mint = next_account_info(accounts_iter)?;
-    //let reward_recepient_account = next_account_info(accounts_iter)?;
     let marketplace_account = next_account_info(accounts_iter)?;
-
-    let seed = &instruction_data[2..15];
-    let bump = instruction_data[15];
-    let amount = u64::from_be_bytes((&instruction_data[16..24]).try_into().unwrap()).to_be();
-
-    //security check
-    let allowed_resource_accounts = vec![
-        pda_tools_account_string,
-        pda_ammo_account_string,
-        pda_fuel_account_string,
-        pda_food_account_string
-    ];
-
-    if allowed_resource_accounts.contains(&pda_resource_account.key.to_string()) {
-        msg!("The resource destination wallet is correct");
-    } else {
-        msg!("The resource destination wallet is not correct");
-        return Err(ProgramError::InvalidInstructionData);
-    }
-
-    //security check
-
-    if pda_star_atlas_account_string == pda_star_atlas_account.key.to_string() {
-        msg!("The market atlas destination wallet is correct");
-    } else {
-        msg!("The market atlas destination wallet is not correct");
-        return Err(ProgramError::InvalidInstructionData);
-    }
-
-    //security check
-    if allowed_fee_star_atlas_account_string == fee_star_atlas_account.key.to_string() {
-        msg!("The fee destination wallet is correct");
-    } else {
-        msg!("The fee destination wallet is not correct");
-        return Err(ProgramError::InvalidInstructionData);
-    }
-
-    // msg!("Accounts passed in from_account: {:?}", from_account);
-    // msg!("Accounts passed i to_accountn: {:?}", to_account);
-    // msg!("Accounts passed in owner_account: {:?}", pda_account);
-    // msg!("Accounts passed in token_mint: {:?}", token_mint);
-    // msg!("Accounts passed in system_program: {:?}", system_program);
-    // msg!("Accounts passed in reward_mint: {:?}", reward_mint);
-    // msg!("Accounts passed in reward_recepient_account: {:?}", reward_recepient_account);
-    msg!("Accounts passed in marketplace_account: {:?}", marketplace_account);
-
     let data = &marketplace_account.data.borrow_mut();
-
-    msg!("Accounts passed in data: {:?}", data);
-    msg!("Accounts passed in data: {:?}", data.len());
 
     //Deserialize the account data into a MarketPlaceData
     let marketplace_data = MarketPlaceData::try_from_slice(data).map_err(
         |_| ProgramError::InvalidAccountData
     )?;
 
-    msg!("ammo_price: {}", marketplace_data.ammo_price);
-    msg!("food: {}", marketplace_data.food);
-    msg!("fuel: {}", marketplace_data.fuel);
-    msg!("tool: {}", marketplace_data.tool);
-    msg!("reward: {}", marketplace_data.reward);
+    //SECURITY CHECK
+    if marketplace_account.key.to_string() != allowed_market_config_account {
+        msg!("Marketplace data key does not match the market config account.");
+        return Err(ProgramError::InvalidInstructionData);
+    }
 
-    msg!("Trade unit amount: {:?}", amount);
-    msg!("Trade cost: {:?}", (amount as f64) * marketplace_data.tool);
+    if pda_star_atlas_account.key.to_bytes() != marketplace_data.destination_atlas_account {
+        msg!("PDA star atlas account does not match the destination atlas account.");
+        return Err(ProgramError::InvalidInstructionData);
+    }
 
-    let cost = ((amount as f64) * marketplace_data.tool * (10_f64).powi(8)) as u64;
+    if fee_star_atlas_account.key.to_string() != allowed_fee_star_atlas_account_string {
+        msg!("The fee destination wallet is not correct");
+        return Err(ProgramError::InvalidInstructionData);
+    }
 
-    msg!("Trade cost: {:?}", cost);
+    let seed = &instruction_data[2..15];
+    let bump = instruction_data[15];
+    let amount = u64::from_be_bytes((&instruction_data[16..24]).try_into().unwrap()).to_be();
+    let res_type = instruction_data[24];
 
-    // //msg!("Passed in seed: {:?}", seed);
+    let cost = match res_type {
+        0 => ((amount as f64) * marketplace_data.ammo_price * (10_f64).powi(8)) as u64,
+        1 => ((amount as f64) * marketplace_data.food * (10_f64).powi(8)) as u64,
+        2 => ((amount as f64) * marketplace_data.fuel * (10_f64).powi(8)) as u64,
+        3 => ((amount as f64) * marketplace_data.tool * (10_f64).powi(8)) as u64,
+        _ => return Err(ProgramError::InvalidInstructionData),
+    };
 
     // Checking if passed PDA and expected PDA are equal
     let signers_seeds: &[&[u8]; 2] = &[seed, &[bump]];
@@ -280,7 +189,6 @@ pub fn user_is_buying_resource(
     )?;
 
     //transfer to fee acount
-
     let transfer_instruction = spl_token::instruction::transfer(
         token_program.key,
         user_star_atlas_account.key, //from
@@ -386,6 +294,8 @@ pub fn configure_vault(
         marketplace_data.is_initialized != 0 &&
         marketplace_data.admin_pubkey == *feepayer_account.key.as_ref()
     {
+        msg!("Updating Account");
+
         if instruction_data.len() == data.len() + 2 {
             data[0..instruction_data.len() - 2].copy_from_slice(&instruction_data[2..]);
         } else {
@@ -394,6 +304,7 @@ pub fn configure_vault(
     }
 
     if marketplace_data.is_initialized == 0 {
+        msg!("Creating New Account");
         if instruction_data.len() == data.len() + 2 {
             data[0..instruction_data.len() - 2].copy_from_slice(&instruction_data[2..]);
         } else {
@@ -437,7 +348,7 @@ pub fn update_meta_data(
 
     // msg!("Passed in seed: {:?}", seed);
     // msg!("Passed in bump: {:?}", bump);
-    // msg!("Passed in meta_data_data: {:?}", meta_data_data);
+    msg!("Passed in meta_data_data: {:?}", meta_data_data);
 
     // Checking if passed PDA and expected PDA are equal
     let signers_seeds: &[&[u8]] = &[seed, &[bump]];
@@ -474,30 +385,20 @@ pub fn user_is_selling_resource(
     _program_id: &Pubkey,
     accounts: &[AccountInfo],
     instruction_data: &[u8],
-    polaris_tools_account_string: String,
-    polaris_ammo_account_string: String,
-    polaris_fuel_account_string: String,
-    polaris_food_account_string: String
+    allowed_market_config_account:String
 ) -> ProgramResult {
-    msg!("Sending ATLAS");
+    msg!("User is Selling Resources");
     let accounts_iter = &mut accounts.iter();
 
     //accounts
     let payer_account = next_account_info(accounts_iter)?;
     let pda_account = next_account_info(accounts_iter)?;
-
-    //let star_atlas_mint = next_account_info(accounts_iter)?;
     let user_star_atlas_account = next_account_info(accounts_iter)?;
     let pda_star_atlas_account = next_account_info(accounts_iter)?;
-
-    //tranfers only need the account 
-    //let resource_mint = next_account_info(accounts_iter)?;
     let user_resource_account = next_account_info(accounts_iter)?;
-    let pda_resource_account = next_account_info(accounts_iter)?;
-
+    let destination_resource_account = next_account_info(accounts_iter)?;
     let system_program = next_account_info(accounts_iter)?;
     let token_program = next_account_info(accounts_iter)?;
-
     let reward_mint = next_account_info(accounts_iter)?;
     let reward_recepient_account = next_account_info(accounts_iter)?;
     let marketplace_account = next_account_info(accounts_iter)?;
@@ -506,45 +407,71 @@ pub fn user_is_selling_resource(
     let bump = instruction_data[15];
     let amount = u64::from_be_bytes((&instruction_data[16..24]).try_into().unwrap()).to_be();
 
-    // msg!("Accounts passed in from_account: {:?}", from_account);
-    // msg!("Accounts passed i to_accountn: {:?}", to_account);
-    // msg!("Accounts passed in owner_account: {:?}", pda_account);
-    // msg!("Accounts passed in token_mint: {:?}", token_mint);
-    // msg!("Accounts passed in system_program: {:?}", system_program);
-    // msg!("Accounts passed in reward_mint: {:?}", reward_mint);
-    // msg!("Accounts passed in reward_recepient_account: {:?}", reward_recepient_account);
-    msg!("Accounts passed in marketplace_account: {:?}", marketplace_account);
-
     let data = &marketplace_account.data.borrow_mut();
 
-    msg!("Accounts passed in data: {:?}", data);
-    msg!("Accounts passed in data: {:?}", data.len());
-
-    //Deserialize the account data into a MarketPlaceData
     let marketplace_data = MarketPlaceData::try_from_slice(data).map_err(
         |_| ProgramError::InvalidAccountData
     )?;
 
-    msg!("ammo_price: {}", marketplace_data.ammo_price);
-    msg!("food: {}", marketplace_data.food);
-    msg!("fuel: {}", marketplace_data.fuel);
-    msg!("tool: {}", marketplace_data.tool);
-    msg!("reward: {}", marketplace_data.reward);
+    //SECURITY CHECK
+    if marketplace_account.key.to_string() != allowed_market_config_account {
+        msg!("Marketplace data key does not match the market config account.");
+        return Err(ProgramError::InvalidInstructionData);
+    }
 
-    msg!("Trade unit amount: {:?}", amount);
-    msg!("Trade cost: {:?}", (amount as f64) * marketplace_data.tool);
+    let res_type = instruction_data[24];
 
-    let cost = ((amount as f64) *
-        (marketplace_data.tool - marketplace_data.tool * 0.1) *
-        (10_f64).powi(8)) as u64;
+    msg!("{:?}",res_type);
+    msg!("Passed in destination key: {:?} ",destination_resource_account.key);
+    msg!("Passed in destination bytes: {:?} ",destination_resource_account.key.to_bytes());
+    msg!("Allowed Destination {:?}: ",marketplace_data.destination_tools_account);
 
-    msg!("Trade cost: {:?}", cost);
+    let cost = match res_type {
+        0 => {
+            if destination_resource_account.key.to_bytes() != marketplace_data.destination_tools_account {
+                msg!("Destination Tool Account is wrong.");
+                return Err(ProgramError::InvalidInstructionData);
+            }
+            ((amount as f64) * marketplace_data.tool * (10_f64).powi(8)) as u64
+        },
+        1 => {
+            if destination_resource_account.key.to_bytes() != marketplace_data.destination_ammo_account {
+                msg!("Destination Ammo Account is wrong.");
+                return Err(ProgramError::InvalidInstructionData);
+            }
+            ((amount as f64) * marketplace_data.ammo_price * (10_f64).powi(8)) as u64
+        },
+        2 => {
+            if destination_resource_account.key.to_bytes() != marketplace_data.destination_fuel_account {
+                msg!("Destination Fuel Account is wrong.");
+                return Err(ProgramError::InvalidInstructionData);
+            }
+            ((amount as f64) * marketplace_data.fuel * (10_f64).powi(8)) as u64
+        },
+    
+        3 => {
+            if destination_resource_account.key.to_bytes() != marketplace_data.destination_food_account {
+                msg!("Destination Food Account is wrong.");
+                return Err(ProgramError::InvalidInstructionData);
+            }
+            ((amount as f64) * marketplace_data.food * (10_f64).powi(8)) as u64
+        },
+    
 
-    // //msg!("Passed in seed: {:?}", seed);
+    
 
-    // Checking if passed PDA and expected PDA are equal
+    
+        _ => return Err(ProgramError::InvalidInstructionData),
+    };
+
+
+    msg!("ATLAS cost to buy resource {:?}",cost);
+    
+
     let signers_seeds: &[&[u8]; 2] = &[seed, &[bump]];
 
+    msg!("Transfer Functions v2");
+    
     //----------------------------//
     //                            //
     //      transfer atlas        //
@@ -576,26 +503,10 @@ pub fn user_is_selling_resource(
     //      transfer resource     //
     //                            //
     //----------------------------//
-
-    //destination polaris resource accounts
-    let allowed_keys = vec![
-        polaris_tools_account_string,
-        polaris_ammo_account_string,
-        polaris_fuel_account_string,
-        polaris_food_account_string
-    ];
-
-    if allowed_keys.contains(&pda_resource_account.key.to_string()) {
-        msg!("The resource destination wallet is correct");
-    } else {
-        msg!("The resource destination wallet is not correct");
-        return Err(ProgramError::InvalidInstructionData);
-    }
-
     let transfer_instruction = spl_token::instruction::transfer(
         token_program.key,
         user_resource_account.key, //from
-        pda_resource_account.key, //to
+        destination_resource_account.key, //to
         payer_account.key,
         &[],
         amount
@@ -606,28 +517,29 @@ pub fn user_is_selling_resource(
         &[
             token_program.clone(),
             user_resource_account.clone(),
-            pda_resource_account.clone(),
+            destination_resource_account.clone(),
             payer_account.clone(),
             system_program.clone(),
         ]
     )?;
 
+    msg!("Sending PXP");
     //----------------------------//
     //                            //
     //         Polarix EXP        //
     //                            //
     //----------------------------//
-    let transfer_instruction = spl_token::instruction::mint_to(
+    let mint_ix = spl_token::instruction::mint_to(
         token_program.key,
         reward_mint.key,
         reward_recepient_account.key,
         pda_account.key,
         &[],
-        cost * (marketplace_data.reward as u64)
+        1
     )?;
 
     invoke_signed(
-        &transfer_instruction,
+        &mint_ix,
         &[
             reward_mint.clone(),
             reward_recepient_account.clone(),
@@ -643,12 +555,15 @@ pub fn user_is_selling_resource(
 pub fn admin_liquidate_market(
     _program_id: &Pubkey,
     accounts: &[AccountInfo],
-    instruction_data: &[u8],
-    polaris_admin_pubkey_string: String
+    instruction_data: &[u8]
 ) -> ProgramResult {
     msg!("Configuring Marketplace Prices");
 
     let accounts_iter = &mut accounts.iter();
+
+    //market place
+    let marketplace_account = next_account_info(accounts_iter)?;
+
     // Payer account
     let feepayer_account = next_account_info(accounts_iter)?;
     let pda_account = next_account_info(accounts_iter)?;
@@ -678,13 +593,12 @@ pub fn admin_liquidate_market(
     // Checking if passed PDA and expected PDA are equal
     let signers_seeds: &[&[u8]; 2] = &[seed, &[bump]];
 
-    //security check
-    if polaris_admin_pubkey_string == feepayer_account.key.to_string() {
-        msg!("Admin called liquidation");
-    } else {
+    //SECURITY CHECK
+    if marketplace_account.key.to_string() != feepayer_account.key.to_string() {
         msg!("Not an admin");
         return Err(ProgramError::InvalidInstructionData);
     }
+
     //liquidate atlas
     let transfer_instruction = spl_token::instruction::transfer(
         token_program.key,
