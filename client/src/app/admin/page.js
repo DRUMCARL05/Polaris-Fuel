@@ -305,131 +305,13 @@ var dataBuffer = Buffer.concat([
     const signature = await connection.sendRawTransaction(signedTransaction.serialize());
   
   
-    console.log(`https://explorer.solana.com/tx/${signature}?cluster=devnet`)
+    console.log(`https://explorer.solana.com/tx/${signature}`)
     
     alert("Change Made");
   
   }
 
-
-
-
-async createMarketConfig() {
-
-    let feePayer = new solanaWeb3.PublicKey(this.state.feePayerBase58)
-
-    let adminBuffer = new solanaWeb3.PublicKey(this.state.inputValues.admin_pubkey).toBuffer();
-
-    var ammoPrice = this.state.inputValues.ammo_price;
-    var ammoPriceBuffer = Buffer.alloc(8);  // create a new buffer of 8 bytes
-    ammoPriceBuffer.writeDoubleLE(ammoPrice);  // write the float to the buffer in little endian format
   
-    var food = this.state.inputValues.food;
-    var foodBuffer = Buffer.alloc(8);
-    foodBuffer.writeDoubleLE(food);
-    //console.log(foodBuffer);
-  
-    var fuel = this.state.inputValues.fuel;
-    var fuelBuffer = Buffer.alloc(8);
-    fuelBuffer.writeDoubleLE(fuel);
-    //console.log(fuelBuffer);
-  
-    var tool =this.state.inputValues.tool;
-    var toolBuffer = Buffer.alloc(8);
-    toolBuffer.writeDoubleLE(tool);
-    //console.log(toolBuffer);
-  
-    var reward = this.state.inputValues.reward;
-    var rewardBuffer = Buffer.alloc(1);
-    rewardBuffer.writeUint8(reward);
-    //console.log(rewardBuffer);
-  
-    //devnet vs mainnet
-    var net;
-    if(this.state.onNet=="devnet")
-    {
-      net=1
-    }
-
-    if(this.state.onNet=="mainnet")
-    {
-      net=0
-    }
-    var netBuffer = Buffer.alloc(1);
-    netBuffer.writeUint8(net);
-  
-    var iX = 1;
-    var iXBuffer = Buffer.alloc(1);
-    iXBuffer.writeUint8(iX);
-  
-    var isInitialized = 1;
-    var isInitializedBuffer = Buffer.alloc(1);
-    isInitializedBuffer.writeUint8(isInitialized);
-
-
-// validation accounts
-let destination_star_atlas_account_Buffer = Buffer.from(new solanaWeb3.PublicKey(this.state.inputValues.destination_atlas_account).toBytes());
-let destination_tools_account_Buffer = Buffer.from(new solanaWeb3.PublicKey(this.state.inputValues.destination_tools_account).toBytes());
-let destination_ammo_account_Buffer = Buffer.from(new solanaWeb3.PublicKey(this.state.inputValues.destination_ammo_account).toBytes());
-let destination_fuel_account_Buffer = Buffer.from(new solanaWeb3.PublicKey(this.state.inputValues.destination_fuel_account).toBytes());
-let destination_food_account_Buffer = Buffer.from(new solanaWeb3.PublicKey(this.state.inputValues.destination_food_account).toBytes());
-
-var dataBuffer = Buffer.concat([
-    netBuffer,
-    iXBuffer,
-    isInitializedBuffer,
-    rewardBuffer,
-    ammoPriceBuffer,
-    foodBuffer,
-    fuelBuffer,
-    toolBuffer,
-    adminBuffer,
-    destination_star_atlas_account_Buffer,
-    destination_tools_account_Buffer,
-    destination_ammo_account_Buffer,
-    destination_fuel_account_Buffer,
-    destination_food_account_Buffer
-]);
-  
-    var { blockhash } = await connection.getRecentBlockhash();
-  
-    // Create a transaction
-    let transaction = new solanaWeb3.Transaction({
-      feePayer: feePayer,
-      recentBlockhash: blockhash,
-    });
-  
-    // Create the instruction to send data
-    let instructionData = {
-      keys: [
-        { pubkey: feePayer, isSigner: true, isWritable: false },
-        { pubkey: new solanaWeb3.PublicKey(MarketConfigAccountStr).toBase58(), isSigner: false, isWritable: true }],
-      programId,
-      data: dataBuffer,
-    };
-    let sendDataIx = new solanaWeb3.TransactionInstruction(instructionData);
-  
-    // Send the transaction
-    transaction
-      .add(sendDataIx)
-
-    const provider = await this.getProvider(); // see "Detecting the Provider"
-    const signedTransaction = await provider.signTransaction(transaction);
-    const signature = await connection.sendRawTransaction(signedTransaction.serialize());
-  
-  
-    console.log(`https://explorer.solana.com/tx/${signature}?cluster=devnet`)
-    
-    alert("Change Made");
-  
-  
-  }
-  
-  
-  
-  
-
-
 
   render() {
     return (
