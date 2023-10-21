@@ -1,0 +1,24 @@
+.button {
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    color: white;
+    background-color: #007BFF; /* This is typically a cool blue color */
+    border: none;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1); /* This adds a bit of a shadow effect */
+    transition: all 0.3s ease 0s; /* This makes changes in the button's style appear smoother */
+}
+
+/* Additional styling for hover state */
+.button:hover {
+    box-shadow: 0px 12px 20px rgba(0, 0, 0, 0.25); /* Darker shadow on hover */
+    transform: translateY(-3px); /* Slightly move the button up on hover */
+}
+
+/* Additional styling for active state (when the button is clicked) */
+.button:active {
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2); /* Slightly flatter shadow to give a "pushed" look */
+    transform: translateY(-1px); /* Slightly move the button up to mimic a "push" effect */
+}
