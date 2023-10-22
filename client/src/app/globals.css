@@ -213,3 +213,22 @@ input {
 .footerHeading {
   color: #edf2f4;
 }
+
+/* wallet check */
+.glowing-green {
+  color: white; /* Set the text color */
+  text-shadow: 
+    0 0 5px #00ff00, /* Horizontal shadow, vertical shadow, blur, color */
+    0 0 10px #00ff00, 
+    0 0 15px #00ff00, 
+    0 0 20px #00ff00;
+}
+
+.glowing-red {
+  color: white; /* Set the text color */
+  text-shadow: 
+    0 0 5px #ff0000, /* Horizontal shadow, vertical shadow, blur, color */
+    0 0 10px #ff0000, 
+    0 0 15px #ff0000, 
+    0 0 20px #ff0000;
+}

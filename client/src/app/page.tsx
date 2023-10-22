@@ -21,81 +21,55 @@ import {
 } from "@solana/spl-token";
 import AppNavbar from "@/components/AppNavbar";
 
+import {fetchAccountData,MarketPlaceDataLayout,TokenAccountDataLayout} from "./utils/helper.js"
+import AppFooter from "@/components/AppFooter.tsx";
+
 let provider: any;
 const BufferLayout = require("buffer-layout");
 
-// Define the account data structure
-const MarketPlaceDataLayout = BufferLayout.struct([
-  BufferLayout.u8("is_initialized"),
-  BufferLayout.u8("reward"),
-  BufferLayout.f64("ammo"),
-  BufferLayout.f64("food"),
-  BufferLayout.f64("fuel"),
-  BufferLayout.f64("tools"),
-  BufferLayout.seq(BufferLayout.u8(), 32, "admin_pubkey"),
-]);
-
 //generate pda
 let str = "POLARIS-VAULT";
-let seeds = Buffer.from(str, "utf-8"); // or 'ascii', 'base64', etc. depending on your needs
+let seeds = Buffer.from(str, "utf-8");
 
 let createAccountInstructionArray: any = [];
 
-//let star_atlas_mint = new solanaWeb3.PublicKey('ATLASXmbPQxBUYbxPsV97usA3fPQYEqzQBUHgiFCUsXx');
+let connection = new Connection("https://winter-divine-crater.solana-mainnet.quiknode.pro/e245f53447c82dcd216b89244c8ea868c8962284/");
+let programId = new PublicKey("PLRSkbYoHcazB4qAx47S3Kgm4BRRjFFLfLQ5Trc8yif");
+let marketConfigAccount = new PublicKey("EvzdWfb5pmAoyVvXEWHQwju447RfVkcz4owePHFvbTQZ");
 
-//devnet accounts
-let connection = new Connection(clusterApiUrl("devnet"));
-let programId = new PublicKey("ESL7g6h1tZrehkAVXPYmowa43JxurCmJ81A9eFCwZxy9");
-let marketConfigAccount = new PublicKey(
-  "DpTW34MTR79ckQHkygyvgDvEMrbdSm5oo83Hdgn9nzGK"
-);
 
-let pda_star_atlas_account = new PublicKey(
-  "GJNKMrcsH5m7vem9WSxs7SEpMrHeihNqtQg6CzCFuhPY"
-);
-let pda_tools_mint_tokenAccount = new PublicKey(
-  "B9xSJqsBuy9Xj3kCpsh8ZpJpphyU62aaNCqmbL5qsxjC"
-);
-let pda_ammo_mint_tokenAccount = new PublicKey(
-  "EtgTTdct3r8kJgUmjiWWBrPHG9g5rBhUFouc9npvG6t9"
-);
-let pda_fuel_mint_tokenAccount = new PublicKey(
-  "8LG7PKi9GyxM7Nm3EVaYDG18fBfwjo5boNtAF5ZiW7KL"
-);
-let pda_food_mint_tokenAccount = new PublicKey(
-  "BeLzpdSP3bsuieattadMFseup9gkuNfNV1Grde134CFH"
-);
+// This is the PDA using string POLARIS-VAULT "EVckUhHX1YaNRmJ5adjagw7x2Fri6N7vDM2JUkMDCyrY"
+let pda_star_atlas_account = new PublicKey("qopSi14qw3vpttsrQc2Y5gXyq34eLpm4JBasMVE64sA");
+let pda_tools_mint_tokenAccount = new PublicKey("6rjWUucyc4sAhJF1mNmgQ5qe47Bie5RhZtWCABRmyDKk");
+let pda_ammo_mint_tokenAccount = new PublicKey("3hjNi2Rf2fkTURVZ6rFyrWCsXcFaNFZpykw3sV8U5j9R");
+let pda_fuel_mint_tokenAccount = new PublicKey("61W15XpK1ogWu3VBH7zyAEEY4JSASTg7mYkLw8ZHUJye");
+let pda_food_tokenAccount = new PublicKey("CuY49B9959RSsNq2SRBpWzFvetqLjsPqgiyQGiB9SWXq");
 
-let star_atlas_mint = new PublicKey(
-  "ATLASXmbPQxBUYbxPsV97usA3fPQYEqzQBUHgiFCUsXx"
-);
+let star_atlas_mint = new PublicKey("ATLASXmbPQxBUYbxPsV97usA3fPQYEqzQBUHgiFCUsXx");
 let tools_mint = new PublicKey("tooLsNYLiVqzg8o4m3L2Uetbn62mvMWRqkog6PQeYKL");
 let ammo_mint = new PublicKey("ammoK8AkX2wnebQb35cDAZtTkvsXQbi82cGeTnUvvfK");
 let fuel_mint = new PublicKey("fueL3hBZjLLLJHiFH9cqZoozTG3XQZ53diwFPwbzNim");
 let food_mint = new PublicKey("foodQJAztMzX1DKpLaiounNe2BDMds5RNuPC6jsNrDG");
-let polaris_exp_mint = new PublicKey(
-  "BT8FRmq3K58YTMDVGiu8gevdLQmnVrXNAprJYxwheXtw"
-);
+let polaris_exp_mint = new PublicKey("PXPZdvfDgao5uEJGqpUjEE1ieWsAMBNwi1rdwJymYDg");
 
-//destination wallet when resources are sold
-//PLRSGTRwq2rz8S62JFWbtFEixvetZ4v58KQWi21kLxg
-let polaris_tools_account = new PublicKey(
-  "51CQRTPagzt8MX6KBAoAyTfDqM9n4NvepjC4fuZ5fgqu"
-);
-let polaris_ammo_account = new PublicKey(
-  "HhZpu7GvaAcU752HeYCApTvjLd9yY66hyRqvbfFxCXd4"
-);
-let polaris_fuel_account = new PublicKey(
-  "Gdghebj3V9deG9FuNfS43kDmzTsL5keHYXeCeReaH1bX"
-);
-let polaris_food_account = new PublicKey(
-  "9RQnXdVethx19HF9eaT688Sux5t6WcQcycLCJgKJGDru"
-);
 
 class page extends Component {
   state = {
+    priceDisplay:"Current Price",
+    missingAccountInstructions:null,
+    atlasGlow:"glowing-red",
+    ammoGlow:"glowing-red",
+    fuelGlow:"glowing-red",
+    foodGlow:"glowing-red",
+    toolsGlow:"glowing-red",
+    pxpGlow:"glowing-red",
+    foodSupplyAmountDisplay:"...",
+    fuelSupplyAmountDisplay:"...",
+    ammoSupplyAmountDisplay:"...",
+    toolsSupplyAmountDisplay:"...",
+    walletHTML:"Connect Wallet",
     renderControl: "...",
-    userPubKey: null,
+    userPubKey: "...",
     foodMSRdisplay: "...",
     fuelMSRdisplay: "...",
     ammoMSRdisplay: "...",
@@ -104,14 +78,11 @@ class page extends Component {
     fuelMSRP: "...",
     ammoMSRP: "...",
     toolsMSRP: "...",
-    foodSupplyAmountDisplay: "...",
-    fuelSupplyAmountDisplay: "...",
-    ammoSupplyAmountDisplay: "...",
-    toolsSupplyAmountDisplay: "...",
     marketFoodSupplyAmount: "...",
     marketFuelSupplyAmount: "...",
     marketAmmoSupplyAmount: "...",
     marketToolsSupplyAmount: "...",
+    marketAtlasSupplyAmount: "...",
     user_star_atlas_account: null,
     user_tools_account: null,
     user_ammo_account: null,
@@ -212,6 +183,9 @@ class page extends Component {
       }
     );
 
+    console.log(accounts)
+    console.log(mintsObj)
+
     console.log(
       `Found ${accounts.length} token account(s) for wallet ${MY_WALLET_ADDRESS}: `
     );
@@ -269,26 +243,51 @@ class page extends Component {
     }
   }
 
-  async sendRawTransaction(instructionArray: [], userPubKey: PublicKey) {
+  async sendRawTransaction(instructionArray: any, userPubKey: PublicKey) {
     // Create a transaction
     const transaction = new Transaction();
     transaction.feePayer = new PublicKey(userPubKey);
 
-    instructionArray.forEach((element) => {
+    instructionArray.forEach((element:any) => {
       transaction.add(element);
     });
 
     var { blockhash } = await connection.getRecentBlockhash();
 
+
+
     console.log(blockhash);
     transaction.recentBlockhash = blockhash;
+
+    let provider = await this.getProvider();
+
     const signedTransaction = await provider.signTransaction(transaction);
+
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
       { skipPreflight: true }
     );
 
     console.log(signature);
+
+
+    try {
+      console.log(`Transaction sent, signature: ${signature}`);
+    
+      // Now we want to verify if the transaction was confirmed
+      const confirmation = await connection.confirmTransaction(signature, 'confirmed'); // or use 'finalized' depending on the desired commitment level
+      console.log('Transaction confirmed:', confirmation);
+      this.setState({renderControl:"main"})
+
+    
+    } catch (error) {
+      alert("Error sending transaction:" + String(error));
+      this.setState({renderControl:"renderTokenCheckPoint"})
+
+    }
+
+
+
   }
 
   async createAccountForUserIx(mintPubkey: PublicKey, userPubKey: PublicKey) {
@@ -312,259 +311,170 @@ class page extends Component {
       userPubKey, // owner
       mintPubkey // mint
     );
-
-    //createAssociatedTokenAccountInstruction(userPubKey,ata,userPubKey,mintPubkey)
   }
 
-  async setAccounts(parsedTokenAccounts: any, userPubKey: string) {
-    console.log(userPubKey);
-
-    //atlas
-    try {
-      this.setState({
-        user_star_atlas_account:
-          parsedTokenAccounts.user_star_atlas_account.pubkey,
-        userStarAtlasSupplyAmount:
-          parsedTokenAccounts.user_star_atlas_account.account.data.parsed.info
-            .tokenAmount.amount,
-      });
-    } catch (error) {
-      console.log("User has no Atlas Account");
-      createAccountInstructionArray.push(
-        await this.createAccountForUserIx(
-          star_atlas_mint,
-          new PublicKey(userPubKey)
-        )
-      );
-    }
-
-    //tool
-    try {
-      this.setState({
-        user_tools_account: parsedTokenAccounts.user_tools_account.pubkey,
-        userToolsSupplyAmount:
-          parsedTokenAccounts.user_tools_account.account.data.parsed.info
-            .tokenAmount.amount,
-      });
-    } catch (error) {
-      console.log("User has no tools account");
-
-      createAccountInstructionArray.push(
-        await this.createAccountForUserIx(tools_mint, new PublicKey(userPubKey))
-      );
-    }
-
-    //ammo
-    try {
-      this.setState({
-        user_ammo_account: parsedTokenAccounts.user_ammo_account.pubkey,
-        userAmmoSupplyAmount:
-          parsedTokenAccounts.user_ammo_account.account.data.parsed.info
-            .tokenAmount.amount,
-      });
-    } catch (error) {
-      console.log("User has no anmmo account");
-      // create user account
-
-      createAccountInstructionArray.push(
-        await this.createAccountForUserIx(ammo_mint, new PublicKey(userPubKey))
-      );
-    }
-
-    //fuel
-    try {
-      this.setState({
-        user_fuel_account: parsedTokenAccounts.user_fuel_account.pubkey,
-        userFuelSupplyAmount:
-          parsedTokenAccounts.user_fuel_account.account.data.parsed.info
-            .tokenAmount.amount,
-      });
-    } catch (error) {
-      console.log("User has no fuel account");
-
-      createAccountInstructionArray.push(
-        await this.createAccountForUserIx(fuel_mint, new PublicKey(userPubKey))
-      );
-    }
-
-    //food
-    try {
-      this.setState({
-        user_food_account: parsedTokenAccounts.user_food_account.pubkey,
-        userFoodSupplyAmount:
-          parsedTokenAccounts.user_food_account.account.data.parsed.info
-            .tokenAmount.amount,
-      });
-    } catch (error) {
-      console.log("User has no food account");
-
-      createAccountInstructionArray.push(
-        await this.createAccountForUserIx(food_mint, new PublicKey(userPubKey))
-      );
-    }
-
-    //polaris exp
-    try {
-      this.setState({
-        user_polaris_exp_account:
-          parsedTokenAccounts.user_polaris_exp_account.pubkey,
-        userPolarisExpSupplyAmount:
-          parsedTokenAccounts.user_polaris_exp_account.account.data.parsed.info
-            .tokenAmount.amount,
-      });
-    } catch (error) {
-      console.log("User has no polaris account");
-      createAccountInstructionArray.push(
-        await this.createAccountForUserIx(
-          polaris_exp_mint,
-          new PublicKey(userPubKey)
-        )
-      );
-    }
-
-    console.log(createAccountInstructionArray);
-
-    if (createAccountInstructionArray.length > 0) {
-      // alert(
-      //   "Wallet:" + userPubKey + "\nIs missing PolarisExp or Resource Accounts"
-      // );
-      await this.sendRawTransaction(
-        createAccountInstructionArray,
-        new PublicKey(userPubKey)
-      );
-    }
-  }
-
-  async changeToDevNet() {
-    console.log("Chaning to Devnet");
-    //devnet accounts
-    connection = new Connection(clusterApiUrl("devnet"));
-    marketConfigAccount = new PublicKey(
-      "DpTW34MTR79ckQHkygyvgDvEMrbdSm5oo83Hdgn9nzGK"
-    );
-
-    pda_star_atlas_account = new PublicKey(
-      "GJNKMrcsH5m7vem9WSxs7SEpMrHeihNqtQg6CzCFuhPY"
-    );
-    pda_tools_mint_tokenAccount = new PublicKey(
-      "B9xSJqsBuy9Xj3kCpsh8ZpJpphyU62aaNCqmbL5qsxjC"
-    );
-    pda_ammo_mint_tokenAccount = new PublicKey(
-      "EtgTTdct3r8kJgUmjiWWBrPHG9g5rBhUFouc9npvG6t9"
-    );
-    pda_fuel_mint_tokenAccount = new PublicKey(
-      "8LG7PKi9GyxM7Nm3EVaYDG18fBfwjo5boNtAF5ZiW7KL"
-    );
-    pda_food_mint_tokenAccount = new PublicKey(
-      "BeLzpdSP3bsuieattadMFseup9gkuNfNV1Grde134CFH"
-    );
-
-    star_atlas_mint = new PublicKey(
-      "GpVqpNdUG8hJvyiNaDFnTnuiQV6EGFueduTBXAiPabWj"
-    );
-    tools_mint = new PublicKey("3y3D6wHa1dfz8VNVcnejLaLL8Ld41shTaAsjKMBgdzBr");
-    ammo_mint = new PublicKey("9TrKEhszrsMKYHRBuiXxefcQ4Z1WcAjhdGDBqjw7yrY9");
-    fuel_mint = new PublicKey("9htVnjLQByoQnucf5Bf2C7eDkhDax7rdU3FTo1KX3ewo");
-    food_mint = new PublicKey("C769DzsozfZ3SmA8PcScM4hEvkyXiFdhKfKfMiyRVjWG");
-    polaris_exp_mint = new PublicKey(
-      "BT8FRmq3K58YTMDVGiu8gevdLQmnVrXNAprJYxwheXtw"
-    );
-
-    //destination wallet when resources are sold
-    //PLRSGTRwq2rz8S62JFWbtFEixvetZ4v58KQWi21kLxg
-    polaris_tools_account = new PublicKey(
-      "51CQRTPagzt8MX6KBAoAyTfDqM9n4NvepjC4fuZ5fgqu"
-    );
-    polaris_ammo_account = new PublicKey(
-      "HhZpu7GvaAcU752HeYCApTvjLd9yY66hyRqvbfFxCXd4"
-    );
-    polaris_fuel_account = new PublicKey(
-      "Gdghebj3V9deG9FuNfS43kDmzTsL5keHYXeCeReaH1bX"
-    );
-    polaris_food_account = new PublicKey(
-      "9RQnXdVethx19HF9eaT688Sux5t6WcQcycLCJgKJGDru"
-    );
-  }
 
   async componentDidMount() {
-    console.log("Here");
+
+    //Wallet Check
+    console.log("Wallet Check");
+
 
     let provider = await this.getProvider();
+
 
     if (provider == false) {
       this.setState({ renderControl: "noWallet" });
     } else {
-      this.setState({ renderControl: "main" });
-
       const resp = await provider.connect();
       console.log("FeePayer:" + resp.publicKey.toString());
 
       try {
-        this.setState({ userPubKey: resp.publicKey.toString() }, () => {
-          //console.log(this.state.userPubKey)
-        });
+        this.setState({ userPubKey: resp.publicKey.toString() });
       } catch (error) {
         console.log(error);
+        return
       }
 
-      let walletButton = document.getElementById("WalletButton");
+    let userPubkey = new PublicKey(resp.publicKey.toString())
 
-      if (walletButton !== null) {
-        walletButton.innerHTML =
-          resp.publicKey.toString().slice(0, 3) +
-          "..." +
-          resp.publicKey.toString().slice(-3);
-      }
 
-      let mintFilter = {
-        user_star_atlas_account: star_atlas_mint.toBase58(),
-        user_tools_account: tools_mint.toBase58(),
-        user_ammo_account: ammo_mint.toBase58(),
-        user_fuel_account: fuel_mint.toBase58(),
-        user_food_account: food_mint.toBase58(),
-        user_polaris_exp_account: polaris_exp_mint.toBase58(),
-      };
+    let mintsObj = 
+    {
+      star_atlas_mint:star_atlas_mint.toBase58(),
+      ammo_mint:ammo_mint.toBase58(),
+      fuel_mint:fuel_mint.toBase58(),
+      food_mint:food_mint.toBase58(),
+      tools_mint:tools_mint.toBase58(),
+      polaris_exp_mint:polaris_exp_mint.toBase58()
+    }
 
-      let parsedTokenAccounts = await this.checkAccountForMint(
-        resp.publicKey.toString(),
-        mintFilter
-      );
 
-      console.log(parsedTokenAccounts);
+    console.log("Token Check");
+    let mintsObjRet = await this.checkAccountForMint(resp.publicKey.toString(),mintsObj)
 
-      localStorage.setItem(
-        resp.publicKey.toString(),
-        JSON.stringify(parsedTokenAccounts)
-      );
+    console.log(mintsObjRet)
 
-      await this.setAccounts(parsedTokenAccounts, resp.publicKey.toString());
+    let hasAllAccounts=true;
+    let missingAccountInstructions :any = [];
+    if(mintsObjRet.star_atlas_mint !="null")
+    {
+      this.setState({atlasGlow:"glowing-green"})
+    }else{
+      hasAllAccounts=false;
+      missingAccountInstructions.push(await this.createAccountForUserIx(star_atlas_mint,userPubkey))
+    }
+
+    if(mintsObjRet.ammo_mint !="null")
+    {
+      this.setState({ammoGlow:"glowing-green"})
+    }else{
+      hasAllAccounts=false;
+      missingAccountInstructions.push(await this.createAccountForUserIx(ammo_mint,userPubkey))
+
+    }
+
+    if(mintsObjRet.fuel_mint !="null")
+    {
+      this.setState({fuelGlow:"glowing-green"})
+    }else{
+      hasAllAccounts=false;
+      missingAccountInstructions.push(await this.createAccountForUserIx(fuel_mint,userPubkey))
+
+    }
+
+    if(mintsObjRet.food_mint !="null")
+    {
+      this.setState({foodGlow:"glowing-green"})
+    }else{
+      hasAllAccounts=false;
+      missingAccountInstructions.push(await this.createAccountForUserIx(food_mint,userPubkey))
+
+    }
+
+
+    if(mintsObjRet.tools_mint !="null")
+    {
+      this.setState({toolsGlow:"glowing-green"})
+    }else{
+      hasAllAccounts=false;
+      missingAccountInstructions.push(await this.createAccountForUserIx(tools_mint,userPubkey))
+
+    }
+
+    
+    if(mintsObjRet.polaris_exp_mint !="null")
+    {
+      this.setState({pxpGlow:"glowing-green"})
+    }else{
+      hasAllAccounts=false;
+      missingAccountInstructions.push(await this.createAccountForUserIx(polaris_exp_mint,userPubkey))
+    }
+
+
+    if(hasAllAccounts)
+    {
+      this.setState({renderControl: "main"})
+
+    }else{
+      this.setState({renderControl: "TokenCheckPoint",
+      missingAccountInstructions:missingAccountInstructions})
+    }
+
+
+
+      //MarketCheck
+
+      // ProgramID: PLRSkbYoHcazB4qAx47S3Kgm4BRRjFFLfLQ5Trc8yif
+      // pdaPublicKey: EVckUhHX1YaNRmJ5adjagw7x2Fri6N7vDM2JUkMDCyrY
+      // market_config_account_publicKey: EvzdWfb5pmAoyVvXEWHQwju447RfVkcz4owePHFvbTQZ
+
+      let marketConfigData = await fetchAccountData(connection,"EvzdWfb5pmAoyVvXEWHQwju447RfVkcz4owePHFvbTQZ",5,1000)
+      let decodedData = await MarketPlaceDataLayout.decode(marketConfigData.data);
+
+      let marketPlaceFoodAmount = await this.getBalance(connection,pda_food_tokenAccount)
+      let marketPlaceToolsAmount = await this.getBalance(connection,pda_tools_mint_tokenAccount)
+      let marketPlaceAmmoAmount = await this.getBalance(connection,pda_ammo_mint_tokenAccount)
+      let marketPlaceFuelAmount = await this.getBalance(connection,pda_fuel_mint_tokenAccount)
+      let marketPlaceAtlasAmount = await this.getBalance(connection,pda_star_atlas_account)
+
+
+      console.log(decodedData)
+
+      this.setState({
+
+        //diaplay ui
+        foodSupplyAmountDisplay: marketPlaceFoodAmount,
+        fuelSupplyAmountDisplay: marketPlaceFuelAmount,
+        ammoSupplyAmountDisplay: marketPlaceAmmoAmount,
+        toolsSupplyAmountDisplay: marketPlaceToolsAmount,
+        ammoMSRdisplay : decodedData.ammo_price,
+        fuelMSRdisplay : decodedData.fuel,
+        toolsMSRdisplay : decodedData.tool,
+        foodMSRdisplay : decodedData.food,
+
+        //number ammounts
+        marketFoodSupplyAmount: marketPlaceFoodAmount,
+        marketFuelSupplyAmount: marketPlaceFuelAmount,
+        marketAmmoSupplyAmount: marketPlaceAmmoAmount,
+        marketToolsSupplyAmount :marketPlaceToolsAmount,
+        marketAtlasSupplyAmount :marketPlaceAtlasAmount,
+        foodMSRP: decodedData.food,
+        fuelMSRP : decodedData.fuel,
+        ammoMSRP:  decodedData.ammo_price,
+        toolsMSRP: decodedData.tool
+      })
+
+
+      this.setState({
+        walletHTML: resp.publicKey.toString().slice(0, 3) + "..." +  resp.publicKey.toString().slice(-3)
+      })
+
     }
   }
 
   async walletClick() {
-    var walletButton = document.getElementById("WalletButton");
-
-    if (walletButton !== null) {
-    } else {
-      alert("Error in Wallet");
-      return 0;
-    }
-    try {
-      if (walletButton.innerHTML.length == 9) {
-        console.log("Connected Here");
-        provider.disconnect();
-        walletButton.innerHTML = "Connect Wallet";
-      } else {
-        const resp = await provider.connect();
-        console.log(resp.publicKey.toString());
-        walletButton.innerHTML =
-          resp.publicKey.toString().slice(0, 3) +
-          "..." +
-          resp.publicKey.toString().slice(-3);
-      }
-    } catch (err) {
-      // { code: 4001, message: 'User rejected the request.' }
-    }
+    alert("Change Wallet Using Phantom Extension")
   }
 
   async create_polaris_buy_instruction(resource_type: any, buy_ammount: any) {
@@ -599,7 +509,7 @@ class page extends Component {
       this.state.user_tools_account,
     ];
     let pdaResourceAccounts = [
-      pda_food_mint_tokenAccount,
+      pda_food_tokenAccount,
       pda_fuel_mint_tokenAccount,
       pda_ammo_mint_tokenAccount,
       pda_tools_mint_tokenAccount,
@@ -969,26 +879,20 @@ class page extends Component {
 
   customerClick() {
     this.setState({
+      priceDisplay:"Current Price",
       activeToggleBtn: "customer",
       actionButton: "Buy",
       amountBoxText: "Buying Amount",
       marketQtyBoxText: "Mrkt QTY",
-      foodMSRdisplay: this.state.foodMSRP,
-      fuelMSRdisplay: this.state.fuelMSRP,
-      ammoMSRdisplay: this.state.ammoMSRP,
-      toolsMSRdisplay: this.state.toolsMSRP,
-      foodSupplyAmountDisplay: this.formatNumber(
-        this.state.marketFoodSupplyAmount
-      ),
-      fuelSupplyAmountDisplay: this.formatNumber(
-        this.state.marketFuelSupplyAmount
-      ),
-      ammoSupplyAmountDisplay: this.formatNumber(
-        this.state.marketAmmoSupplyAmount
-      ),
-      toolsSupplyAmountDisplay: this.formatNumber(
-        this.state.marketToolsSupplyAmount
-      ),
+      //diaplay ui
+      foodSupplyAmountDisplay: this.state.marketFoodSupplyAmount,
+      fuelSupplyAmountDisplay: this.state.marketFuelSupplyAmount,
+      ammoSupplyAmountDisplay: this.state.marketAmmoSupplyAmount,
+      toolsSupplyAmountDisplay: this.state.marketToolsSupplyAmount,
+      foodMSRdisplay : this.state.foodMSRP,
+      fuelMSRdisplay : this.state.fuelMSRP,
+      ammoMSRdisplay : this.state.ammoMSRP,
+      toolsMSRdisplay : this.state.toolsMSRP,
     });
 
     let foodElement = document.getElementById("food");
@@ -1019,35 +923,15 @@ class page extends Component {
 
   providerClick() {
     this.setState({
+      priceDisplay:"Receive",
       activeToggleBtn: "provider",
       actionButton: "Sell",
       amountBoxText: "Selling Amount",
       marketQtyBoxText: "User QTY",
-      foodMSRdisplay: Number(
-        this.state.foodMSRP + Number(this.state.foodMSRP) * this.state.marketFee
-      ).toFixed(6),
-      fuelMSRdisplay: Number(
-        this.state.fuelMSRP + Number(this.state.fuelMSRP) * this.state.marketFee
-      ).toFixed(6),
-      ammoMSRdisplay: Number(
-        this.state.ammoMSRP + Number(this.state.ammoMSRP) * this.state.marketFee
-      ).toFixed(6),
-      toolsMSRdisplay: Number(
-        this.state.toolsMSRP +
-          Number(this.state.toolsMSRP) * this.state.marketFee
-      ).toFixed(6),
-      foodSupplyAmountDisplay: this.formatNumber(
-        this.state.userFoodSupplyAmount
-      ),
-      fuelSupplyAmountDisplay: this.formatNumber(
-        this.state.userFuelSupplyAmount
-      ),
-      ammoSupplyAmountDisplay: this.formatNumber(
-        this.state.userAmmoSupplyAmount
-      ),
-      toolsSupplyAmountDisplay: this.formatNumber(
-        this.state.userToolsSupplyAmount
-      ),
+      foodMSRdisplay : String((Number(this.state.foodMSRP) - Number(this.state.foodMSRP)*0.10).toFixed(7)),
+      fuelMSRdisplay : String((Number(this.state.fuelMSRP) - Number(this.state.fuelMSRP)*0.10).toFixed(7)),
+      ammoMSRdisplay : String((Number(this.state.ammoMSRP) - Number(this.state.ammoMSRP)*0.10).toFixed(7)),
+      toolsMSRdisplay : String((Number(this.state.toolsMSRP) - Number(this.state.toolsMSRP)*0.10).toFixed(7))
     });
     let foodElement = document.getElementById("food");
     if (foodElement !== null && "value" in foodElement) {
@@ -1186,13 +1070,129 @@ class page extends Component {
     );
   }
 
+  fixMissingTokens()
+  {
+    this.setState({renderControl:"TokenCheckPointLoading"})
+    console.log(this.state.missingAccountInstructions)
+    this.sendRawTransaction(this.state.missingAccountInstructions,new PublicKey(this.state.userPubKey))
+  }
+
+
+  
+  renderTokenCheckPoint() {
+    return(
+      
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', overflow: 'hidden' }}>
+      
+          <h1 style={{ color: "white", fontSize: 50, marginBottom: '20px', marginTop: -100 }}>Polaris Fuel</h1>
+          <h1 style={{ color: "white", fontSize: 30, marginBottom: '10px' }}>Token Check Point</h1>
+      
+          <img
+            src="https://cdn.discordapp.com/attachments/1005544801921417377/1165743783552491530/azuldev_futuristic_space_gas_station_1fa15962-18d6-4efb-bbf3-6db9b5c17eb4.png?ex=6547f680&is=65358180&hm=f702ca5da6d26bdc6a511a482e7775679fd606e17a1c912f4ca51ea85485de91&"
+            style={{
+              zIndex: -2,
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              opacity: 0.2 // Adjust the opacity value (0.0 - 1.0) to make it lighter
+            }}
+            alt="Background"
+          />
+          <button
+          
+          onClick={this.fixMissingTokens.bind(this)}
+          
+          style={{
+            backgroundColor: "red",
+            color: "white",
+            padding: "10px 20px", // Specify padding as a string
+            border: "none",
+            borderRadius: "5px", // Specify borderRadius as a string
+            cursor: "pointer",
+            marginBottom: '50px'
+          }}>Click to Fix Missing Token</button>
+      
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+            <h1 className={this.state.atlasGlow} style={{ fontSize: 15 }}>ATLAS</h1>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+            <h1 className={this.state.ammoGlow} style={{ fontSize: 15 }}>AMMO</h1>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px',marginLeft:-10 }}>
+            <h1 className={this.state.fuelGlow} style={{ color: "white", fontSize: 15 }}>FUEL</h1>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px',marginLeft:-5  }}>
+            <h1 className={this.state.foodGlow} style={{ color: "white", fontSize: 15 }}>FOOD</h1>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+            <h1 className={this.state.toolsGlow} style={{ color: "white", fontSize: 15 }}>TOOLS</h1>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px',marginLeft:-20  }}>
+            <h1 className={this.state.pxpGlow} style={{ color: "white", fontSize: 15 }}>PXP</h1>
+          </div>
+      </div>
+      
+          )
+      
+  }
+
+  renderTokenCheckPointLoading() {
+    return(
+      
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', overflow: 'hidden' }}>
+      
+          <h1 style={{ color: "white", fontSize: 50, marginBottom: '20px', marginTop: -100 }}>Polaris Fuel</h1>
+          <h1 style={{ color: "white", fontSize: 30, marginBottom: '10px' }}>Token Check Point</h1>
+      
+          <img
+            src="https://cdn.discordapp.com/attachments/1005544801921417377/1165743783552491530/azuldev_futuristic_space_gas_station_1fa15962-18d6-4efb-bbf3-6db9b5c17eb4.png?ex=6547f680&is=65358180&hm=f702ca5da6d26bdc6a511a482e7775679fd606e17a1c912f4ca51ea85485de91&"
+            style={{
+              zIndex: -2,
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              opacity: 0.2 // Adjust the opacity value (0.0 - 1.0) to make it lighter
+            }}
+            alt="Background"
+          />
+
+      
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+            <h1 className={this.state.atlasGlow} style={{ fontSize: 15 }}>Sending Transaction...</h1>
+          </div>
+
+      </div>
+      
+          )
+      
+  }
+
+
+
   render() {
+
+
+
+
     if (this.state.renderControl == "noWallet") {
       return this.renderNoWallet();
-    } else if (this.state.renderControl == "main") {
+    }
+    
+    else if (this.state.renderControl == "TokenCheckPoint") {
+      return this.renderTokenCheckPoint();
+    } 
+
+    else if (this.state.renderControl == "TokenCheckPointLoading") {
+      return this.renderTokenCheckPointLoading();
+    } 
+    
+    else if (this.state.renderControl == "main") {
+
       return (
         <>
-          <AppNavbar connectWallet={this.walletClick} />
+          <AppNavbar connectWallet={this.walletClick} walletHTML={this.state.walletHTML} />
           <main className='min-h-full h-full flex-1 flex items-center justify-center p-5 pt-24 lg:p-10'>
             <div className='max-w-lg lg:max-w-5xl w-full mx-auto'>
               <div className='px-3'>
@@ -1251,7 +1251,7 @@ class page extends Component {
                 {/* Current Price */}
                 <div className='py-3.5 lg:py-5'>
                   <h2 className='font-semibold text-sm xl:text-base text-center'>
-                    Current Price
+                    {this.state.priceDisplay}
                   </h2>
                   <div className='grid grid-cols-4 lg:block font-semibold lg:space-y-3 px-3 lg:px-10 mt-2 lg:mt-4'>
                     <p className='flex items-center justify-center lg:justify-start space-x-3 py-3'>
@@ -1292,7 +1292,7 @@ class page extends Component {
                       <div className='w-52 shrink-0 relative bg-[#1c1e20] rounded-md py-2 px-3 lg:py-3'>
                         <input
                           id='food'
-                          type='text'
+                          type='number'
                           className='bg-transparent text-sm'
                           placeholder='Enter Amount'
                           onChange={this.changeAmount.bind(this)}
@@ -1309,13 +1309,12 @@ class page extends Component {
                       </div>
                       <p className='flex items-center font-medium text-xs lg:text-sm xl:text-lg space-x-3 lg:space-x-5'>
                         <span className='text-brand-primary'>
-                          {/* {this.formatNumber(
+                          {this.formatNumber(
                             (
                               Number(this.state.foodMSRdisplay) *
                               this.state.foodAmount
-                            ).toFixed(6)
-                          )} */}
-                          0.0000
+                            ).toFixed(4)
+                          )}
                         </span>
                         <span> Atlas</span>
                       </p>
@@ -1326,7 +1325,7 @@ class page extends Component {
                       <div className='w-52 shrink-0 relative bg-[#1c1e20] rounded-md py-2 px-3 lg:py-3'>
                         <input
                           id='fuel'
-                          type='text'
+                          type='number'
                           className='bg-transparent text-sm'
                           placeholder='Enter Amount'
                           onChange={this.changeAmount.bind(this)}
@@ -1343,13 +1342,12 @@ class page extends Component {
                       </div>
                       <p className='flex items-center font-medium text-xs lg:text-sm xl:text-lg space-x-3 lg:space-x-5'>
                         <span className='text-brand-primary'>
-                          {/* {this.formatNumber(
+                          {this.formatNumber(
                             (
                               Number(this.state.fuelMSRdisplay) *
                               this.state.fuelAmount
-                            ).toFixed(6)
-                          )} */}
-                          0.0000
+                            ).toFixed(4)
+                          )}
                         </span>
                         <span> Atlas</span>
                       </p>
@@ -1359,8 +1357,8 @@ class page extends Component {
                     <div className='flex items-center space-x-3 lg:space-x-5'>
                       <div className='w-52 shrink-0 relative bg-[#1c1e20] rounded-md py-2 px-3 lg:py-3'>
                         <input
-                          id='fuel'
-                          type='ammo'
+                          id='ammo'
+                          type='number'
                           className='bg-transparent text-sm'
                           placeholder='Enter Amount'
                           onChange={this.changeAmount.bind(this)}
@@ -1381,7 +1379,7 @@ class page extends Component {
                             (
                               Number(this.state.ammoMSRdisplay) *
                               this.state.ammoAmount
-                            ).toFixed(6)
+                            ).toFixed(4)
                           )}
                         </span>
                         <span> Atlas</span>
@@ -1392,8 +1390,8 @@ class page extends Component {
                     <div className='flex items-center space-x-3 lg:space-x-5'>
                       <div className='w-52 shrink-0 relative bg-[#1c1e20] rounded-md py-2 px-3 lg:py-3'>
                         <input
-                          id='fuel'
-                          type='ammo'
+                          id='tools'
+                          type='number'
                           className='bg-transparent text-sm'
                           placeholder='Enter Amount'
                           onChange={this.changeAmount.bind(this)}
@@ -1414,7 +1412,7 @@ class page extends Component {
                             (
                               Number(this.state.toolsMSRdisplay) *
                               this.state.toolsAmount
-                            ).toFixed(6)
+                            ).toFixed(4)
                           )}
                         </span>
                         <span> Atlas</span>
@@ -1424,6 +1422,8 @@ class page extends Component {
                 </div>
               </div>
 
+
+              {/* send button start */}
               <div className='text-center mt-6 lg:mt-8 xl:mt-12'>
                 <button
                   id='Send'
@@ -1432,24 +1432,16 @@ class page extends Component {
                   {this.state.actionButton}
                 </button>
               </div>
-            </div>
-          </main>
-          <footer className='border-t border-gray-100/60 px-4 lg:px-10 py-5'>
-            <div className='max-w-screen-2xl mx-auto flex items-center justify-between text-sm'>
-              <div className='flex items-center space-x-2'>
-                <p className='text-white font-medium'>Membership Level: </p>
-                <div className='w-4 h-4 shrink-0 border-4 border-brand-primary rounded-full'></div>
-                <p className='text-brand-primary'>Bronze</p>
-              </div>
+              {/* send button end */}
 
-              <div className='flex items-center space-x-2'>
-                <p className='text-white font-medium'>Current PXP: </p>
-                <p className='text-brand-primary'>
-                  {this.formatNumber(this.state.userPolarisExpSupplyAmount)}
-                </p>
-              </div>
+
+
             </div>
-          </footer>
+
+
+
+          </main>
+            <AppFooter formatNumber={this.formatNumber} userPolarisExpSupplyAmount={this.state.userPolarisExpSupplyAmount} />
         </>
       );
     }
