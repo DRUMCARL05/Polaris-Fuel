@@ -1088,7 +1088,7 @@ class page extends Component {
           <h1 style={{ color: "white", fontSize: 30, marginBottom: '10px' }}>Token Check Point</h1>
       
           <img
-            src="https://cdn.discordapp.com/attachments/1005544801921417377/1165743783552491530/azuldev_futuristic_space_gas_station_1fa15962-18d6-4efb-bbf3-6db9b5c17eb4.png?ex=6547f680&is=65358180&hm=f702ca5da6d26bdc6a511a482e7775679fd606e17a1c912f4ca51ea85485de91&"
+            src="https://media.discordapp.net/attachments/1119286494453055528/1165779595136598126/IMG_0799.png?ex=654817da&is=6535a2da&hm=37942449e19300d6741995d091f830278e4129bb0bac022484df4812c20c22fa&=&width=1202&height=676"
             style={{
               zIndex: -2,
               position: "absolute",
@@ -1146,7 +1146,7 @@ class page extends Component {
           <h1 style={{ color: "white", fontSize: 30, marginBottom: '10px' }}>Token Check Point</h1>
       
           <img
-            src="https://cdn.discordapp.com/attachments/1005544801921417377/1165743783552491530/azuldev_futuristic_space_gas_station_1fa15962-18d6-4efb-bbf3-6db9b5c17eb4.png?ex=6547f680&is=65358180&hm=f702ca5da6d26bdc6a511a482e7775679fd606e17a1c912f4ca51ea85485de91&"
+            src="https://media.discordapp.net/attachments/1119286494453055528/1165779595136598126/IMG_0799.png?ex=654817da&is=6535a2da&hm=37942449e19300d6741995d091f830278e4129bb0bac022484df4812c20c22fa&=&width=1202&height=676"
             style={{
               zIndex: -2,
               position: "absolute",
