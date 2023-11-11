@@ -22,7 +22,7 @@ import {
 import AppNavbar from "@/components/AppNavbar";
 
 import {fetchAccountData,MarketPlaceDataLayout,TokenAccountDataLayout} from "./utils/helper.js"
-import AppFooter from "@/components/AppFooter.tsx";
+import AppFooter from "@/components/AppFooter";
 
 let provider: any;
 const BufferLayout = require("buffer-layout");
@@ -36,9 +36,9 @@ let createAccountInstructionArray: any = [];
 let connection = new Connection("https://winter-divine-crater.solana-mainnet.quiknode.pro/e245f53447c82dcd216b89244c8ea868c8962284/");
 let programId = new PublicKey("PLRSkbYoHcazB4qAx47S3Kgm4BRRjFFLfLQ5Trc8yif");
 let marketConfigAccount = new PublicKey("EvzdWfb5pmAoyVvXEWHQwju447RfVkcz4owePHFvbTQZ");
+let allowedFeeSAAccount = new PublicKey("9rETn4sXCt5GNsBXgzujgkAh7tj3dwAK2kZiN8n8jCnw")
 
-
-// This is the PDA using string POLARIS-VAULT "EVckUhHX1YaNRmJ5adjagw7x2Fri6N7vDM2JUkMDCyrY"
+// PDA accounts
 let pda_star_atlas_account = new PublicKey("qopSi14qw3vpttsrQc2Y5gXyq34eLpm4JBasMVE64sA");
 let pda_tools_mint_tokenAccount = new PublicKey("6rjWUucyc4sAhJF1mNmgQ5qe47Bie5RhZtWCABRmyDKk");
 let pda_ammo_mint_tokenAccount = new PublicKey("3hjNi2Rf2fkTURVZ6rFyrWCsXcFaNFZpykw3sV8U5j9R");
@@ -108,6 +108,13 @@ class page extends Component {
     marketFee: 0.1,
     amountBoxText: "Buying Amount",
     marketQtyBoxText: "Mrkt QTY",
+    //destination accounts
+    destination_ammo_account:null,
+    destination_atlas_account:null,
+    destination_food_account:null,
+    destination_fuel_account:null,
+    destination_tools_account:null,
+
 
     // Alex Update
     activeToggleBtn: "customer",
@@ -265,7 +272,7 @@ class page extends Component {
 
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
-      { skipPreflight: true }
+      { skipPreflight: false }
     );
 
     console.log(signature);
@@ -414,6 +421,20 @@ class page extends Component {
 
     if(hasAllAccounts)
     {
+      console.log(mintsObjRet)
+      console.log(this.state)
+      
+      this.setState({
+      user_ammo_account: mintsObjRet.ammo_mint.pubkey.toBase58(),
+      user_food_account: mintsObjRet.food_mint.pubkey.toBase58(),
+      user_fuel_account: mintsObjRet.fuel_mint.pubkey.toBase58(),
+      user_polaris_exp_account: mintsObjRet.polaris_exp_mint.pubkey.toBase58(),
+      user_star_atlas_account: mintsObjRet.star_atlas_mint.pubkey.toBase58(),
+      user_tools_account: mintsObjRet.tools_mint.pubkey.toBase58(),
+      })
+
+  
+
       this.setState({renderControl: "main"})
 
     }else{
@@ -431,6 +452,8 @@ class page extends Component {
 
       let marketConfigData = await fetchAccountData(connection,"EvzdWfb5pmAoyVvXEWHQwju447RfVkcz4owePHFvbTQZ",5,1000)
       let decodedData = await MarketPlaceDataLayout.decode(marketConfigData.data);
+
+      console.log(decodedData)
 
       let marketPlaceFoodAmount = await this.getBalance(connection,pda_food_tokenAccount)
       let marketPlaceToolsAmount = await this.getBalance(connection,pda_tools_mint_tokenAccount)
@@ -462,7 +485,14 @@ class page extends Component {
         foodMSRP: decodedData.food,
         fuelMSRP : decodedData.fuel,
         ammoMSRP:  decodedData.ammo_price,
-        toolsMSRP: decodedData.tool
+        toolsMSRP: decodedData.tool,
+
+        //destination_accounts
+        destination_ammo_account:decodedData.destination_ammo_account,
+        destination_atlas_account:decodedData.destination_atlas_account,
+        destination_food_account:decodedData.destination_food_account,
+        destination_fuel_account:decodedData.destination_fuel_account,
+        destination_tools_account:decodedData.destination_tools_account,
       })
 
 
@@ -477,318 +507,81 @@ class page extends Component {
     alert("Change Wallet Using Phantom Extension")
   }
 
-  async create_polaris_buy_instruction(resource_type: any, buy_ammount: any) {
-    let [pdaPublicKey, _nonce] = await PublicKey.findProgramAddress(
-      [seeds],
-      programId
-    );
-    console.log("pda: " + pdaPublicKey.toBase58());
+  async create_polaris_buy_instruction(
+    resource_type: number, 
+    buy_ammount: number,
+    user_accounts:PublicKey[],
+    pda_accounts:PublicKey[],
+    feePayerPk:PublicKey,
+    user_atlas_account:PublicKey,
+    destination_star_atlas_tokenAccount:PublicKey) {
 
+    console.log(destination_star_atlas_tokenAccount)
+
+    let [pdaPublicKey, _nonce] =  PublicKey.findProgramAddressSync([seeds], programId);
+    console.log("pda: "+pdaPublicKey.toBase58())
+  
+    var net = 0;
+    var netBuffer = Buffer.alloc(1);
+    netBuffer.writeUint8(net);
+  
     var iX = 0;
     var iXBuffer = Buffer.alloc(1);
     iXBuffer.writeUint8(iX);
-
-    var nonceBuffer = Buffer.alloc(1);
-    nonceBuffer.writeUint8(_nonce);
-
-    var buy_ammountBuffer = Buffer.alloc(8);
-    buy_ammountBuffer.writeUint8(buy_ammount);
-
-    var dataBuffer = Buffer.concat([
-      iXBuffer,
-      seeds,
-      nonceBuffer,
-      buy_ammountBuffer,
-    ]);
-
-    let resourceMints = [food_mint, fuel_mint, ammo_mint, tools_mint];
-    let userResourceAccounts = [
-      this.state.user_food_account,
-      this.state.user_fuel_account,
-      this.state.user_ammo_account,
-      this.state.user_tools_account,
-    ];
-    let pdaResourceAccounts = [
-      pda_food_tokenAccount,
-      pda_fuel_mint_tokenAccount,
-      pda_ammo_mint_tokenAccount,
-      pda_tools_mint_tokenAccount,
-    ];
-
-    if (resource_type > -1 && resource_type < 4) {
-    } else {
-      console.log("Invalid Buy Operation");
-      return 0;
-    }
-
-    if (this.state.userPubKey !== null) {
-    } else {
-      alert("User Pubkey Undefined");
-      return 0;
-    }
-
-    if (this.state.user_star_atlas_account !== null) {
-    } else {
-      alert("User Star Atlas Account Undefined");
-      return 0;
-    }
-
-    if (this.state.user_polaris_exp_account !== null) {
-    } else {
-      alert("User PXP account is Undefined");
-      return 0;
-    }
-
-    let userResAccountFix = null;
-
-    let resourceAccount = userResourceAccounts[resource_type];
-    if (resourceAccount !== null) {
-      userResAccountFix = new PublicKey(resourceAccount);
-    } else {
-      // Handle the case where resourceAccount is null
-
-      switch (resource_type) {
-        case 0:
-          alert("User Food Account Undefined");
-          break;
-        case 1:
-          alert("User Fuel Account Undefined");
-          break;
-
-        case 2:
-          alert("User Ammo Account Undefined");
-          break;
-
-        case 3:
-          alert("User Tools Account Undefined");
-          break;
-
-        default:
-          break;
-      }
-      return 0;
-    }
-
-    // Create the instruction to send data
-    let instructionData2 = {
-      keys: [
-        {
-          pubkey: new PublicKey(this.state.userPubKey),
-          isSigner: true,
-          isWritable: false,
-        }, //user + feePayer
-        { pubkey: pdaPublicKey, isSigner: false, isWritable: false }, //pda
-
-        { pubkey: star_atlas_mint, isSigner: false, isWritable: false }, // star atlas mint
-        {
-          pubkey: new PublicKey(this.state.user_star_atlas_account),
-          isSigner: false,
-          isWritable: true,
-        }, //user star atlas account
-        { pubkey: pda_star_atlas_account, isSigner: false, isWritable: true }, //pda star atlas account
-
-        {
-          pubkey: resourceMints[resource_type],
-          isSigner: false,
-          isWritable: false,
-        }, // resource mint
-        { pubkey: userResAccountFix, isSigner: false, isWritable: true }, //user resource account
-        {
-          pubkey: pdaResourceAccounts[resource_type],
-          isSigner: false,
-          isWritable: true,
-        }, //pda resource account
-        {
-          pubkey: new PublicKey("5RWZnLxovGyWsn3KuWbcBnBNpbJ8FH8eLvxztZaZmWzh"),
-          isSigner: false,
-          isWritable: true,
-        }, //fee account
-
-        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }, //systemProgram
-        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, //token program
-
-        { pubkey: polaris_exp_mint, isSigner: false, isWritable: true }, //reward mint
-        {
-          pubkey: new PublicKey(this.state.user_polaris_exp_account),
-          isSigner: false,
-          isWritable: true,
-        }, //reward account of the user
-        { pubkey: marketConfigAccount, isSigner: false, isWritable: true }, //marketplace account
-      ],
-      programId,
-      data: dataBuffer,
-    };
-
-    let polaris_buy_instruction = new TransactionInstruction(instructionData2);
-
-    console.log("PDA resource account: " + pdaResourceAccounts[resource_type]);
-
-    return polaris_buy_instruction;
-  }
-
-  async create_polaris_sell_instruction(resource_type: any, sell_ammount: any) {
-    let [pdaPublicKey, _nonce] = await PublicKey.findProgramAddress(
-      [seeds],
-      programId
-    );
-    console.log("pda: " + pdaPublicKey.toBase58());
-
-    var iX = 3;
-    var iXBuffer = Buffer.alloc(1);
-    iXBuffer.writeUint8(iX);
-
+  
+    var resource_typeBuffer = Buffer.alloc(1);
+    resource_typeBuffer.writeUint8(resource_type);
+  
+  
     var nonceBuffer = Buffer.alloc(1);
     nonceBuffer.writeUint8(_nonce);
     var dataBuffer = Buffer.concat([iXBuffer, seeds, nonceBuffer]);
-
-    var sell_ammountBuffer = Buffer.alloc(8);
-    sell_ammountBuffer.writeUint8(sell_ammount);
-
-    var dataBuffer = Buffer.concat([
-      iXBuffer,
-      seeds,
-      nonceBuffer,
-      sell_ammountBuffer,
-    ]);
-
-    let resourceMints = [food_mint, fuel_mint, ammo_mint, tools_mint];
-    let userResourceAccounts = [
-      this.state.user_food_account,
-      this.state.user_fuel_account,
-      this.state.user_ammo_account,
-      this.state.user_tools_account,
-    ];
-    let pdaResourceAccounts = [
-      polaris_food_account,
-      polaris_fuel_account,
-      polaris_ammo_account,
-      polaris_tools_account,
-    ];
-
-    if (resource_type > -1 && resource_type < 4) {
-    } else {
-      console.log("Invalid Sell Operation");
-      return 0;
-    }
-
-    if (this.state.userPubKey !== null) {
-    } else {
-      alert("User Pubkey Undefined");
-      return 0;
-    }
-
-    if (this.state.user_star_atlas_account !== null) {
-    } else {
-      alert("User Star Atlas Account Undefined");
-      return 0;
-    }
-
-    if (this.state.user_polaris_exp_account !== null) {
-    } else {
-      alert("User PXP account is Undefined");
-      return 0;
-    }
-
-    let userResAccountFix = null;
-
-    let resourceAccount = userResourceAccounts[resource_type];
-    if (resourceAccount !== null) {
-      userResAccountFix = new PublicKey(resourceAccount);
-    } else {
-      // Handle the case where resourceAccount is null
-
-      switch (resource_type) {
-        case 0:
-          alert("User Food Account Undefined");
-          break;
-        case 1:
-          alert("User Fuel Account Undefined");
-          break;
-
-        case 2:
-          alert("User Ammo Account Undefined");
-          break;
-
-        case 3:
-          alert("User Tools Account Undefined");
-          break;
-
-        default:
-          break;
-      }
-      return 0;
-    }
+  
+    var buy_ammountBuffer = Buffer.alloc(8);
+    buy_ammountBuffer.writeUint8(buy_ammount);
+  
+    var dataBuffer = Buffer.concat([netBuffer, iXBuffer, seeds, nonceBuffer,buy_ammountBuffer,resource_typeBuffer]);
 
     // Create the instruction to send data
-    let instructionData2 = {
+    let buyInstruction = {
       keys: [
-        {
-          pubkey: new PublicKey(this.state.userPubKey),
-          isSigner: true,
-          isWritable: false,
-        }, //user + feePayer
+        { pubkey: feePayerPk, isSigner: true, isWritable: false }, //user + feePayer
         { pubkey: pdaPublicKey, isSigner: false, isWritable: false }, //pda
 
-        { pubkey: star_atlas_mint, isSigner: false, isWritable: false }, // star atlas mint
-        {
-          pubkey: new PublicKey(this.state.user_star_atlas_account),
-          isSigner: false,
-          isWritable: true,
-        }, //user star atlas account
-        { pubkey: pda_star_atlas_account, isSigner: false, isWritable: true }, //pda star atlas account
+        //{ pubkey: star_atlas_mint, isSigner: false, isWritable: false }, // star atlas mint
+        { pubkey: user_atlas_account, isSigner: false, isWritable: true }, //user star atlas account
+        { pubkey: destination_star_atlas_tokenAccount, isSigner: false, isWritable: true }, //pda star atlas account 
 
-        {
-          pubkey: resourceMints[resource_type],
-          isSigner: false,
-          isWritable: false,
-        }, // resource mint
-        { pubkey: userResAccountFix, isSigner: false, isWritable: true }, //user resource account
-        {
-          pubkey: pdaResourceAccounts[resource_type],
-          isSigner: false,
-          isWritable: true,
-        }, //pda resource account -> 6/27 asked to move to polaris account instead
+        //{ pubkey: resourceMints[resource_type], isSigner: false, isWritable: false }, // resource mint
+        { pubkey: user_accounts[resource_type], isSigner: false, isWritable: true }, //user resource account
+        { pubkey: pda_accounts[resource_type], isSigner: false, isWritable: true }, //pda resource account
+        { pubkey: allowedFeeSAAccount, isSigner: false, isWritable: true }, //fee account
+
 
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }, //systemProgram
         { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, //token program
 
-        { pubkey: polaris_exp_mint, isSigner: false, isWritable: true }, //reward mint
-        {
-          pubkey: new PublicKey(this.state.user_polaris_exp_account),
-          isSigner: false,
-          isWritable: true,
-        }, //reward account of the user
+
+        //{ pubkey: pda_polaris_exp_mint, isSigner: false, isWritable: true }, //reward mint
+        //{ pubkey: user_polaris_exp_reward_account, isSigner: false, isWritable: true }, //reward account of the user
         { pubkey: marketConfigAccount, isSigner: false, isWritable: true }, //marketplace account
       ],
       programId,
       data: dataBuffer,
     };
 
-    let sendDataIx2 = new TransactionInstruction(instructionData2);
+    return buyInstruction
+   
+  }
 
-    return sendDataIx2;
+  async create_polaris_sell_instruction(resource_type: any, sell_ammount: any) {
+    
   }
 
   async callProgram() {
-    var walletButton = document.getElementById("WalletButton");
 
-    if (walletButton !== null) {
-    } else {
-      alert("Error in Wallet");
-      return 0;
-    }
-    try {
-      if (walletButton.innerHTML.length == 9) {
-      } else {
-        alert("Please Connect Wallet");
-        return 0;
-      }
-    } catch (err) {
-      // { code: 4001, message: 'User rejected the request.' }
-    }
 
-    if (this.state.userPubKey !== null) {
-    } else {
+    if (this.state.userPubKey === null) {
       alert("User Pubkey Undefined");
       return 0;
     }
@@ -797,84 +590,72 @@ class page extends Component {
     const transaction = new Transaction();
     transaction.feePayer = new PublicKey(this.state.userPubKey);
 
+    //must be in order of ammo food fuel tools
     let buyOrder = [
+      this.state.ammoAmount,
       this.state.foodAmount,
       this.state.fuelAmount,
-      this.state.ammoAmount,
       this.state.toolsAmount,
     ];
 
+    console.log(buyOrder)
+
+    let ixArr = []
+
     if (this.state.actionButton == "Buy") {
       console.log("buying resources");
-
-      console.log(buyOrder);
-
+      
       for (let index = 0; index < buyOrder.length; index++) {
-        var element = buyOrder[index];
+              
+        if(buyOrder[index]>0)
+        {
 
-        if (element > 0) {
-          console.log(index);
-          console.log("creating buy order");
-          let result = await this.create_polaris_sell_instruction(
-            index,
-            element
-          );
-          if (result instanceof TransactionInstruction) {
-            let ix: TransactionInstruction = result;
-            transaction.add(ix);
-          } else {
-            {
-              alert(
-                "Accounts Needed for Instruction Undefined please Try Again"
-              );
-              window.location.reload();
-            }
-          }
+
+          console.log(this.state)
+
+          let userResourceAccounts=[
+            new PublicKey(this.state.user_ammo_account),
+            new PublicKey(this.state.user_food_account),
+            new PublicKey(this.state.user_fuel_account),
+            new PublicKey(this.state.user_tools_account),
+            new PublicKey(this.state.user_star_atlas_account)
+          ]
+
+              //must be in the order ammo food fuel tool
+          let pdaResourceAccounts=[
+            pda_ammo_mint_tokenAccount,
+            pda_food_tokenAccount,
+            pda_fuel_mint_tokenAccount,
+            pda_tools_mint_tokenAccount,
+            pda_star_atlas_account
+          ]
+
+              let retIx = await this.create_polaris_buy_instruction(
+                index,
+                buyOrder[index],
+                userResourceAccounts,
+                pdaResourceAccounts,
+                new PublicKey(this.state.userPubKey),
+                new PublicKey(this.state.user_star_atlas_account),
+                new PublicKey(this.state.destination_atlas_account)
+                )
+                
+
+                ixArr.push(retIx)
+
         }
       }
+
     } else {
       //max user
       console.log("selling resources");
 
-      console.log(buyOrder);
-
-      for (let index = 0; index < buyOrder.length; index++) {
-        var element = buyOrder[index];
-
-        if (element > 0) {
-          let result = await this.create_polaris_sell_instruction(
-            index,
-            element
-          );
-          if (result instanceof TransactionInstruction) {
-            let ix: TransactionInstruction = result;
-            transaction.add(ix);
-          } else {
-            {
-              alert(
-                "Accounts Needed for Instruction Undefined please Try Again"
-              );
-              window.location.reload();
-            }
-          }
-        }
-      }
     }
 
-    console.log(transaction.instructions.length);
-
-    var { blockhash } = await connection.getRecentBlockhash();
-
-    console.log(blockhash);
-
-    transaction.recentBlockhash = blockhash;
-    const signedTransaction = await provider.signTransaction(transaction);
-    const signature = await connection.sendRawTransaction(
-      signedTransaction.serialize(),
-      { skipPreflight: true }
-    );
-
-    console.log(signature);
+    console.log(ixArr)
+    console.log(this.state)
+    console.log(this.state.destination_atlas_account)
+    this.sendRawTransaction(ixArr,new PublicKey(this.state.userPubKey));
   }
 
   customerClick() {
