@@ -3,19 +3,11 @@ import React, { Component } from "react";
 import {
   Connection,
   PublicKey,
-  clusterApiUrl,
-  Keypair,
   SystemProgram,
-  LAMPORTS_PER_SOL,
   Transaction,
-  TransactionInstruction,
-  sendAndConfirmTransaction,
 } from "@solana/web3.js";
-import { relative } from "path";
 import {
   TOKEN_PROGRAM_ID,
-  MINT_SIZE,
-  getMinimumBalanceForRentExemptMint,
   getAssociatedTokenAddress,
   createAssociatedTokenAccountInstruction,
 } from "@solana/spl-token";
@@ -23,15 +15,13 @@ import AppNavbar from "@/components/AppNavbar";
 
 import {fetchAccountData,MarketPlaceDataLayout,TokenAccountDataLayout} from "./utils/helper.js"
 import AppFooter from "@/components/AppFooter";
+import Image from "next/image"
 
-let provider: any;
-const BufferLayout = require("buffer-layout");
 
 //generate pda
 let str = "POLARIS-VAULT";
 let seeds = Buffer.from(str, "utf-8");
 
-let createAccountInstructionArray: any = [];
 
 let connection = new Connection("https://winter-divine-crater.solana-mainnet.quiknode.pro/e245f53447c82dcd216b89244c8ea868c8962284/");
 let programId = new PublicKey("PLRSkbYoHcazB4qAx47S3Kgm4BRRjFFLfLQ5Trc8yif");
@@ -514,7 +504,8 @@ class page extends Component {
     pda_accounts:PublicKey[],
     feePayerPk:PublicKey,
     user_atlas_account:PublicKey,
-    destination_star_atlas_tokenAccount:PublicKey) {
+    destination_star_atlas_tokenAccount:PublicKey
+    ) {
 
     console.log(destination_star_atlas_tokenAccount)
 
@@ -574,7 +565,71 @@ class page extends Component {
    
   }
 
-  async create_polaris_sell_instruction(resource_type: any, sell_ammount: any) {
+  async create_polaris_sell_instruction(
+    resource_type: number, 
+    sell_ammount: number,
+    user_accounts:PublicKey[],
+    pda_accounts:PublicKey[],
+    feePayerPk:PublicKey,
+    destinationAccounts:PublicKey[],
+    user_pxp_account:PublicKey
+    ) {
+
+    let [pdaPublicKey, _nonce] =  PublicKey.findProgramAddressSync([seeds], programId);
+    console.log("pda: "+pdaPublicKey.toBase58())
+  
+    var net = 0;
+    var netBuffer = Buffer.alloc(1);
+    netBuffer.writeUint8(net);
+  
+    var iX = 3;
+    var iXBuffer = Buffer.alloc(1);
+    iXBuffer.writeUint8(iX);
+  
+    var nonceBuffer = Buffer.alloc(1);
+    nonceBuffer.writeUint8(_nonce);
+  
+    var sell_ammountBuffer = Buffer.alloc(8);
+    sell_ammountBuffer.writeUint8(sell_ammount);
+    console.log(sell_ammount)
+  
+  
+    var resource_typeBuffer = Buffer.alloc(1);
+    resource_typeBuffer.writeUint8(resource_type);
+
+    console.log("Resource Type:"+resource_type)
+    console.log("Amount Selling: "+sell_ammount)
+  
+  
+    var dataBuffer = Buffer.concat([netBuffer,iXBuffer, seeds, nonceBuffer,sell_ammountBuffer,resource_typeBuffer]);
+  
+
+
+    // Create the instruction to send data
+    let sellIx = {
+      keys: [
+        { pubkey: feePayerPk, isSigner: true, isWritable: false }, //user + feePayer
+        { pubkey: pdaPublicKey, isSigner: false, isWritable: false }, //pda
+  
+        { pubkey: user_accounts[4], isSigner: false, isWritable: true }, //user star atlas account
+        { pubkey: pda_accounts[4], isSigner: false, isWritable: true }, //pda star atlas account 
+  
+        { pubkey: user_accounts[resource_type], isSigner: false, isWritable: true }, //user resource account
+        { pubkey: destinationAccounts[resource_type], isSigner: false, isWritable: true }, //pda resource account -> 6/27 asked to move to personal wallet
+  
+        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }, //systemProgram
+        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, //token program
+  
+  
+        { pubkey: polaris_exp_mint, isSigner: false, isWritable: true }, //reward mint
+        { pubkey: user_pxp_account, isSigner: false, isWritable: true }, //reward account of the user
+        { pubkey: marketConfigAccount, isSigner: false, isWritable: true }, //marketplace account
+      ],
+      programId,
+      data: dataBuffer,
+    };
+
+    return sellIx;
     
   }
 
@@ -598,7 +653,16 @@ class page extends Component {
       this.state.toolsAmount,
     ];
 
+    //must be in order tools ammo fuel food
+    let sellOrder = [
+      this.state.toolsAmount,
+      this.state.ammoAmount,
+      this.state.fuelAmount,
+      this.state.foodAmount,
+    ];
+
     console.log(buyOrder)
+
 
     let ixArr = []
 
@@ -613,15 +677,23 @@ class page extends Component {
 
           console.log(this.state)
 
-          let userResourceAccounts=[
-            new PublicKey(this.state.user_ammo_account),
-            new PublicKey(this.state.user_food_account),
-            new PublicKey(this.state.user_fuel_account),
-            new PublicKey(this.state.user_tools_account),
-            new PublicKey(this.state.user_star_atlas_account)
-          ]
+          if(this.state.user_ammo_account !==null
+            && this.state.user_food_account !==null
+            && this.state.user_fuel_account !==null
+            && this.state.user_tools_account !==null
+            &&  this.state.user_star_atlas_account !==null
+            )
+          {
+            let userResourceAccounts=[
+              new PublicKey(this.state.user_ammo_account),
+              new PublicKey(this.state.user_food_account),
+              new PublicKey(this.state.user_fuel_account),
+              new PublicKey(this.state.user_tools_account),
+              new PublicKey(this.state.user_star_atlas_account)
+            ]
 
-              //must be in the order ammo food fuel tool
+
+                          //must be in the order ammo food fuel tool
           let pdaResourceAccounts=[
             pda_ammo_mint_tokenAccount,
             pda_food_tokenAccount,
@@ -630,18 +702,30 @@ class page extends Component {
             pda_star_atlas_account
           ]
 
-              let retIx = await this.create_polaris_buy_instruction(
-                index,
-                buyOrder[index],
-                userResourceAccounts,
-                pdaResourceAccounts,
-                new PublicKey(this.state.userPubKey),
-                new PublicKey(this.state.user_star_atlas_account),
-                new PublicKey(this.state.destination_atlas_account)
-                )
-                
+          if(this.state.destination_atlas_account !== null)
+          {
+            let retIx = await this.create_polaris_buy_instruction(
+              index,
+              buyOrder[index],
+              userResourceAccounts,
+              pdaResourceAccounts,
+              new PublicKey(this.state.userPubKey),
+              new PublicKey(this.state.user_star_atlas_account),
+              new PublicKey(this.state.destination_atlas_account)
+              )
+              
 
-                ixArr.push(retIx)
+              ixArr.push(retIx)
+
+          }
+
+
+  
+
+          }
+
+
+
 
         }
       }
@@ -650,12 +734,88 @@ class page extends Component {
       //max user
       console.log("selling resources");
 
+
+      console.log(sellOrder)
+
+
+      for (let index = 0; index < buyOrder.length; index++) {
+              
+        if(sellOrder[index]>0)
+        {
+
+
+          console.log(this.state)
+
+          if(this.state.user_ammo_account !==null
+            && this.state.user_food_account !==null
+            && this.state.user_fuel_account !==null
+            && this.state.user_tools_account !==null
+            &&  this.state.user_star_atlas_account !==null
+            && this.state.destination_tools_account !== null
+            && this.state.destination_ammo_account !== null
+            && this.state.destination_fuel_account !== null
+            && this.state.destination_food_account !== null
+            && this.state.user_polaris_exp_account !== null
+            )
+            {
+
+              
+          //must be in sell order tools ammo fuel food
+          let userResourceAccounts=[
+            new PublicKey(this.state.user_tools_account),
+            new PublicKey(this.state.user_ammo_account),
+            new PublicKey(this.state.user_fuel_account),
+            new PublicKey(this.state.user_food_account),
+            new PublicKey(this.state.user_star_atlas_account)
+          ]
+
+          //must be in sell order tools ammo fuel food
+          let pdaResourceAccounts=[
+            pda_tools_mint_tokenAccount,
+            pda_ammo_mint_tokenAccount,
+            pda_fuel_mint_tokenAccount,
+            pda_food_tokenAccount,
+            pda_star_atlas_account
+          ]
+
+          //must be in sell order tools ammo fuel food
+          let destinationAccounts=[
+            new PublicKey(this.state.destination_tools_account),
+            new PublicKey(this.state.destination_ammo_account),
+            new PublicKey(this.state.destination_fuel_account),
+            new PublicKey(this.state.destination_food_account),
+          ]
+ 
+              let retIx = await this.create_polaris_sell_instruction(
+                index,
+                sellOrder[index],
+                userResourceAccounts,
+                pdaResourceAccounts,
+                new PublicKey(this.state.userPubKey),
+                destinationAccounts,
+                new PublicKey(this.state.user_polaris_exp_account)
+                )
+                
+
+                ixArr.push(retIx)
+
+
+            }
+
+
+        }
+      }
+
+
     }
 
     console.log(ixArr)
     console.log(this.state)
-    console.log(this.state.destination_atlas_account)
-    this.sendRawTransaction(ixArr,new PublicKey(this.state.userPubKey));
+
+    if(ixArr.length>0)
+    {
+      this.sendRawTransaction(ixArr,new PublicKey(this.state.userPubKey));
+    }
   }
 
   customerClick() {
@@ -868,7 +1028,7 @@ class page extends Component {
           <h1 style={{ color: "white", fontSize: 50, marginBottom: '20px', marginTop: -100 }}>Polaris Fuel</h1>
           <h1 style={{ color: "white", fontSize: 30, marginBottom: '10px' }}>Token Check Point</h1>
       
-          <img
+          <Image
             src="https://media.discordapp.net/attachments/1119286494453055528/1165779595136598126/IMG_0799.png?ex=654817da&is=6535a2da&hm=37942449e19300d6741995d091f830278e4129bb0bac022484df4812c20c22fa&=&width=1202&height=676"
             style={{
               zIndex: -2,
@@ -926,7 +1086,7 @@ class page extends Component {
           <h1 style={{ color: "white", fontSize: 50, marginBottom: '20px', marginTop: -100 }}>Polaris Fuel</h1>
           <h1 style={{ color: "white", fontSize: 30, marginBottom: '10px' }}>Token Check Point</h1>
       
-          <img
+          <Image
             src="https://media.discordapp.net/attachments/1119286494453055528/1165779595136598126/IMG_0799.png?ex=654817da&is=6535a2da&hm=37942449e19300d6741995d091f830278e4129bb0bac022484df4812c20c22fa&=&width=1202&height=676"
             style={{
               zIndex: -2,
