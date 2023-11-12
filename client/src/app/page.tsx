@@ -412,7 +412,8 @@ class page extends Component {
     if(hasAllAccounts)
     {
       console.log(mintsObjRet)
-      console.log(this.state)
+
+      
       
       this.setState({
       user_ammo_account: mintsObjRet.ammo_mint.pubkey.toBase58(),
@@ -421,6 +422,16 @@ class page extends Component {
       user_polaris_exp_account: mintsObjRet.polaris_exp_mint.pubkey.toBase58(),
       user_star_atlas_account: mintsObjRet.star_atlas_mint.pubkey.toBase58(),
       user_tools_account: mintsObjRet.tools_mint.pubkey.toBase58(),
+
+      //user qty of resources
+      userFoodSupplyAmount: mintsObjRet.food_mint.account.data.parsed.info.tokenAmount.uiAmount,
+      userFuelSupplyAmount: mintsObjRet.fuel_mint.account.data.parsed.info.tokenAmount.uiAmount,
+      userAmmoSupplyAmount: mintsObjRet.ammo_mint.account.data.parsed.info.tokenAmount.uiAmount,
+      userToolsSupplyAmount: mintsObjRet.tools_mint.account.data.parsed.info.tokenAmount.uiAmount,
+      userPolarisExpSupplyAmount: mintsObjRet.polaris_exp_mint.account.data.parsed.info.tokenAmount.uiAmount
+      },()=>{
+        console.log(this.state)
+
       })
 
   
@@ -872,7 +883,11 @@ class page extends Component {
       foodMSRdisplay : String((Number(this.state.foodMSRP) - Number(this.state.foodMSRP)*0.10).toFixed(7)),
       fuelMSRdisplay : String((Number(this.state.fuelMSRP) - Number(this.state.fuelMSRP)*0.10).toFixed(7)),
       ammoMSRdisplay : String((Number(this.state.ammoMSRP) - Number(this.state.ammoMSRP)*0.10).toFixed(7)),
-      toolsMSRdisplay : String((Number(this.state.toolsMSRP) - Number(this.state.toolsMSRP)*0.10).toFixed(7))
+      toolsMSRdisplay : String((Number(this.state.toolsMSRP) - Number(this.state.toolsMSRP)*0.10).toFixed(7)),
+      foodSupplyAmountDisplay: this.state.userFoodSupplyAmount,
+      fuelSupplyAmountDisplay: this.state.userFuelSupplyAmount,
+      ammoSupplyAmountDisplay: this.state.userAmmoSupplyAmount,
+      toolsSupplyAmountDisplay: this.state.userToolsSupplyAmount,
     });
     let foodElement = document.getElementById("food");
     if (foodElement !== null && "value" in foodElement) {
