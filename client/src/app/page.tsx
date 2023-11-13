@@ -15,7 +15,6 @@ import AppNavbar from "@/components/AppNavbar";
 
 import {fetchAccountData,MarketPlaceDataLayout,TokenAccountDataLayout} from "./utils/helper.js"
 import AppFooter from "@/components/AppFooter";
-import Image from "next/image"
 
 
 //generate pda
@@ -260,9 +259,12 @@ class page extends Component {
 
     const signedTransaction = await provider.signTransaction(transaction);
 
+    this.setState({renderControl:"loading"})
+
+
     const signature = await connection.sendRawTransaction(
       signedTransaction.serialize(),
-      { skipPreflight: false }
+      { skipPreflight: true }
     );
 
     console.log(signature);
@@ -270,13 +272,14 @@ class page extends Component {
 
     try {
       console.log(`Transaction sent, signature: ${signature}`);
+
+      this.componentDidMount()
     
       // Now we want to verify if the transaction was confirmed
       const confirmation = await connection.confirmTransaction(signature, 'confirmed'); // or use 'finalized' depending on the desired commitment level
       console.log('Transaction confirmed:', confirmation);
       this.setState({renderControl:"main"})
 
-    
     } catch (error) {
       alert("Error sending transaction:" + String(error));
       this.setState({renderControl:"renderTokenCheckPoint"})
@@ -543,6 +546,9 @@ class page extends Component {
     buy_ammountBuffer.writeUint8(buy_ammount);
   
     var dataBuffer = Buffer.concat([netBuffer, iXBuffer, seeds, nonceBuffer,buy_ammountBuffer,resource_typeBuffer]);
+
+
+    console.log(allowedFeeSAAccount.toBase58())
 
     // Create the instruction to send data
     let buyInstruction = {
@@ -821,6 +827,7 @@ class page extends Component {
     }
 
     console.log(ixArr)
+
     console.log(this.state)
 
     if(ixArr.length>0)
@@ -1043,7 +1050,7 @@ class page extends Component {
           <h1 style={{ color: "white", fontSize: 50, marginBottom: '20px', marginTop: -100 }}>Polaris Fuel</h1>
           <h1 style={{ color: "white", fontSize: 30, marginBottom: '10px' }}>Token Check Point</h1>
       
-          <Image
+          <img
             src="https://media.discordapp.net/attachments/1119286494453055528/1165779595136598126/IMG_0799.png?ex=654817da&is=6535a2da&hm=37942449e19300d6741995d091f830278e4129bb0bac022484df4812c20c22fa&=&width=1202&height=676"
             style={{
               zIndex: -2,
@@ -1093,6 +1100,39 @@ class page extends Component {
       
   }
 
+
+  renderLoading() {
+    return (
+      <>
+        <AppNavbar connectWallet={this.walletClick} walletHTML={this.state.walletHTML} />
+        
+
+            <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh', // Full viewport height
+          flexDirection: 'column' // Stack children vertically
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <h1 style={{color:"white"}}>Confirming Transaction</h1>
+            <img 
+              width="300" 
+              src="https://media2.giphy.com/media/3oeHLhzRkRX1bQQBPi/giphy.gif?cid=ecf05e471vju1tutmxujwlgpaxrdeofz17drltgviobwe4ot&ep=v1_gifs_search&rid=giphy.gif&ct=g" 
+              alt="Sending Transaction..."
+              style={{opacity:0.2}}
+            />
+          </div>
+        </div>
+        <AppFooter formatNumber={this.formatNumber} userPolarisExpSupplyAmount={this.state.userPolarisExpSupplyAmount} />
+      </>
+    );
+      
+  }
+
+
+
+
   renderTokenCheckPointLoading() {
     return(
       
@@ -1101,7 +1141,7 @@ class page extends Component {
           <h1 style={{ color: "white", fontSize: 50, marginBottom: '20px', marginTop: -100 }}>Polaris Fuel</h1>
           <h1 style={{ color: "white", fontSize: 30, marginBottom: '10px' }}>Token Check Point</h1>
       
-          <Image
+          <img
             src="https://media.discordapp.net/attachments/1119286494453055528/1165779595136598126/IMG_0799.png?ex=654817da&is=6535a2da&hm=37942449e19300d6741995d091f830278e4129bb0bac022484df4812c20c22fa&=&width=1202&height=676"
             style={{
               zIndex: -2,
@@ -1135,6 +1175,10 @@ class page extends Component {
     if (this.state.renderControl == "noWallet") {
       return this.renderNoWallet();
     }
+
+    else if (this.state.renderControl == "loading") {
+      return this.renderLoading();
+    } 
     
     else if (this.state.renderControl == "TokenCheckPoint") {
       return this.renderTokenCheckPoint();
