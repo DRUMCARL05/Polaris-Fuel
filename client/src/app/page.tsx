@@ -22,7 +22,7 @@ let str = "POLARIS-VAULT";
 let seeds = Buffer.from(str, "utf-8");
 
 
-let connection = new Connection("https://winter-divine-crater.solana-mainnet.quiknode.pro/e245f53447c82dcd216b89244c8ea868c8962284/");
+let connection = new Connection("https://smart-empty-seed.solana-mainnet.quiknode.pro/d756c3c0bd3bab883607cfa10a67af5f9401f7b3/");
 let programId = new PublicKey("PLRSkbYoHcazB4qAx47S3Kgm4BRRjFFLfLQ5Trc8yif");
 let marketConfigAccount = new PublicKey("EvzdWfb5pmAoyVvXEWHQwju447RfVkcz4owePHFvbTQZ");
 let allowedFeeSAAccount = new PublicKey("9rETn4sXCt5GNsBXgzujgkAh7tj3dwAK2kZiN8n8jCnw")
