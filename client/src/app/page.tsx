@@ -439,12 +439,13 @@ class page extends Component {
 
   
 
-      this.setState({renderControl: "main"})
 
     }else{
-      this.setState({renderControl: "TokenCheckPoint",
-      missingAccountInstructions:missingAccountInstructions})
+      this.setState({missingAccountInstructions:missingAccountInstructions})
     }
+
+    this.setState({renderControl: "main"})
+
 
 
 
