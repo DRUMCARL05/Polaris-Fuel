@@ -1,0 +1,67 @@
+.formContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;  /* Full viewport height */
+    background-color: #f5f5f5;  /* Light grey background */
+}
+
+.form {
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.input {
+    margin-bottom: 10px;
+    width: 300px; /* Fixed width for all inputs */
+    padding: 8px;
+    border: 1px solid #ddd; /* Light gray border */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 16px; /* Readable font size */
+}
+
+.button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007BFF; /* Bootstrap primary blue */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.button {
+    width: 200px;
+    padding: 10px;
+    background-color: #007BFF; /* Bootstrap primary blue */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.buttonClose {
+    width: 200px;
+    padding: 10px;
+    background-color: #ff0000; /* Bootstrap primary blue */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+
+.button:hover {
+    background-color: #0056b3; /* Darker shade of blue on hover */
+}
