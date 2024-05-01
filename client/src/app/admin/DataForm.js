@@ -9,7 +9,10 @@ import { createVaultInstruction } from '@polaris-fuel/web3.js'; // Adjust the pa
 let connection = new Connection('https://api.devnet.solana.com')
 let feePubKey = new PublicKey("5SYuwdp6eL8rSjfRWJ45P6WRLeV9Vnegxf8p2jrJh4xb")
 let atlasMint = new PublicKey("6VxFguWdAfjtQ42a6Bmv5cUfDUj5Fmo5Kw3bUE9NFwyA")
-let ammoMint = new PublicKey("HJg1NRB3Ge1fxX9t3egseQmy4tst4jvxaHZ6eYMCacv4")
+let ammoMint = new PublicKey("7nfXiNmk1fn6UUyheEvdhstABGTSQCAfxYyJVxwLo5VX")
+const rewardMint = new PublicKey("29MBBn147j7NdaYA215ysqxwrKec6B8Aqhnm8QoxsErf");
+
+
 export const programId = new PublicKey('GAfmY5v9EoSaPDpSo7Zhnb1bD5cwSK7sEow1uDZ1wdZ8');
 
 
@@ -52,11 +55,11 @@ function DataForm() {
       };
 
 
-      async function findOrCreateAssociatedTokenAccount(mintPublicKey,payer) {
+      async function findOrCreateAssociatedTokenAccount(mintPublicKey,payer,owner) {
         // Create a new connection to the Solana blockchain
     
         // Attempt to get the associated token account
-        const ata = await getAssociatedTokenAddress(mintPublicKey,payer,true,TOKEN_PROGRAM_ID,ASSOCIATED_TOKEN_PROGRAM_ID)
+        const ata = await getAssociatedTokenAddress(mintPublicKey,owner,true,TOKEN_PROGRAM_ID,ASSOCIATED_TOKEN_PROGRAM_ID)
     
         let ataInfo = await connection.getAccountInfo(ata);
         if (ataInfo) {
@@ -68,7 +71,7 @@ function DataForm() {
             let ataIx =createAssociatedTokenAccountInstruction(
                 payer,
                 ata,
-                payer,
+                owner,
                 mintPublicKey,
                 TOKEN_PROGRAM_ID,
                 ASSOCIATED_TOKEN_PROGRAM_ID
@@ -101,6 +104,13 @@ function DataForm() {
         console.log("All data is valid.");
         return true;
       }
+
+
+
+
+
+
+
       
 
     async function submitAccount()
@@ -109,7 +119,7 @@ function DataForm() {
         let resourceMint;
         switch (formData.category) {
             case "AMMO":
-                resourceMint=new PublicKey("HJg1NRB3Ge1fxX9t3egseQmy4tst4jvxaHZ6eYMCacv4")
+                resourceMint=ammoMint
                 break;
         
             default:
@@ -139,56 +149,96 @@ function DataForm() {
             // { code: 4001, message: 'User rejected the request.' }
         }
     
-        let payer = new PublicKey(pubkey58);
 
-        //generate pda
-        let marketSeeds = [payer.toBuffer(),resourceMint.toBuffer()]
-        // Generate the PDA
-        const [marketPDA, marketBump] = PublicKey.findProgramAddressSync(
-            marketSeeds,
-            programId
-        );
+        let payer = new PublicKey(pubkey58);
 
         const transaction = new Transaction();
 
 
 
-        let userAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint,payer)
+    
+        let userAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint,payer,payer)
         console.log("Has Atlas account:",userAtlasInfo.hasAta)
         console.log("User Atlas Account:",userAtlasInfo.ata.toBase58())
         if(userAtlasInfo.hasAta == false)
         {
+            //await sendIxArray([userAtlasInfo.ataIx],[feePayerKp])
             transaction.add(userAtlasInfo.ataIx)
         }
 
 
 
-        let userAmmoInfo = await findOrCreateAssociatedTokenAccount(resourceMint,payer)
+        
+        let userAmmoInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,payer)
         console.log("Has Ammo account:",userAmmoInfo.hasAta)
-        console.log("User Ammo account:",userAmmoInfo.hasAta)
+        console.log("Ammo ata",userAmmoInfo.ata)
         console.log(userAmmoInfo.ata.toBase58())
         if(userAmmoInfo.hasAta == false)
         {
+            console.log("Adding Instruction to create User Ammo Account")
+            //await sendIxArray([userAmmoInfo.ataIx],[feePayerKp])
             transaction.add(userAmmoInfo.ataIx)
+    
         }
 
-        let pdaAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint,marketPDA)
-        console.log("Has Atlas account:",pdaAtlasInfo.hasAta)
-        console.log("User Atlas Account:",pdaAtlasInfo.ata.toBase58())
+
+        //reward mint account
+        let rewardMintAccount = await findOrCreateAssociatedTokenAccount(rewardMint,payer,payer)
+        console.log("User has rewardMintAccount account:",rewardMintAccount.hasAta)
+        console.log("User rewardMintAccount account:",rewardMintAccount.ata.toBase58())
+
+        if(rewardMintAccount.hasAta == false)
+        {
+            //await sendIxArray([rewardMintAccount.ataIx],[feePayerKp])
+            transaction.add(rewardMintAccount.ataIx)
+
+        }
+
+
+
+        
+        
+        //generate pda
+        let marketSeeds = [payer.toBuffer(),ammoMint.toBuffer()]
+        // Generate the PDA
+        const [marketPDA, marketBump] = PublicKey.findProgramAddressSync(
+            marketSeeds,
+            programId
+        );
+        
+        console.log("marketPDA:", marketPDA.toString());
+        // console.log("Bump:", marketBump);
+    
+    
+    
+        let pdaAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint,payer,marketPDA)
+        console.log("PDA has atlas account:",pdaAtlasInfo.hasAta)
+        console.log("PDA atlas account:",pdaAtlasInfo.ata.toBase58())
+    
         if(pdaAtlasInfo.hasAta == false)
         {
+            //await sendIxArray([pdaAtlasInfo.ataIx],[feePayerKp])
+            console.log("Adding Instruction to create PDA Ammo Account")
             transaction.add(pdaAtlasInfo.ataIx)
+    
         }
 
 
-        let pdaAmmoInfo = await findOrCreateAssociatedTokenAccount(resourceMint,marketPDA)
-        console.log("Has Atlas account:",pdaAmmoInfo.hasAta)
-        console.log("User Atlas Account:",pdaAmmoInfo.ata.toBase58())
+    
+        
+        let pdaAmmoInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,marketPDA)
+        console.log("PDA has ammo account:",pdaAmmoInfo.hasAta)
+        console.log("PDA ammo account:",pdaAmmoInfo.ata.toBase58())
+    
+        // console.log(pdaAmmoInfo.ataIx)
         if(pdaAmmoInfo.hasAta == false)
         {
+            //await sendIxArray([pdaAmmoInfo.ataIx],[feePayerKp])
             transaction.add(pdaAmmoInfo.ataIx)
+    
         }
-
+    
+    
 
         let TradeData = {
             minimum_buy_qty: formData.minimum_buy_qty,
@@ -216,39 +266,27 @@ function DataForm() {
             programId
         )
 
+
         console.log(vaultIx)
         transaction.add(vaultIx)
 
-
-        // Get the recent blockhash
         const { blockhash } = await connection.getRecentBlockhash();
         transaction.recentBlockhash = blockhash;
-
-        // Set the transaction fee payer
         transaction.feePayer = provider.publicKey;
 
-        // Sign the transaction with Phantom
+
         let signedTransaction = await provider.signTransaction(transaction);
-
-
         console.log(signedTransaction)
-
-        // Serialize the transaction
         const serializedTransaction = signedTransaction.serialize();
-        
-        try {
-
-            // Send the serialized transaction
+         try {
             const transactionId = await connection.sendRawTransaction(serializedTransaction, {
                 skipPreflight:true
             });
-        
             console.log("Transaction ID:", transactionId);
             window.open(`https://explorer.solana.com/tx/${transactionId}?cluster=devnet`)
-
-        } catch (error) {
-            console.log(error)
-        }
+            } catch (error) {
+                console.log(error)
+         }
 
     }
 
