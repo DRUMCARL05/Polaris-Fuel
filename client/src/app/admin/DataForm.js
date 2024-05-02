@@ -6,6 +6,7 @@ import { Connection, PublicKey, Keypair, Transaction,TransactionInstruction,send
 import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID,createAssociatedTokenAccountInstruction,getAssociatedTokenAddress,createTransferInstruction} from '@solana/spl-token';
 import { createVaultInstruction } from '@polaris-fuel/web3.js'; // Adjust the path as necessary
 import Greeting from "./component/Market.js"
+import { document } from 'postcss';
 
 
 let connection = new Connection('https://devnet.helius-rpc.com/?api-key=5f494e50-2433-4bec-8e68-0823bae9d973')
@@ -54,6 +55,156 @@ function DataForm() {
     const [pricePerUnitBuy, setPricePerUnitBuy] = useState('');
     const [pricePerUnitSell, setPricePerUnitSell] = useState('');
 
+
+    async function stockAtlas(ammount)
+    {
+
+        const provider = getProvider(); // see "Detecting the Provider"
+        let pubkey58;
+        try {
+            const resp = await provider.connect();
+            console.log(resp.publicKey.toString());
+            pubkey58=resp.publicKey.toString();
+            // 26qv4GCcx98RihuK3c4T6ozB3J7L6VwCuFVc7Ta2A3Uo 
+        } catch (err) {
+            alert("Phantom Wallet Needed to use blendhit")
+            return
+            // { code: 4001, message: 'User rejected the request.' }
+        }
+
+    
+
+        let payer = new PublicKey(pubkey58);
+
+
+
+    
+        let userAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint,payer,payer)
+        console.log("Has Atlas account:",userAtlasInfo.hasAta)
+        console.log("User Atlas Account:",userAtlasInfo.ata.toBase58())
+
+        //generate pda
+        let marketSeeds = [payer.toBuffer(),ammoMint.toBuffer()]
+        // Generate the PDA
+        const [marketPDA, marketBump] = PublicKey.findProgramAddressSync(
+            marketSeeds,
+            programId
+        );
+
+
+        let pdaAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint,payer,marketPDA)
+
+
+        //stock the pda with atlas
+        const atlastransferInstruction = createTransferInstruction
+        (
+            userAtlasInfo.ata,
+            pdaAtlasInfo.ata,
+            payer,
+            ammount,
+            [],
+            TOKEN_PROGRAM_ID
+        )
+
+        console.log(atlastransferInstruction)
+
+        let transaction = new Transaction()
+        
+        transaction.add(atlastransferInstruction)
+
+        const { blockhash } = await connection.getRecentBlockhash();
+        transaction.recentBlockhash = blockhash;
+        transaction.feePayer = provider.publicKey;
+
+
+        let signedTransaction = await provider.signTransaction(transaction);
+        console.log(signedTransaction)
+        const serializedTransaction = signedTransaction.serialize();
+         try {
+            const transactionId = await connection.sendRawTransaction(serializedTransaction, {
+                skipPreflight:true
+            });
+            console.log("Transaction ID:", transactionId);
+            window.open(`https://explorer.solana.com/tx/${transactionId}?cluster=devnet`)
+            } catch (error) {
+                console.log(error)
+         }
+
+    }
+
+    async function stockResource(ammount)
+    {
+
+        const provider = getProvider(); // see "Detecting the Provider"
+        let pubkey58;
+        try {
+            const resp = await provider.connect();
+            console.log(resp.publicKey.toString());
+            pubkey58=resp.publicKey.toString();
+            // 26qv4GCcx98RihuK3c4T6ozB3J7L6VwCuFVc7Ta2A3Uo 
+        } catch (err) {
+            alert("Phantom Wallet Needed to use blendhit")
+            return
+            // { code: 4001, message: 'User rejected the request.' }
+        }
+
+    
+
+        let payer = new PublicKey(pubkey58);
+
+
+
+
+
+        //generate pda
+        let marketSeeds = [payer.toBuffer(),ammoMint.toBuffer()]
+        // Generate the PDA
+        const [marketPDA, marketBump] = PublicKey.findProgramAddressSync(
+            marketSeeds,
+            programId
+        );
+
+
+        let pdaAmmoInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,marketPDA)
+
+        let userAmmoInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,payer)
+
+        //stock the pda with atlas
+        const spltransferInstruction = createTransferInstruction
+        (
+            userAmmoInfo.ata,
+            pdaAmmoInfo.ata,
+            payer,
+            ammount,
+            [],
+            TOKEN_PROGRAM_ID
+        )
+
+        console.log(spltransferInstruction)
+
+        let transaction = new Transaction()
+        
+        transaction.add(spltransferInstruction)
+
+        const { blockhash } = await connection.getRecentBlockhash();
+        transaction.recentBlockhash = blockhash;
+        transaction.feePayer = provider.publicKey;
+
+
+        let signedTransaction = await provider.signTransaction(transaction);
+        console.log(signedTransaction)
+        const serializedTransaction = signedTransaction.serialize();
+         try {
+            const transactionId = await connection.sendRawTransaction(serializedTransaction, {
+                skipPreflight:true
+            });
+            console.log("Transaction ID:", transactionId);
+            window.open(`https://explorer.solana.com/tx/${transactionId}?cluster=devnet`)
+            } catch (error) {
+                console.log(error)
+         }
+
+    }
 
 
     async function fetchAndDeserializeMarketAccountData(accountPublicKeyBase58) {
@@ -571,7 +722,7 @@ function DataForm() {
           </select>
           </div>
 
-          <Greeting onChainData={onChainData} getMarketData={getMarketData} />
+          <Greeting onChainData={onChainData} getMarketData={getMarketData} stockAtlas={stockAtlas} stockResource={stockResource} />
 
         </div>
       </div>
