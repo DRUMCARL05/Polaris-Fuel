@@ -1,12 +1,14 @@
-// components/DataForm.js
+"use client"
+
 import { useState, useEffect } from 'react';
 import styles from './DataForm.module.css';
 import { Connection, PublicKey, Keypair, Transaction,TransactionInstruction,sendAndConfirmTransaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID,createAssociatedTokenAccountInstruction,getAssociatedTokenAddress,createTransferInstruction} from '@solana/spl-token';
 import { createVaultInstruction } from '@polaris-fuel/web3.js'; // Adjust the path as necessary
+import Greeting from "./component/Market.js"
 
 
-let connection = new Connection('https://api.devnet.solana.com')
+let connection = new Connection('https://devnet.helius-rpc.com/?api-key=5f494e50-2433-4bec-8e68-0823bae9d973')
 let feePubKey = new PublicKey("5SYuwdp6eL8rSjfRWJ45P6WRLeV9Vnegxf8p2jrJh4xb")
 let atlasMint = new PublicKey("6VxFguWdAfjtQ42a6Bmv5cUfDUj5Fmo5Kw3bUE9NFwyA")
 let ammoMint = new PublicKey("7nfXiNmk1fn6UUyheEvdhstABGTSQCAfxYyJVxwLo5VX")
@@ -17,6 +19,11 @@ export const programId = new PublicKey('GAfmY5v9EoSaPDpSo7Zhnb1bD5cwSK7sEow1uDZ1
 
 
 function DataForm() {
+
+    const [userPubkey, setuserPubkey] = useState("")
+
+
+
     const [formData, setFormData] = useState({
         category: 'AMMO', // Default category
         minimum_buy_qty: '',
@@ -28,18 +35,158 @@ function DataForm() {
     });
 
     const [onChainData, setOnChainData] = useState({
+        atlas_amount:'',
+        ammo_amount:'',
+        vault_owner:'',
+        vault_pubkey:'',
         minimum_buy_qty: '',
         buy_price: '',
         minimum_sell_qty: '',
         sell_price: '',
         pubkey: '',
         beneficiary_percent: '',
+        atlas_mint:'',
+        resource_mint:''
     });
 
     const [network, setNetwork] = useState("DevNet");
 
     const [pricePerUnitBuy, setPricePerUnitBuy] = useState('');
     const [pricePerUnitSell, setPricePerUnitSell] = useState('');
+
+
+
+    async function fetchAndDeserializeMarketAccountData(accountPublicKeyBase58) {
+        try {
+            // Fetch the account info
+            const accountInfo = await connection.getAccountInfo(new PublicKey(accountPublicKeyBase58));
+    
+            if (!accountInfo || !accountInfo.data) {
+                console.error('Failed to fetch data or data not found');
+                return     {
+                    vault_owner:'',
+                    vault_pubkey:''
+                };;
+            }
+    
+            // Assuming the data is a Buffer and contains the data serialized in a specific format
+            // This is a hypothetical example of deserialization, adjust according to your actual data format
+            const data = Buffer.from(accountInfo.data);
+    
+            // Deserialize data into the TradeData format
+            let TradeData = {
+                minimum_buy_qty: data.readBigUInt64LE(0),
+                buy_price: data.readDoubleLE(8),
+                minimum_sell_qty: data.readBigUInt64LE(16),
+                sell_price: data.readDoubleLE(24),
+                beneficiary_atlast_account: new PublicKey(data.slice(32, 64)).toBase58(), // This assumes a 32-byte public key
+                beneficiary_resource_account: new PublicKey(data.slice(64, 64+32)).toBase58(), // This assumes a 32-byte public key
+                beneficiary_percent: data.readFloatLE(64+32)
+            };
+    
+            return TradeData;
+        } catch (error) {
+            console.error('Error fetching or deserializing account data:', error);
+            return null;
+        }
+    }
+
+
+
+    async function getTokenBalance(tokenAccountPubkey) {
+        try {
+          // Fetch the account info
+          const accountInfo = await connection.getAccountInfo(tokenAccountPubkey);
+      
+          // The account info will contain data that is a Buffer. Since Solana uses the SPL Token program,
+          // the data format should comply with the SPL Token state layout.
+          if (accountInfo && accountInfo.data) {
+            // Decode the data using your preferred method depending on the token's program
+            // For standard SPL tokens, you can use the @solana/spl-token library to decode it directly
+      
+            // Importing the TokenAmount class and the layout from SPL library (install @solana/spl-token if you haven't)
+            const { AccountLayout } = require('@solana/spl-token');
+      
+            // Parse the data using the SPL Token layout
+            const tokenData = AccountLayout.decode(accountInfo.data);
+      
+            // Convert the amount using the token's decimals to get the human-readable format (if necessary)
+            console.log(`Token balance: ${tokenData.amount.toString()}`);
+
+            return tokenData.amount.toString()
+          } else {
+            console.log("Failed to find the token account or the account has no data.");
+          }
+        } catch (error) {
+          console.error("Error fetching token balance:", error);
+        }
+      }
+
+
+
+
+
+    async function getMarketData()
+    {
+        const provider = getProvider(); // see "Detecting the Provider"
+        let pubkey58;
+        try {
+            const resp = await provider.connect();
+            console.log(resp.publicKey.toString());
+            pubkey58=resp.publicKey.toString();
+            // 26qv4GCcx98RihuK3c4T6ozB3J7L6VwCuFVc7Ta2A3Uo 
+        } catch (err) {
+            alert("Phantom Wallet Needed to use blendhit")
+            return
+            // { code: 4001, message: 'User rejected the request.' }
+        }
+
+    
+
+        let payer = new PublicKey(pubkey58);
+
+
+        //generate pda
+        let marketSeeds = [payer.toBuffer(),ammoMint.toBuffer()]
+        // Generate the PDA
+        const [marketPDA, marketBump] = PublicKey.findProgramAddressSync(
+            marketSeeds,
+            programId
+        );
+
+        let TradeData ={
+            vault_owner:'',
+            vault_pubkey:''
+        };
+
+        TradeData = await fetchAndDeserializeMarketAccountData(marketPDA.toBase58())
+        console.log(TradeData)
+
+        console.log(marketPDA.toBase58())
+
+        TradeData.vault_owner = payer.toBase58()
+        TradeData.vault_pubkey = marketPDA.toBase58()
+
+        let pdaAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint,payer,marketPDA)
+        let pdaAmmoInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,marketPDA)
+
+    
+
+        TradeData.ammo_amount = getTokenBalance(pdaAtlasInfo.ata)
+        TradeData.atlas_amount = getTokenBalance(pdaAmmoInfo.ata)
+        TradeData.atlas_mint =atlasMint.toBase58()
+        TradeData.resource_mint = ammoMint.toBase58()
+
+
+        setOnChainData(TradeData)
+
+        console.log("Done")
+        
+
+
+    }
+
+
 
 
     const getProvider = () => {
@@ -148,9 +295,12 @@ function DataForm() {
             return
             // { code: 4001, message: 'User rejected the request.' }
         }
+
     
 
         let payer = new PublicKey(pubkey58);
+        setuserPubkey(pubkey58)
+
 
         const transaction = new Transaction();
 
@@ -420,32 +570,8 @@ function DataForm() {
                     <option value="MainNet">MainNet</option>
           </select>
           </div>
-          <div style={{fontWeight: "bold", fontSize: "18px", color: "#333" }}>
-          Vault Pubkey: {formData.pubkey}  
-          </div>
 
-         <div>
-         Resource Balance:
-
-         </div>
-         <div>
-         ATLAS Balance:  
-
-         </div>
-            
-          <p style={{marginTop:40}}>Minimum Buy Quantity: {numberToScale(formData.minimum_buy_qty)}</p>
-          <p>Total Buy Price: {numberToScale(formData.buy_price)} ATLAS</p>
-          <p style={{marginTop:40}}>Minimum Sell Quantity: {numberToScale(formData.minimum_buy_qty)}</p>
-          <p>Total Sell Price: {numberToScale(formData.sell_price)} ATLAS</p>
-          <p style={{marginTop:40}}>Beneficiary Pubkey: {numberToScale(formData.sell_price)}</p>
-          <p>Resource Account: </p>
-          <p>ATLAS Account: </p>
-          <p style={{marginTop:40}}>Beneficiary Percent: {formData.beneficiary_percent}%</p>
-
-
-          <button type="submit" className={styles.button}>Send Resource</button>
-          <button type="submit" className={styles.button}>Send ATLAS</button>
-          <button style={{marginTop:100}}type="submit" className={styles.buttonClose}>Close Account</button>
+          <Greeting onChainData={onChainData} getMarketData={getMarketData} />
 
         </div>
       </div>
