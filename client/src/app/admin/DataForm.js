@@ -712,7 +712,7 @@ function DataForm() {
             </form>
         </div>
         </div>
-        <div style={{ flex: 1, backgroundColor: "#f5f5f5", padding: "20px", borderRadius: "8px", boxShadow: "0 4px 8px rgba(0,0,0,0.1)", display: "flex", flexDirection: "column"}}>
+        <div style={{marginTop:-30, flex: 1, backgroundColor: "#f5f5f5", padding: "20px", borderRadius: "8px", boxShadow: "0 4px 8px rgba(0,0,0,0.1)", display: "flex", flexDirection: "column"}}>
 
           
           <div style={{marginTop:70,marginLeft:-5}}>
