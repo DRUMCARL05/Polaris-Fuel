@@ -1,0 +1,29 @@
+<svg width="85" height="153" viewBox="0 0 85 153" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_88_14)">
+<mask id="mask0_88_14" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="85" height="153">
+<path d="M85 0H0V153H85V0Z" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask0_88_14)">
+<g filter="url(#filter0_f_88_14)">
+<path d="M83 81V70C83 66.134 79.866 63 76 63C72.134 63 69 66.134 69 70V81C69 84.866 72.134 88 76 88C79.866 88 83 84.866 83 81Z" fill="#FE6C04"/>
+<path d="M82.9 81V70C82.9 66.1892 79.8108 63.1 76 63.1C72.1893 63.1 69.1 66.1892 69.1 70V81C69.1 84.8108 72.1893 87.9 76 87.9C79.8108 87.9 82.9 84.8108 82.9 81Z" stroke="white" stroke-opacity="0.05" stroke-width="0.2"/>
+</g>
+</g>
+<path opacity="0.7" d="M85 32H84V119H85V32Z" fill="url(#paint0_linear_88_14)"/>
+</g>
+<defs>
+<filter id="filter0_f_88_14" x="26" y="20" width="100" height="111" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="21.5" result="effect1_foregroundBlur_88_14"/>
+</filter>
+<linearGradient id="paint0_linear_88_14" x1="84.5" y1="32" x2="84.5" y2="119" gradientUnits="userSpaceOnUse">
+<stop offset="0.164" stop-color="#FE6C04" stop-opacity="0"/>
+<stop offset="0.5" stop-color="#FE6C04"/>
+<stop offset="0.819" stop-color="#FE6C04" stop-opacity="0"/>
+</linearGradient>
+<clipPath id="clip0_88_14">
+<rect width="85" height="153" fill="white"/>
+</clipPath>
+</defs>
+</svg>
