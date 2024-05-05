@@ -26,7 +26,7 @@ To install and run the Polaris Fuel app locally, follow these steps:
 1. Clone the repository from GitHub.
 2. Install the necessary dependencies.
 3. Configure your environment settings.
-4. Start the application.
+4. Start the application
 
 ## How to Use the Project
 
