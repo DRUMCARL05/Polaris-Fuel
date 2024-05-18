@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import '../styles/homepage.css'
 import dynamic from 'next/dynamic';
 import {createBuyInstruction} from "@polaris-fuel/web3.js"
@@ -24,7 +24,131 @@ let connection = new Connection('https://devnet.helius-rpc.com/?api-key=5f494e50
 
 export default function Home() {
 
+  const [activeTab, setActiveTab] = useState("customer");
+  const [categories, setcategories] = useState([]);
+
+
+  async function getMarketStatus(resourceAuth, resourceMint) {
+    try {
+        console.log("Getting Vault Info");
+
+        // Generate PDA
+        let marketSeeds = [resourceAuth.toBuffer(), resourceMint.toBuffer()];
+        const [marketPDA, marketBump] = PublicKey.findProgramAddressSync(marketSeeds, programId);
+
+        console.log("Market PDA:", marketPDA.toBase58());
+
+        let pdaResourceInfo = await findOrCreateAssociatedTokenAccount(resourceMint, null, marketPDA);
+        let pdaAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint, null, marketPDA);
+
+        console.log("Getting PDA Balance");
+
+        let resourceBalanceinVault = await getTokenBalance(pdaResourceInfo.ata.toBase58());
+        let atlasBalanceInVault = await getTokenBalance(pdaAtlasInfo.ata.toBase58());
+
+        console.log({ resourceBalanceinVault, atlasBalanceInVault });
+
+        let TradeData = await fetchAndDeserializeMarketAccountData(marketPDA.toBase58());
+        console.log(TradeData.beneficiary_resource_account);
+        console.log(TradeData.beneficiary_atlast_account);
+        console.log(TradeData);
+
+        console.log(resourceBalanceinVault < TradeData.minimum_buy_qty);
+        console.log("Resource is sold out");
+
+        const holdCategories = [
+          {
+              name: 'Consumables',
+              assets: [
+                  { name: 'Ammo', image: '/ammo.png', cost: String(TradeData.buy_price)+"K", rarity: 'Common' },
+                  { name: 'Food', image: '/food.png', cost: '293K', rarity: 'Common' },
+                  { name: 'Fuel', image: '/fuel.png', cost: '10K', rarity: 'Common' },
+                  { name: 'Toolkit', image: '/tools.png', cost: '5M', rarity: 'Common' }
+              ]
+          },
+          {
+              name: 'Raw Material',
+              assets: [
+                  { name: 'Arco', image: '/ARCO.webp', cost: '293K', rarity: 'Common' },
+                  { name: 'Biomass', image: '/BIOMASS.webp', cost: '29K', rarity: 'Common' },
+                  { name: 'Copper Ore', image: '/CUORE.webp', cost: '15K', rarity: 'Common' },
+                  { name: 'Carbon', image: '/CARBON.webp', cost: '1M', rarity: 'Common' },
+                  { name: 'Diamond', image: '/DIAMOND.webp', cost: '1M', rarity: 'Common' },
+                  { name: 'Hydrogen', image: '/HYG.webp', cost: '1M', rarity: 'Common' },
+                  { name: 'Iron Ore', image: '/FEORE.webp', cost: '1M', rarity: 'Common' },
+                  { name: 'Lumanite', image: '/LUMAN.webp', cost: '1M', rarity: 'Common' },
+                  { name: 'Nitrogen', image: '/NITRO.webp', cost: '1M', rarity: 'Common' },
+                  { name: 'Rochinol', image: '/ROCH.webp', cost: '1M', rarity: 'Common' },
+                  { name: 'Silica', image: '/SAND.webp', cost: '1M', rarity: 'Common' },
+                  { name: 'Titanium Ore', image: '/TIORE.webp', cost: '1M', rarity: 'Common' }
+              ]
+          }
+        ];
+
+        setcategories(holdCategories);
+        console.log("Categories Set");
+        console.log(categories);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
   
+  // const categories = [
+  //   {
+  //       name: 'Consumables',
+  //       assets: [
+  //           { name: 'Ammo', image: '/ammo.png', cost: '100K', rarity: 'Common' },
+  //           { name: 'Food', image: '/food.png', cost: '293K', rarity: 'Common' },
+  //           { name: 'Fuel', image: '/fuel.png', cost: '10K', rarity: 'Common' },
+  //           { name: 'Toolkit', image: '/tools.png', cost: '5M', rarity: 'Common' }
+  //       ]
+  //   },
+  //   {
+  //       name: 'Raw Material',
+  //       assets: [
+  //           { name: 'Arco', image: '/ARCO.webp', cost: '293K', rarity: 'Common' },
+  //           { name: 'Biomass', image: '/BIOMASS.webp', cost: '29K', rarity: 'Common' },
+  //           { name: 'Copper Ore', image: '/CUORE.webp', cost: '15K', rarity: 'Common' },
+  //           { name: 'Carbon', image: '/CARBON.webp', cost: '1M', rarity: 'Common' },
+  //           { name: 'Diamond', image: '/DIAMOND.webp', cost: '1M', rarity: 'Common' },
+  //           { name: 'Hydrogen', image: '/HYG.webp', cost: '1M', rarity: 'Common' },
+  //           { name: 'Iron Ore', image: '/FEORE.webp', cost: '1M', rarity: 'Common' },
+  //           { name: 'Lumanite', image: '/LUMAN.webp', cost: '1M', rarity: 'Common' },
+  //           { name: 'Nitrogen', image: '/NITRO.webp', cost: '1M', rarity: 'Common' },
+  //           { name: 'Rochinol', image: '/ROCH.webp', cost: '1M', rarity: 'Common' },
+  //           { name: 'Silica', image: '/SAND.webp', cost: '1M', rarity: 'Common' },
+  //           { name: 'Titanium Ore', image: '/TIORE.webp', cost: '1M', rarity: 'Common' }
+  //       ]
+  //   }
+  // ];
+
+
+
+  useEffect(() => {
+    const onBoot = async () => {
+      try {
+        console.log("App Loaded");
+        await getMarketStatus(ammoAuth, ammoMint);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    onBoot();
+  }, []); // Empty dependency array ensures this runs once on mount
+
+  useEffect(() => {
+    console.log("Categories updated:", categories);
+  }, [categories]); // This will log whenever categories change
+
+
+
+
+
+
+
+
   const getProvider = () => {
     if ('phantom' in window && window.phantom != null) {
       const provider = window.phantom.solana;
@@ -36,6 +160,8 @@ export default function Home() {
   
     window.open('https://phantom.app/', '_blank');
   };
+
+
 
 
 
@@ -137,6 +263,30 @@ async function fetchAndDeserializeMarketConfigAccountData(accountPublicKeyBase58
 }
 
 
+async function getTokenBalance(tokenAccountPubkeyBase58) {
+  try {
+    const publicKey = new PublicKey(tokenAccountPubkeyBase58);
+    const tokenAccountInfo = await connection.getParsedAccountInfo(publicKey);
+
+    if (tokenAccountInfo.value === null) {
+      console.log('Token account not found');
+      return;
+    }
+
+    const parsedInfo = tokenAccountInfo.value.data.parsed.info;
+    const tokenAmount = parsedInfo.tokenAmount;
+
+    console.log(`Token Balance: ${tokenAmount.amount}`);
+    console.log(`Decimals: ${tokenAmount.decimals}`);
+
+    return tokenAmount.amount
+  } catch (error) {
+    console.error('Error fetching token balance:', error);
+    return 0
+  }
+}
+
+
 
   async function buttonClick(asset)
   {
@@ -165,7 +315,10 @@ async function fetchAndDeserializeMarketConfigAccountData(accountPublicKeyBase58
           programId
       );
 
+      console.log("Market PDA:",marketPDA.toBase58())
+
       let userAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint,payer,payer)
+      console.log(userAtlasInfo.ata.toBase58())
       let userResourceAccountInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,payer)
 
       let pdaAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint,payer,marketPDA)
@@ -175,6 +328,15 @@ async function fetchAndDeserializeMarketConfigAccountData(accountPublicKeyBase58
       let TradeData = await fetchAndDeserializeMarketAccountData(marketPDA.toBase58())
       console.log(TradeData.beneficiary_resource_account)
       console.log(TradeData.beneficiary_atlast_account)
+
+      console.log(TradeData)
+
+      console.log("Minimum Buy Qty:",Number(TradeData.minimum_buy_qty))
+      getTokenBalance(pdaResourceInfo.ata.toBase58())
+
+
+      return 0
+
 
 
 
@@ -236,41 +398,13 @@ async function fetchAndDeserializeMarketConfigAccountData(accountPublicKeyBase58
   }
 
 
-  const [activeTab, setActiveTab] = useState("customer");
 
   const buttonPressed = (tab) => {
     setActiveTab(tab);
     // Any other logic you want to perform when a tab is pressed
   };
-  
-  const categories = [
-    {
-        name: 'Consumables',
-        assets: [
-            { name: 'Ammo', image: '/ammo.png', cost: '100K', rarity: 'Common' },
-            { name: 'Food', image: '/food.png', cost: '293K', rarity: 'Common' },
-            { name: 'Fuel', image: '/fuel.png', cost: '10K', rarity: 'Common' },
-            { name: 'Toolkit', image: '/tools.png', cost: '5M', rarity: 'Common' }
-        ]
-    },
-    {
-        name: 'Raw Material',
-        assets: [
-            { name: 'Arco', image: '/ARCO.webp', cost: '293K', rarity: 'Common' },
-            { name: 'Biomass', image: '/BIOMASS.webp', cost: '29K', rarity: 'Common' },
-            { name: 'Copper Ore', image: '/CUORE.webp', cost: '15K', rarity: 'Common' },
-            { name: 'Carbon', image: '/CARBON.webp', cost: '1M', rarity: 'Common' },
-            { name: 'Diamond', image: '/DIAMOND.webp', cost: '1M', rarity: 'Common' },
-            { name: 'Hydrogen', image: '/HYG.webp', cost: '1M', rarity: 'Common' },
-            { name: 'Iron Ore', image: '/FEORE.webp', cost: '1M', rarity: 'Common' },
-            { name: 'Lumanite', image: '/LUMAN.webp', cost: '1M', rarity: 'Common' },
-            { name: 'Nitrogen', image: '/NITRO.webp', cost: '1M', rarity: 'Common' },
-            { name: 'Rochinol', image: '/ROCH.webp', cost: '1M', rarity: 'Common' },
-            { name: 'Silica', image: '/SAND.webp', cost: '1M', rarity: 'Common' },
-            { name: 'Titanium Ore', image: '/TIORE.webp', cost: '1M', rarity: 'Common' }
-        ]
-    }
-  ];
+
+
   
   return (
     <div>
