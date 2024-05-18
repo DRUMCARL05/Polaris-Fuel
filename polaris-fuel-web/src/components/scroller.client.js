@@ -6,7 +6,8 @@ import { LuInfo } from "react-icons/lu";
 import bg from '../../public/backgroundButtonManage.png';
 import { FaAngleDown } from "react-icons/fa6";
 
-export default function Scroller({ categories=[] }) {
+
+export default function Scroller({ categories=[],buttonClick }) {
     const rowHeightRem = 23;
     const [activeCategoryIndex, setActiveCategoryIndex] = useState(categories.length > 0 ? 0 : -1);
     const [localCategories, setLocalCategories] = useState([]);
@@ -17,6 +18,7 @@ export default function Scroller({ categories=[] }) {
     const containerRef = useRef(null);
     const [activeRow, setActiveRow] = useState(0);
     const desktopContainerRef = useRef(null);
+
 
     useEffect(() => {
         containerRefs.current = categories.map(() => React.createRef());

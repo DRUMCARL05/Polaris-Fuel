@@ -2,15 +2,239 @@
 import { useState } from 'react';
 import '../styles/homepage.css'
 import dynamic from 'next/dynamic';
+import {createBuyInstruction} from "@polaris-fuel/web3.js"
+import { Connection, PublicKey, Keypair, Transaction,TransactionInstruction,sendAndConfirmTransaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID,createAssociatedTokenAccountInstruction,getAssociatedTokenAddress,createTransferInstruction} from '@solana/spl-token';
 
 const Nav = dynamic(() => import('@/components/nav.client'), { ssr: false });
 const Scroller = dynamic(() => import('@/components/scroller.client'), { ssr: false });
 const Bottom = dynamic(() => import('@/components/bottom.client'), { ssr: false });
 
+const programId = new PublicKey('GAfmY5v9EoSaPDpSo7Zhnb1bD5cwSK7sEow1uDZ1wdZ8');
+let ammoMint = new PublicKey("7nfXiNmk1fn6UUyheEvdhstABGTSQCAfxYyJVxwLo5VX")
+let ammoAuth = new PublicKey("PLRSGTRwq2rz8S62JFWbtFEixvetZ4v58KQWi21kLxg")
+let atlasMint = new PublicKey("6VxFguWdAfjtQ42a6Bmv5cUfDUj5Fmo5Kw3bUE9NFwyA")
+
+let feePubKey = new PublicKey("5SYuwdp6eL8rSjfRWJ45P6WRLeV9Vnegxf8p2jrJh4xb")
+
+let connection = new Connection('https://devnet.helius-rpc.com/?api-key=5f494e50-2433-4bec-8e68-0823bae9d973')
+
+
+
+
 export default function Home() {
-  // function buttonPressed(name){
-  //   alert(`Button Pressed ${name}`)
-  // }
+
+  
+  const getProvider = () => {
+    if ('phantom' in window && window.phantom != null) {
+      const provider = window.phantom.solana;
+  
+      if (provider?.isPhantom) {
+        return provider;
+      }
+    }
+  
+    window.open('https://phantom.app/', '_blank');
+  };
+
+
+
+
+
+  async function fetchAndDeserializeMarketAccountData(accountPublicKeyBase58) {
+    try {
+        // Fetch the account info
+        const accountInfo = await connection.getAccountInfo(new PublicKey(accountPublicKeyBase58));
+
+        if (!accountInfo || !accountInfo.data) {
+            console.error('Failed to fetch data or data not found');
+            return     {
+                vault_owner:'',
+                vault_pubkey:''
+            };;
+        }
+
+        // Assuming the data is a Buffer and contains the data serialized in a specific format
+        // This is a hypothetical example of deserialization, adjust according to your actual data format
+        const data = Buffer.from(accountInfo.data);
+
+        // Deserialize data into the TradeData format
+        let TradeData = {
+            minimum_buy_qty: data.readBigUInt64LE(0),
+            buy_price: data.readDoubleLE(8),
+            minimum_sell_qty: data.readBigUInt64LE(16),
+            sell_price: data.readDoubleLE(24),
+            beneficiary_atlast_account: new PublicKey(data.slice(32, 64)).toBase58(), // This assumes a 32-byte public key
+            beneficiary_resource_account: new PublicKey(data.slice(64, 64+32)).toBase58(), // This assumes a 32-byte public key
+            beneficiary_percent: data.readFloatLE(64+32)
+        };
+
+        return TradeData;
+    } catch (error) {
+        console.error('Error fetching or deserializing account data:', error);
+        return null;
+    }
+}
+
+
+async function findOrCreateAssociatedTokenAccount(mintPublicKey,payer,owner) {
+  // Create a new connection to the Solana blockchain
+
+  // Attempt to get the associated token account
+  const ata = await getAssociatedTokenAddress(mintPublicKey,owner,true,TOKEN_PROGRAM_ID,ASSOCIATED_TOKEN_PROGRAM_ID)
+
+  let ataInfo = await connection.getAccountInfo(ata);
+  if (ataInfo) {
+      console.log("Associated Token Account already exists:", ata.toBase58());
+      return {"hasAta":true,"ata":ata,"ataIx":null}
+  } else {
+      console.log("No Associated Token Account found, creating one...");
+  
+      let ataIx =createAssociatedTokenAccountInstruction(
+          payer,
+          ata,
+          owner,
+          mintPublicKey,
+          TOKEN_PROGRAM_ID,
+          ASSOCIATED_TOKEN_PROGRAM_ID
+      )
+
+      return {"hasAta":false,"ata":ata,"ataIx":ataIx}
+  }
+}
+
+
+// Function to fetch and deserialize account data
+async function fetchAndDeserializeMarketConfigAccountData(accountPublicKeyBase58) {
+  try {
+      // Fetch the account info
+      const accountInfo = await connection.getAccountInfo(new PublicKey(accountPublicKeyBase58));
+
+      if (!accountInfo || !accountInfo.data) {
+          console.error('Failed to fetch data or data not found');
+          return null;
+      }
+
+      // Assuming the data is a Buffer and contains the data serialized in a specific format
+      // This is a hypothetical example of deserialization, adjust according to your actual data format
+      const data = Buffer.from(accountInfo.data);
+
+      console.log(data.length)
+
+      // Deserialize data into the TradeData format
+      let TradeData = {
+          fee_sol_account: new PublicKey(data.slice(0, 32)).toBase58(), // This assumes a 32-byte public key
+          fee_star_atlas_account: new PublicKey(data.slice(32, 64)).toBase58(),
+          lamport_fee: data.readBigUInt64LE(64),
+          star_atlas_fee_percentage: data.readFloatLE(64+8) 
+      };
+
+      return TradeData;
+  } catch (error) {
+      console.error('Error fetching or deserializing account data:', error);
+      return null;
+  }
+}
+
+
+
+  async function buttonClick(asset)
+  {
+      console.log(asset)
+
+      const provider = getProvider(); // see "Detecting the Provider"
+      let pubkey58;
+      try {
+          const resp = await provider.connect();
+          console.log(resp.publicKey.toString());
+          pubkey58=resp.publicKey.toString();
+          // 26qv4GCcx98RihuK3c4T6ozB3J7L6VwCuFVc7Ta2A3Uo 
+      } catch (err) {
+          alert("Phantom Wallet Needed to use blendhit")
+          return
+          // { code: 4001, message: 'User rejected the request.' }
+      }
+
+      let payer = new PublicKey(pubkey58)
+
+      //generate pda
+      let marketSeeds = [ammoAuth.toBuffer(),ammoMint.toBuffer()]
+      // Generate the PDA
+      const [marketPDA, marketBump] = PublicKey.findProgramAddressSync(
+          marketSeeds,
+          programId
+      );
+
+      let userAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint,payer,payer)
+      let userResourceAccountInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,payer)
+
+      let pdaAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint,payer,marketPDA)
+      let pdaResourceInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,marketPDA)
+
+
+      let TradeData = await fetchAndDeserializeMarketAccountData(marketPDA.toBase58())
+      console.log(TradeData.beneficiary_resource_account)
+      console.log(TradeData.beneficiary_atlast_account)
+
+
+
+
+      let configProgramId = new PublicKey("FgWVFPpFQpAk1NkXn6X7q9rUtk8sfq3nEbxE9THt2nmD");
+
+      //generate pda
+      let configSeed = [new PublicKey("AqaFVQKnz3eByYAYF6S5v4jdrUabiRe8cesunjE9AboS").toBuffer()]
+      // Generate the PDA
+      const [configPDA, configBump] = PublicKey.findProgramAddressSync(
+          configSeed,
+          configProgramId
+      );
+      console.log("configPDA:", configPDA.toString());
+
+      let configData = await fetchAndDeserializeMarketConfigAccountData(configPDA.toBase58())
+      console.log("Deseralized configData")
+      console.log(configData)
+
+
+      const polarisBuyIx = createBuyInstruction(
+        programId,
+        payer,
+        marketPDA,
+        userAtlasInfo.ata,
+        pdaAtlasInfo.ata,
+        ammoAuth,
+        ammoMint,
+        userResourceAccountInfo.ata,
+        pdaResourceInfo.ata,
+        new PublicKey(TradeData.beneficiary_atlast_account),
+        new PublicKey(configData.fee_star_atlas_account),
+        new PublicKey(configData.fee_sol_account),
+        1
+    )
+
+
+    let transaction = new Transaction().add(polarisBuyIx)
+        
+
+    const { blockhash } = await connection.getRecentBlockhash();
+    transaction.recentBlockhash = blockhash;
+    transaction.feePayer = provider.publicKey;
+
+
+    let signedTransaction = await provider.signTransaction(transaction);
+    console.log(signedTransaction)
+    const serializedTransaction = signedTransaction.serialize();
+     try {
+        const transactionId = await connection.sendRawTransaction(serializedTransaction, {
+            skipPreflight:true
+        });
+        console.log("Transaction ID:", transactionId);
+        window.open(`https://explorer.solana.com/tx/${transactionId}?cluster=devnet`)
+        } catch (error) {
+            console.log(error)
+     }
+
+  }
+
 
   const [activeTab, setActiveTab] = useState("customer");
 
@@ -67,7 +291,7 @@ export default function Home() {
       <div className="desktopVersion">
         <div className="glow"></div>
         <Nav></Nav>
-        <Scroller categories={categories}></Scroller>
+        <Scroller categories={categories}  buttonClick={buttonClick} ></Scroller>
         <Bottom />
       </div>
     </div>
