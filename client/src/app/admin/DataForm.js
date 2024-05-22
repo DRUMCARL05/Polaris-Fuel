@@ -11,8 +11,8 @@ import { document } from 'postcss';
 
 let connection = new Connection('https://devnet.helius-rpc.com/?api-key=5f494e50-2433-4bec-8e68-0823bae9d973')
 let feePubKey = new PublicKey("5SYuwdp6eL8rSjfRWJ45P6WRLeV9Vnegxf8p2jrJh4xb")
-let atlasMint = new PublicKey("6VxFguWdAfjtQ42a6Bmv5cUfDUj5Fmo5Kw3bUE9NFwyA")
-let ammoMint = new PublicKey("7nfXiNmk1fn6UUyheEvdhstABGTSQCAfxYyJVxwLo5VX")
+let atlasMint = new PublicKey("ATLADWy6dnnY3McjmRvuvRZHR4WjYYtGGKS3duedyBmy")
+let ammoMint = new PublicKey("AMMUxMuL93NDbTzCE6ntjF8U6fMdtiw6VbXS3FiLfaZd")
 const rewardMint = new PublicKey("29MBBn147j7NdaYA215ysqxwrKec6B8Aqhnm8QoxsErf");
 
 
@@ -101,7 +101,7 @@ function DataForm() {
             userAtlasInfo.ata,
             pdaAtlasInfo.ata,
             payer,
-            ammount,
+            ammount*100_000_000,
             [],
             TOKEN_PROGRAM_ID
         )
@@ -680,7 +680,7 @@ function DataForm() {
         <div style={{ flex: 1 }}>
         <div className={styles.formContainer}>
             <form onSubmit={handleSubmit} className={styles.form}>
-                <p>Category</p>
+                <p style={{color:"black"}}>Category</p>
                 <select name="category" value={formData.category} onChange={handleChange} className={styles.input}>
                     <option value="AMMO">AMMO</option>
                     <option value="FOOD">FOOD</option>
@@ -688,24 +688,24 @@ function DataForm() {
                     <option value="TOOL">TOOL</option>
                 </select><br />
 
-                <p>Minimum Buy Quantity: {numberToScale(formData.minimum_buy_qty)}</p>
+                <p style={{color:"black"}}>Minimum Buy Quantity: {numberToScale(formData.minimum_buy_qty)}</p>
                 <input type="number" name="minimum_buy_qty" min={0} value={formData.minimum_buy_qty} onChange={handleChange} className={styles.input} /><br />
 
-                <p>Total Buy Price: {numberToScale(formData.buy_price)} ATLAS</p>
+                <p style={{color:"black"}}>Total Buy Price: {numberToScale(formData.buy_price)} ATLAS</p>
                 <input type="number" step="1"  min={0} name="buy_price" value={formData.buy_price} onChange={handleChange} className={styles.input} /><br />
-                <p>Buy Price Per Unit: {pricePerUnitBuy}</p>
+                <p style={{color:"black"}}>Buy Price Per Unit: {pricePerUnitBuy}</p>
 
-                <p style={{marginTop: 50}}>Minimum Sell Quantity: {numberToScale(formData.minimum_sell_qty)}</p>
+                <p style={{marginTop: 50,color:"black"}}>Minimum Sell Quantity: {numberToScale(formData.minimum_sell_qty)}</p>
                 <input type="number" name="minimum_sell_qty" min={0} value={formData.minimum_sell_qty} onChange={handleChange} className={styles.input} /><br />
 
-                <p>Total Sell Price: {numberToScale(formData.sell_price)} ATLAS</p>
+                <p style={{color:"black"}}>Total Sell Price: {numberToScale(formData.sell_price)} ATLAS</p>
                 <input type="number" step="1"  min={0} name="sell_price" value={formData.sell_price} onChange={handleChange} className={styles.input} /><br />
-                <p>Sell Price Per Unit: {pricePerUnitSell} ATLAS</p>
+                <p style={{color:"black"}}>Sell Price Per Unit: {pricePerUnitSell} ATLAS</p>
 
-                <p style={{marginTop: 50}}>Beneficiary Public Key</p>
+                <p style={{marginTop: 50,color:"black"}}>Beneficiary Public Key</p>
                 <input type="text" name="pubkey" value={formData.pubkey} onChange={handleChange} className={styles.input} /><br />
                 
-                <p>Beneficiary Percent</p>
+                <p style={{color:"black"}}>Beneficiary Percent</p>
                 <input type="number" step="0.01" min={0} max={100} name="beneficiary_percent" value={formData.beneficiary_percent} onChange={handleChange} className={styles.input} /><br />
                 
                 <button onClick={submitAccount} type="submit" className={styles.button}>Submit</button>

@@ -1,10 +1,11 @@
 "use client";
-import { useState,useEffect } from 'react';
+import { useState,useEffect} from 'react';
 import '../styles/homepage.css'
 import dynamic from 'next/dynamic';
 import {createBuyInstruction} from "@polaris-fuel/web3.js"
 import { Connection, PublicKey, Keypair, Transaction,TransactionInstruction,sendAndConfirmTransaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID,createAssociatedTokenAccountInstruction,getAssociatedTokenAddress,createTransferInstruction} from '@solana/spl-token';
+
 
 const Nav = dynamic(() => import('@/components/nav.client'), { ssr: false });
 const Scroller = dynamic(() => import('@/components/scroller.client'), { ssr: false });
