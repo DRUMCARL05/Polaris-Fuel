@@ -1,70 +1,139 @@
-import React, { useState, useEffect, useRef } from 'react';
+"use client"
+
+import React, { useState, useEffect, useRef } from 'react'; 
 import styles from '../styles/scroller.module.css';
 import { LuInfo } from "react-icons/lu";
 import bg from '../../public/backgroundButtonManage.png';
 import { FaAngleDown } from "react-icons/fa6";
 
-export default function Scroller() {
-    const categories = [
-        {
-            name: 'Consumables',
-            assets: [
-                { name: 'Ammo', image: '/ammo.png', cost: '100K', rarity: 'Common' },
-                { name: 'Food', image: '/food.png', cost: '293K', rarity: 'Common' },
-                { name: 'Fuel', image: '/fuel.png', cost: '10K', rarity: 'Common' },
-                { name: 'Toolkit', image: '/tools.png', cost: '5M', rarity: 'Common' }
-            ]
-        },
-        {
-            name: 'Raw Material',
-            assets: [
-                { name: 'Arco', image: '/ARCO.webp', cost: '293K', rarity: 'Common' },
-                { name: 'Biomass', image: '/BIOMASS.webp', cost: '29K', rarity: 'Common' },
-                { name: 'Copper Ore', image: '/CUORE.webp', cost: '15K', rarity: 'Common' },
-                { name: 'Carbon', image: '/CARBON.webp', cost: '1M', rarity: 'Common' },
-                { name: 'Diamond', image: '/DIAMOND.webp', cost: '1M', rarity: 'Common' },
-                { name: 'Hydrogen', image: '/HYG.webp', cost: '1M', rarity: 'Common' },
-                { name: 'Iron Ore', image: '/FEORE.webp', cost: '1M', rarity: 'Common' },
-                { name: 'Lumanite', image: '/LUMAN.webp', cost: '1M', rarity: 'Common' },
-                { name: 'Nitrogen', image: '/NITRO.webp', cost: '1M', rarity: 'Common' },
-                { name: 'Rochinol', image: '/ROCH.webp', cost: '1M', rarity: 'Common' },
-                { name: 'Silica', image: '/SAND.webp', cost: '1M', rarity: 'Common' },
-                { name: 'Titanium Ore', image: '/TIORE.webp', cost: '1M', rarity: 'Common' }
-            ]
-        }
-    ];
 
-    const [rowHeightPx, setRowHeightPx] = useState(0);
-    const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
-    const [desktopCategory, setDesktopCategory] = useState(0);
-    const [windowWidth, setWindowWidth] = useState(0);
+export default function Scroller({ categories,buttonClick }) {
+    const rowHeightRem = 23;
+    const [activeCategoryIndex, setActiveCategoryIndex] = useState(categories.length > 0 ? 0 : -1);
+    const [localCategories, setLocalCategories] = useState([]);
+    const [desktopCategory, setDesktopCategory] = useState(0); 
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const [activeAssetIndex, setActiveAssetIndex] = useState(Array(categories.length).fill(0));
-    const containerRefs = useRef(categories.map(() => React.createRef()));
+    const containerRefs = useRef([]);
     const containerRef = useRef(null);
     const [activeRow, setActiveRow] = useState(0);
     const desktopContainerRef = useRef(null);
 
-    // Helper function to calculate the number of rows for a given category
+
+    const numberToScale = (number) => {
+        const num = parseFloat(number);
+        if (isNaN(num)) return '';
+        if (num >= 1e9) return `${(num / 1e9).toFixed(0)} B`;
+        if (num >= 1e6) return `${(num / 1e6).toFixed(0)} M`;
+        if (num >= 1e3) return `${(num / 1e3).toFixed(0)} K`;
+        return num.toString();
+    };
+
+
+    useEffect(() => {
+        containerRefs.current = categories.map(() => React.createRef());
+    }, [categories]);    
+
+    // Transform categories data on component mount and when categories prop changes
+    useEffect(() => {
+        if (categories && categories.length > 0) {
+            const transformedCategories = categories.map(category => ({
+                ...category,
+                assets: category.assets.map(asset => ({
+                    ...asset,
+                    displayCost: `${asset.cost} Credits`
+                }))
+            }));
+            setLocalCategories(transformedCategories);
+        } else {
+            console.log("Categories are empty or not valid");
+        }
+    }, [categories]);    
+
+    // Calculate the number of rows for a given category
     const getNumberOfRows = (categoryIndex) => {
-        if (!categories[categoryIndex]) return 0;
-        const numAssets = categories[categoryIndex].assets.length;
+        const numAssets = localCategories[categoryIndex].assets.length;
         return Math.ceil(numAssets / 4); // Assuming 4 assets per row
     };
 
-    useEffect(() => {
-        // Ensure this code runs only on the client-side
-        if (typeof window !== 'undefined') {
-            const rowHeightRem = 23; // The height in rem
-            setRowHeightPx(rowHeightRem * parseFloat(getComputedStyle(document.documentElement).fontSize));
-            setWindowWidth(window.innerWidth);
+    // Update the handleDesktopScroll function to ensure it updates the active row based on scroll
+    const handleDesktopScroll = () => {
+        const container = desktopContainerRef.current;
+        const scrollTop = container.scrollTop;
+        const rowHeightPx = rowHeightRem * parseFloat(getComputedStyle(document.documentElement).fontSize);
 
-            function handleResize() {
-                setWindowWidth(window.innerWidth);
-            }
+        const newIndex = Math.floor(scrollTop / rowHeightPx);
 
-            window.addEventListener('resize', handleResize);
-            return () => window.removeEventListener('resize', handleResize);
+        if (newIndex !== activeRow) {
+            setActiveRow(newIndex);
         }
+    };
+
+    useEffect(() => {
+        const container = desktopContainerRef.current;
+        if (!container) return;
+
+        container.addEventListener('scroll', handleDesktopScroll);
+
+        return () => {
+            container.removeEventListener('scroll', handleDesktopScroll);
+        };
+    }, [activeRow]);  // Remove activeRow from dependencies to prevent re-binding
+
+
+    // Add this useEffect to handle updating the active category index based on scroll
+    useEffect(() => {
+        const ref = containerRef.current;
+        if (!ref) return;  // This line prevents the error if ref is null
+    
+        const handleScroll = () => {
+            const scrollY = ref.scrollTop;
+            const height = ref.clientHeight;
+            const currentIndex = Math.floor(scrollY / height);
+            if (currentIndex !== activeCategoryIndex) {
+                setActiveCategoryIndex(currentIndex);
+            }
+        };
+    
+        ref.addEventListener('scroll', handleScroll);
+    
+        return () => {
+            if (ref) ref.removeEventListener('scroll', handleScroll);  // Check again before removing
+        };
+    }, [activeCategoryIndex]);
+    
+    useEffect(() => {
+        const ref = containerRef.current;
+        if (!ref) return;  // Safeguard
+    
+        const handleScroll = () => {
+            const scrollY = ref.scrollTop;
+            const height = ref.clientHeight;
+            const currentIndex = Math.floor(scrollY / height);
+            if (currentIndex !== activeCategoryIndex) {
+                setActiveCategoryIndex(currentIndex);
+            }
+        };
+    
+        ref.addEventListener('scroll', handleScroll);
+    
+        return () => ref.removeEventListener('scroll', handleScroll);
+    }, []); // Empty dependency array means this runs once on mount and cleanup on unmount    
+
+
+    useEffect(() => {
+        setWindowWidth(window.innerWidth);
+
+        // Optional: Handle window resize events
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+
     }, []);
 
     const isDesktop = windowWidth >= 1024;
@@ -77,160 +146,42 @@ export default function Scroller() {
     useEffect(() => {
         const handleScroll = (catIndex) => {
             const container = containerRefs.current[catIndex].current;
-            if (!container) return;
-
-            const scrollPosition = container.scrollLeft;
-            const assetWidth = container.clientWidth;
-
-            // Calculate the index based on the scroll position
-            const newIndex = Math.floor(scrollPosition / assetWidth);
-
-            if (activeAssetIndex[catIndex] !== newIndex) {
-                let newIndexes = [...activeAssetIndex];
-                newIndexes[catIndex] = newIndex;
-                setActiveAssetIndex(newIndexes);
-            }
-        };
-
-        // Attach the scroll event listeners
-        const eventListeners = categories.map((category, index) => {
-            const eventListener = () => handleScroll(index);
-            const container = containerRefs.current[index].current;
-            container.addEventListener('scroll', eventListener);
-
-            return eventListener;
-        });
-
-        // Cleanup function to remove event listeners
-        return () => {
-            categories.forEach((category, index) => {
-                const container = containerRefs.current[index].current;
-                const eventListener = eventListeners[index];
-                container.removeEventListener('scroll', eventListener);
-            });
-        };
-    }, [categories.length, activeAssetIndex]); // Ensure activeAssetIndex is also a dependency
-
-    useEffect(() => {
-        if (!isDesktop) {
-            const handleMobileScroll = () => {
-                if (!containerRef.current) return;
-                const scrollPosition = containerRef.current.scrollTop;
-                const rowHeight = containerRef.current.scrollHeight / (categories.length * Math.ceil(categories[0].assets.length / 4));
-                const newIndex = Math.floor(scrollPosition / rowHeight);
-                setActiveCategoryIndex(newIndex);
-            };
-
-            if (containerRef.current) {
-                containerRef.current.addEventListener('scroll', handleMobileScroll);
-            }
-            return () => {
-                if (containerRef.current) {
-                    containerRef.current.removeEventListener('scroll', handleMobileScroll);
+            if (container) {
+                const scrollPosition = container.scrollLeft;
+                const assetWidth = container.clientWidth;
+                const newIndex = Math.floor(scrollPosition / assetWidth);
+    
+                if (activeAssetIndex[catIndex] !== newIndex) {
+                    let newIndexes = [...activeAssetIndex];
+                    newIndexes[catIndex] = newIndex;
+                    setActiveAssetIndex(newIndexes); // This might be causing the rerender
                 }
-            };
-        }
-    }, [isDesktop]);
-
-    useEffect(() => {
-        const container = containerRef.current;
-        if (!container) return;
-
-        const handleScroll = () => {
-            const scrollPosition = container.scrollTop;
-            const categoryHeight = container.clientHeight;
-            const newIndex = Math.floor((scrollPosition + (categoryHeight / 2)) / categoryHeight);
-
-            if (activeCategoryIndex !== newIndex) {
-                setActiveCategoryIndex(newIndex);
             }
         };
-
-        container.addEventListener('scroll', handleScroll);
-
-        return () => {
-            container.removeEventListener('scroll', handleScroll);
-        };
-    }, [activeCategoryIndex]);
-
-    useEffect(() => {
-        function handleResize() {
-            setWindowWidth(window.innerWidth);
-        }
-
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    function handleCategoryChange(event) {
-        setActiveCategoryIndex(Number(event.target.value));
-    }
-
-    // Scroll event listener for desktop
-    useEffect(() => {
-        const handleScroll = (catIndex) => {
-            const container = containerRefs.current[catIndex].current;
-            if (!container) return;
-
-            const scrollPosition = container.scrollLeft;
-            const assetWidth = container.clientWidth;
-
-            // Calculate the index based on the scroll position
-            const newIndex = Math.floor(scrollPosition / assetWidth);
-
-            if (activeAssetIndex[catIndex] !== newIndex) {
-                let newIndexes = [...activeAssetIndex];
-                newIndexes[catIndex] = newIndex;
-                setActiveAssetIndex(newIndexes);
-            }
-        };
-
-        // Attach the scroll event listeners
+    
         const eventListeners = categories.map((category, index) => {
-            const eventListener = () => handleScroll(index);
             const container = containerRefs.current[index].current;
-            container.addEventListener('scroll', eventListener);
-
-            return eventListener;
+            if (container) {
+                const eventListener = () => handleScroll(index);
+                container.addEventListener('scroll', eventListener);
+    
+                return () => container.removeEventListener('scroll', eventListener);
+            }
         });
-
-        // Cleanup function to remove event listeners
+    
         return () => {
-            categories.forEach((category, index) => {
+            eventListeners.forEach((eventListener, index) => {
                 const container = containerRefs.current[index].current;
-                const eventListener = eventListeners[index];
-                container.removeEventListener('scroll', eventListener);
+                if (container) {
+                    container.removeEventListener('scroll', eventListener);
+                }
             });
         };
-    }, [categories.length, activeAssetIndex]);
+    }, [categories.length, activeAssetIndex]); 
 
-    function buttonClick(name){
-        alert(`Clicked Button ${name}`)
+    if (!localCategories[activeCategoryIndex] || !localCategories[activeCategoryIndex].assets.length) {
+        return <div>No assets to display</div>;
     }
-
-    function addValue(amount){
-        alert(`Clicked add button: ${amount}`)
-    }
-
-    function calculateColumns(windowWidth) {
-        if (windowWidth >= 1800) return 5;
-        if (windowWidth >= 1500) return 4;
-        if (windowWidth >= 1024) return 3;
-        if (windowWidth >= 600) return 2;
-        return 1; // Default for very small devices
-    }
-
-    useEffect(() => {
-        function handleResize() {
-            const cols = calculateColumns(window.innerWidth);
-            setWindowWidth(window.innerWidth);  // You may want to also set state for number of columns if needed
-        }
-
-        window.addEventListener('resize', handleResize);
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
-    }, []);
 
     return (
         <div>
@@ -238,7 +189,7 @@ export default function Scroller() {
                 {categories.map((category, catIndex) => (
                     <section key={catIndex} className={styles.category}>
                         <div ref={containerRefs.current[catIndex]} className={styles.assetContainer}>
-                            {category.assets && category.assets.map((asset, assetIndex) => (
+                            {category.assets.map((asset, assetIndex) => (
                                 <div key={assetIndex} className={styles.asset}>
                                     <div className={styles.details}>
                                         <div className={styles.topSection}>
@@ -247,7 +198,7 @@ export default function Scroller() {
                                                 <h2 className={styles.foodName}>{asset.name}</h2>
                                                 <h3 className={styles.rarity}>
                                                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <rect x="0.4" y="0.4" width="9.2" height="9.2" stroke="white" strokeWidth="0.8"/>
+                                                        <rect x="0.4" y="0.4" width="9.2" height="9.2" stroke="white" stroke-width="0.8"/>
                                                         <rect x="2.22223" y="2.22222" width="5.55556" height="5.55556" fill="white"/>
                                                     </svg>
                                                     {asset.rarity}
@@ -264,7 +215,7 @@ export default function Scroller() {
                                             <div className={styles.totalCost}>
                                                 <p className={styles.heading}>Buying amount</p>
                                                 <p className={styles.totalCostAmount}>
-                                                    {asset.cost}
+                                                    {asset.buy_price}
                                                     <img src="/atlasIcon.svg" alt="Atlas Icon" />
                                                 </p>
                                             </div>
@@ -314,54 +265,52 @@ export default function Scroller() {
                                 <button
                                     key={index}
                                     onClick={() => {
-                                        if (containerRef.current) {
-                                            containerRef.current.scrollTo({
-                                                top: index * containerRef.current.clientHeight,
-                                                behavior: 'smooth'
-                                            });
-                                        }
+                                        containerRef.current.scrollTo({
+                                            top: index * containerRef.current.clientHeight,
+                                            behavior: 'smooth'
+                                        });
                                     }}
                                     className={index === activeCategoryIndex ? styles.activeNavItem : styles.navItem}
+                                    
                                 />
                             ))}
                         </div>
 
                         <div className={styles.assetNavigation}>
-                            {category.assets && category.assets.map((asset, index) => (
+                            {category.assets.map((asset, index) => (
                                 <button
                                     key={index}
                                     className={index === activeAssetIndex[catIndex] ? styles.activeNavItem : styles.navItem}
                                 >
-                                    {/* You can use an icon or leave it empty for a dot style */}
+                                    {/* You can use an icon or leave it empty for a dot style */}                   
                                 </button>
                             ))}
                         </div>
                     </section>
                 ))}
             </div>
-
+            
             <div className={styles.desktopLayout}>
                 <div className={styles.desktopNav}>
-                    {Array.from({ length: getNumberOfRows(activeCategoryIndex) }).map((_, index) => (
+                    {Array.from({ length: getNumberOfRows(desktopCategory) }).map((_, index) => (
                         <button
                             key={index}
                             className={index === activeRow ? styles.activeNavItem : styles.navItem}
                             onClick={() => {
-                                const rowHeight = document.querySelector('.desktopAssetRow')?.clientHeight;
-                                if (rowHeight) {
-                                    document.querySelector('.desktopAssetContainer').scrollTo({
-                                        top: index * rowHeight,
-                                        behavior: 'smooth'
-                                    });
-                                    setActiveRow(index);
-                                }
+                                const rowHeight = document.querySelector('.desktopAssetRow').clientHeight;
+                                document.querySelector('.desktopAssetContainer').scrollTo({
+                                    top: index * rowHeight,
+                                    behavior: 'smooth'
+                                });
+                                setActiveRow(index);
                             }}
-                        />
+                        >
+                        </button>
                     ))}
                 </div>
                 <div className={styles.desktopAssetContainer} ref={desktopContainerRef}>
                     <div className={styles.dropDownContainer}>
-                        <select onChange={handleCategoryChange} value={activeCategoryIndex} className={styles.categorySelector}>
+                        <select onChange={(e) => { setDesktopCategory(parseInt(e.target.value, 10)); }} value={desktopCategory} className={styles.categorySelector}>
                             {categories.map((category, index) => (
                                 <option key={index} value={index}>
                                     {category.name}
@@ -373,20 +322,17 @@ export default function Scroller() {
 
                     {/* Only render the assets of the active category */}
                     <div className={styles.desktopCategory}>
-                        {categories[activeCategoryIndex]?.assets && categories[activeCategoryIndex].assets.map((asset, index) => index % 4 === 0 && (
+                        {categories[desktopCategory].assets.map((asset, index) => index % 4 === 0 && (
                             <div key={index} className={styles.desktopAssetRow}>
-                                {categories[activeCategoryIndex].assets.slice(index, index + 4).map((subAsset, subIndex) => (
+                                {categories[desktopCategory].assets.slice(index, index + 4).map((subAsset, subIndex) => (
                                     <div key={subIndex} className={styles.desktopAsset}>
                                         <div className={styles.details}>
                                             <div className={styles.topSection}>
                                                 <div className={styles.leftPart}>
                                                     <h2 className={styles.foodName}>{subAsset.name}</h2>
                                                     <h3 className={styles.rarity}>
-                                                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                            <rect x="0.4" y="0.4" width="9.2" height="9.2" stroke="white" strokeWidth="0.8"/>
-                                                            <rect x="2.22223" y="2.22222" width="5.55556" height="5.55556" fill="white"/>
-                                                        </svg>
-                                                        {subAsset.rarity}
+                                                    <img style={{marginTop:2}} src="/atlasIcon.svg" alt="Atlas Icon" />
+                                                        {subAsset.buy_price/subAsset.minimum_buy_qty}
                                                     </h3>
                                                 </div>
                                                 {subAsset.image && <img src={subAsset.image} alt={subAsset.name} className={styles.assetImage} />}
@@ -395,13 +341,13 @@ export default function Scroller() {
                                             <div className={styles.amountDetails}>
                                                 <div className={styles.buying}>
                                                     <p className={styles.heading}>Buying amount</p>
-                                                    <p className={styles.buyingAmount}>10M</p>
+                                                    <p className={styles.buyingAmount}>{numberToScale(subAsset.minimum_buy_qty)}</p>
                                                 </div>
                                                 <div className={styles.totalCost}>
-                                                    <p className={styles.heading}>Buying amount</p>
+                                                    <p className={styles.heading}>Total Cost</p>
                                                     <p className={styles.totalCostAmount}>
-                                                        {subAsset.cost}
-                                                        <img src="/atlasIcon.svg" alt="Atlas Icon" />
+                                                        {numberToScale(subAsset.buy_price)}
+                                                        <img style={{marginTop:1}} src="/atlasIcon.svg" alt="Atlas Icon" />
                                                     </p>
                                                 </div>
                                                 <img src="/glowRIghtCost.svg" alt="glow on the right of the cost section" className={styles.glowCost} />

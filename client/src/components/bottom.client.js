@@ -1,3 +1,5 @@
+"use client"
+
 import '../styles/homepage.css'
 import bg from '../../public/pxpBg.png'
 

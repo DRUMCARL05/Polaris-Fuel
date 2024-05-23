@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from 'react'; // Import React and useState
 import '../styles/homepage.css';
 import bg from '../../public/buttonBackground.png';

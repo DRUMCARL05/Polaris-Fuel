@@ -19,7 +19,6 @@
     "react-icons": "^5.1.0",
     "react-slick": "^0.30.2",
     "react-spring": "^9.7.3",
-    "sharp": "^0.33.3",
     "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
