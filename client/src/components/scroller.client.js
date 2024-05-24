@@ -333,6 +333,7 @@ export default function Scroller({ categories,buttonClick }) {
                                                     <h3 className={styles.rarity}>
                                                     <img style={{marginTop:2}} src="/atlasIcon.svg" alt="Atlas Icon" />
                                                         {subAsset.buy_price/subAsset.minimum_buy_qty}
+
                                                     </h3>
                                                 </div>
                                                 {subAsset.image && <img src={subAsset.image} alt={subAsset.name} className={styles.assetImage} />}

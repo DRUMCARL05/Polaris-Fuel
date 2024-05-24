@@ -12,9 +12,9 @@ const Scroller = dynamic(() => import('@/components/scroller.client'), { ssr: fa
 const Bottom = dynamic(() => import('@/components/bottom.client'), { ssr: false });
 
 const programId = new PublicKey('GAfmY5v9EoSaPDpSo7Zhnb1bD5cwSK7sEow1uDZ1wdZ8');
-let ammoMint = new PublicKey("7nfXiNmk1fn6UUyheEvdhstABGTSQCAfxYyJVxwLo5VX")
+let ammoMint = new PublicKey("AMMUxMuL93NDbTzCE6ntjF8U6fMdtiw6VbXS3FiLfaZd")
 let ammoAuth = new PublicKey("PLRSGTRwq2rz8S62JFWbtFEixvetZ4v58KQWi21kLxg")
-let atlasMint = new PublicKey("6VxFguWdAfjtQ42a6Bmv5cUfDUj5Fmo5Kw3bUE9NFwyA")
+let atlasMint = new PublicKey("ATLADWy6dnnY3McjmRvuvRZHR4WjYYtGGKS3duedyBmy")
 
 let feePubKey = new PublicKey("5SYuwdp6eL8rSjfRWJ45P6WRLeV9Vnegxf8p2jrJh4xb")
 
