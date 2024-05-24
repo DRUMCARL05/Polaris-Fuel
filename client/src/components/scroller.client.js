@@ -255,7 +255,7 @@ export default function Scroller({ categories,buttonClick }) {
                                             </div>
                                         </div>
                                     </div>
-                                    <button onClick={() => {buttonClick(asset.name)}} className={styles.button}>Buy {asset.name}</button>
+                                    <button onClick={() => {buttonClick(asset)}} className={styles.button}>Buy {asset.name}</button>
                                 </div>
                             ))}
                         </div>
@@ -387,7 +387,7 @@ export default function Scroller({ categories,buttonClick }) {
                                                 </div>
                                             </div>
                                         </div>
-                                        <button onClick={() => {buttonClick(subAsset.name)}} className={styles.button}>Buy {subAsset.name}</button>
+                                        <button onClick={() => {buttonClick(subAsset)}} className={styles.button}>Buy {subAsset.name}</button>
                                     </div>
                                 ))}
                             </div>

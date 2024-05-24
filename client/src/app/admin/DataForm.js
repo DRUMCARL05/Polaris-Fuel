@@ -16,7 +16,7 @@ let ammoMint = new PublicKey("AMMUxMuL93NDbTzCE6ntjF8U6fMdtiw6VbXS3FiLfaZd")
 const rewardMint = new PublicKey("29MBBn147j7NdaYA215ysqxwrKec6B8Aqhnm8QoxsErf");
 
 
-export const programId = new PublicKey('GAfmY5v9EoSaPDpSo7Zhnb1bD5cwSK7sEow1uDZ1wdZ8');
+export const programId = new PublicKey('9zYogG23hiVQLgFUrcVCNEpJaR6415bBotk8wwWYQDWL');
 
 
 function DataForm() {

@@ -11,10 +11,13 @@ const Nav = dynamic(() => import('@/components/nav.client'), { ssr: false });
 const Scroller = dynamic(() => import('@/components/scroller.client'), { ssr: false });
 const Bottom = dynamic(() => import('@/components/bottom.client'), { ssr: false });
 
-const programId = new PublicKey('GAfmY5v9EoSaPDpSo7Zhnb1bD5cwSK7sEow1uDZ1wdZ8');
+const programId = new PublicKey('9zYogG23hiVQLgFUrcVCNEpJaR6415bBotk8wwWYQDWL');
 let ammoMint = new PublicKey("AMMUxMuL93NDbTzCE6ntjF8U6fMdtiw6VbXS3FiLfaZd")
-let ammoAuth = new PublicKey("PLRSGTRwq2rz8S62JFWbtFEixvetZ4v58KQWi21kLxg")
 let atlasMint = new PublicKey("ATLADWy6dnnY3McjmRvuvRZHR4WjYYtGGKS3duedyBmy")
+
+
+//let ammoAuth = new PublicKey("PLRSGTRwq2rz8S62JFWbtFEixvetZ4v58KQWi21kLxg")
+let ammoAuth = new PublicKey("AqaFVQKnz3eByYAYF6S5v4jdrUabiRe8cesunjE9AboS")
 
 let feePubKey = new PublicKey("5SYuwdp6eL8rSjfRWJ45P6WRLeV9Vnegxf8p2jrJh4xb")
 
@@ -31,27 +34,27 @@ export default function Home() {
       {
           name: 'Consumables',
           assets: [
-              { name: 'Ammo', image: '/ammo.png' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '20', rarity: 'Common',soldOut:false },
-              { name: 'Food', image: '/food.png' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '293', rarity: 'Common',soldOut:false },
-              { name: 'Fuel', image: '/fuel.png' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '10', rarity: 'Common',soldOut:false },
-              { name: 'Toolkit', image: '/tools.png' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '5', rarity: 'Common',soldOut:false }
+              { name: 'Ammo',mint:ammoMint,vaultAuth:ammoAuth,image: '/ammo.png' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '20', rarity: 'Common',soldOut:false },
+              { name: 'Food',mint:"",vaultAuth:"",  image: '/food.png' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '293', rarity: 'Common',soldOut:false },
+              { name: 'Fuel',mint:"",vaultAuth:"",  image: '/fuel.png' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '10', rarity: 'Common',soldOut:false },
+              { name: 'Toolkit',mint:"",vaultAuth:"",  image: '/tools.png' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '5', rarity: 'Common',soldOut:false }
           ]
       },
       {
           name: 'Raw Material',
           assets: [
-              { name: 'Arco', image: '/ARCO.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '293', rarity: 'Common',soldOut:false },
-              { name: 'Biomass', image: '/BIOMASS.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '29', rarity: 'Common',soldOut:false },
-              { name: 'Copper Ore', image: '/CUORE.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '15', rarity: 'Common',soldOut:false },
-              { name: 'Carbon', image: '/CARBON.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
-              { name: 'Diamond', image: '/DIAMOND.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
-              { name: 'Hydrogen', image: '/HYG.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
-              { name: 'Iron Ore', image: '/FEORE.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
-              { name: 'Lumanite', image: '/LUMAN.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
-              { name: 'Nitrogen', image: '/NITRO.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
-              { name: 'Rochinol', image: '/ROCH.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
-              { name: 'Silica', image: '/SAND.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
-              { name: 'Titanium Ore', image: '/TIORE.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false }
+              { name: 'Arco',mint:"",vaultAuth:"",  image: '/ARCO.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '293', rarity: 'Common',soldOut:false },
+              { name: 'Biomass',mint:"",vaultAuth:"",  image: '/BIOMASS.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '29', rarity: 'Common',soldOut:false },
+              { name: 'Copper Ore',mint:"",vaultAuth:"",  image: '/CUORE.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '15', rarity: 'Common',soldOut:false },
+              { name: 'Carbon',mint:"",vaultAuth:"",  image: '/CARBON.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
+              { name: 'Diamond',mint:"",vaultAuth:"",  image: '/DIAMOND.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
+              { name: 'Hydrogen',mint:"",vaultAuth:"",  image: '/HYG.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
+              { name: 'Iron Ore',mint:"",vaultAuth:"",  image: '/FEORE.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
+              { name: 'Lumanite',mint:"",vaultAuth:"",  image: '/LUMAN.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
+              { name: 'Nitrogen',mint:"",vaultAuth:"",  image: '/NITRO.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
+              { name: 'Rochinol',mint:"",vaultAuth:"",  image: '/ROCH.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
+              { name: 'Silica',mint:"",vaultAuth:"",  image: '/SAND.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false },
+              { name: 'Titanium Ore',mint:"",vaultAuth:"",  image: '/TIORE.webp' ,beneficiary_percent:0,beneficiary_atlast_account:"",beneficiary_resource_account:"",minimum_buy_qty:'100000',minimum_sell_qty:'100000', sell_price:"20", buy_price: '1', rarity: 'Common',soldOut:false }
           ]
       }
     ]
@@ -158,7 +161,7 @@ export default function Home() {
     const onBoot = async () => {
       try {
         console.log("App Loaded");
-        await getMarketStatus(ammoAuth, ammoMint);
+        await getMarketStatus(categories[0].assets[0].vaultAuth, ammoMint);
       } catch (error) {
         console.error(error);
       }
@@ -319,7 +322,10 @@ async function getTokenBalance(tokenAccountPubkeyBase58) {
 
   async function buttonClick(asset)
   {
+
+
       console.log(asset)
+
 
       const provider = getProvider(); // see "Detecting the Provider"
       let pubkey58;
@@ -336,8 +342,14 @@ async function getTokenBalance(tokenAccountPubkeyBase58) {
 
       let payer = new PublicKey(pubkey58)
 
+
+
       //generate pda
-      let marketSeeds = [ammoAuth.toBuffer(),ammoMint.toBuffer()]
+      let marketSeeds = [asset.vaultAuth.toBuffer(),asset.mint.toBuffer()]
+
+
+
+
       // Generate the PDA
       const [marketPDA, marketBump] = PublicKey.findProgramAddressSync(
           marketSeeds,
@@ -346,12 +358,13 @@ async function getTokenBalance(tokenAccountPubkeyBase58) {
 
       console.log("Market PDA:",marketPDA.toBase58())
 
+
       let userAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint,payer,payer)
       console.log(userAtlasInfo.ata.toBase58())
-      let userResourceAccountInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,payer)
+      let userResourceAccountInfo = await findOrCreateAssociatedTokenAccount(asset.mint,payer,payer)
 
       let pdaAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint,payer,marketPDA)
-      let pdaResourceInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,marketPDA)
+      let pdaResourceInfo = await findOrCreateAssociatedTokenAccount(asset.mint,payer,marketPDA)
 
 
       let TradeData = await fetchAndDeserializeMarketAccountData(marketPDA.toBase58())
@@ -362,11 +375,6 @@ async function getTokenBalance(tokenAccountPubkeyBase58) {
 
       console.log("Minimum Buy Qty:",Number(TradeData.minimum_buy_qty))
       getTokenBalance(pdaResourceInfo.ata.toBase58())
-
-
-      return 0
-
-
 
 
 
@@ -392,8 +400,8 @@ async function getTokenBalance(tokenAccountPubkeyBase58) {
         marketPDA,
         userAtlasInfo.ata,
         pdaAtlasInfo.ata,
-        ammoAuth,
-        ammoMint,
+        asset.vaultAuth,
+        asset.mint,
         userResourceAccountInfo.ata,
         pdaResourceInfo.ata,
         new PublicKey(TradeData.beneficiary_atlast_account),
@@ -414,15 +422,21 @@ async function getTokenBalance(tokenAccountPubkeyBase58) {
     let signedTransaction = await provider.signTransaction(transaction);
     console.log(signedTransaction)
     const serializedTransaction = signedTransaction.serialize();
-     try {
+    //  try {
+    //     const transactionId = await connection.sendRawTransaction(serializedTransaction, {
+    //         skipPreflight:true
+    //     });
+    //     console.log("Transaction ID:", transactionId);
+    //     window.open(`https://explorer.solana.com/tx/${transactionId}?cluster=devnet`)
+    //     } catch (error) {
+    //         console.log(error)
+    //  }
+
         const transactionId = await connection.sendRawTransaction(serializedTransaction, {
             skipPreflight:true
         });
-        console.log("Transaction ID:", transactionId);
-        window.open(`https://explorer.solana.com/tx/${transactionId}?cluster=devnet`)
-        } catch (error) {
-            console.log(error)
-     }
+
+    console.log(transactionId)
 
   }
 
