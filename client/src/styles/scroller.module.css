@@ -342,6 +342,7 @@
     cursor: pointer;
     margin-right: 1rem;
     appearance: none;
+    color: #fff;
   }
 
   .categorySelector option{
