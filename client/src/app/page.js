@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import '../styles/homepage.css';
 import dynamic from 'next/dynamic';
-import { createBuyInstruction } from "@polaris-fuel/web3.js";
+import { createBuyInstruction, createSellInstruction } from "@polaris-fuel/web3.js";
 import { Connection, PublicKey, Keypair, Transaction, TransactionInstruction, sendAndConfirmTransaction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, getAssociatedTokenAddress, createTransferInstruction } from '@solana/spl-token';
 
@@ -14,8 +14,12 @@ const programId = new PublicKey('9zYogG23hiVQLgFUrcVCNEpJaR6415bBotk8wwWYQDWL');
 let ammoMint = new PublicKey("AMMUxMuL93NDbTzCE6ntjF8U6fMdtiw6VbXS3FiLfaZd");
 let atlasMint = new PublicKey("ATLADWy6dnnY3McjmRvuvRZHR4WjYYtGGKS3duedyBmy");
 
-let ammoAuth = new PublicKey("AqaFVQKnz3eByYAYF6S5v4jdrUabiRe8cesunjE9AboS");
+let ammoAuth = new PublicKey("PLRSGTRwq2rz8S62JFWbtFEixvetZ4v58KQWi21kLxg");
 let feePubKey = new PublicKey("5SYuwdp6eL8rSjfRWJ45P6WRLeV9Vnegxf8p2jrJh4xb");
+
+
+let rewardMint = new PublicKey("29MBBn147j7NdaYA215ysqxwrKec6B8Aqhnm8QoxsErf");
+
 
 let connection = new Connection('https://devnet.helius-rpc.com/?api-key=5f494e50-2433-4bec-8e68-0823bae9d973');
 
@@ -256,7 +260,7 @@ export default function Home() {
     }
   }
 
-  async function buttonClick(asset) {
+  async function buttonClick(asset,activeTap) {
     console.log(asset);
 
     const provider = getProvider(); // see "Detecting the Provider"
@@ -316,23 +320,73 @@ export default function Home() {
     console.log("Deseralized configData");
     console.log(configData);
 
-    const polarisBuyIx = createBuyInstruction(
-      programId,
-      payer,
-      marketPDA,
-      userAtlasInfo.ata,
-      pdaAtlasInfo.ata,
-      asset.vaultAuth,
-      asset.mint,
-      userResourceAccountInfo.ata,
-      pdaResourceInfo.ata,
-      new PublicKey(TradeData.beneficiary_atlast_account),
-      new PublicKey(configData.fee_star_atlas_account),
-      new PublicKey(configData.fee_sol_account),
-      1
-    );
+    let transaction = new Transaction()
 
-    let transaction = new Transaction().add(polarisBuyIx);
+    let polarisIx;
+    if(activeTab=="Buy")
+      {
+        polarisIx = createBuyInstruction(
+          programId,
+          payer,
+          marketPDA,
+          userAtlasInfo.ata,
+          pdaAtlasInfo.ata,
+          asset.vaultAuth,
+          asset.mint,
+          userResourceAccountInfo.ata,
+          pdaResourceInfo.ata,
+          new PublicKey(TradeData.beneficiary_atlast_account),
+          new PublicKey(configData.fee_star_atlas_account),
+          new PublicKey(configData.fee_sol_account),
+          1
+        );
+
+      }
+
+      if(activeTab=="Sell")
+        {
+
+          let rewardMintAccount = await findOrCreateAssociatedTokenAccount(rewardMint, payer, payer);
+
+          console.log("User has rewardMintAccount account:",rewardMintAccount.hasAta)
+          console.log("User rewardMintAccount account:",rewardMintAccount.ata.toBase58())
+
+          if(rewardMintAccount.hasAta == false)
+          {
+              transaction.add(rewardMintAccount.ataIx)
+          }
+
+          // derive the pda address for the Metadata account
+          const rewardMintAuthPDA = PublicKey.findProgramAddressSync(
+            [rewardMint.toBuffer()],
+            programId,
+        )[0];
+
+          polarisIx = createSellInstruction(
+            programId,
+            payer,
+            marketPDA,
+            userAtlasInfo.ata,
+            pdaAtlasInfo.ata,
+            asset.vaultAuth,
+            asset.mint,
+            userResourceAccountInfo.ata,
+            pdaResourceInfo.ata,
+            new PublicKey(TradeData.beneficiary_resource_account),
+            new PublicKey(configData.fee_star_atlas_account),
+            new PublicKey(configData.fee_sol_account),
+            configPDA,
+            rewardMint,
+            rewardMintAccount.ata,
+            rewardMintAuthPDA,
+            1
+          );
+  
+        }
+
+
+
+    transaction.add(polarisIx);
 
     const { blockhash } = await connection.getRecentBlockhash();
     transaction.recentBlockhash = blockhash;

@@ -30,8 +30,8 @@ const Greeting = ({onChainData,getMarketData,stockAtlas,stockResource}) => {
 
             <div style={{ height: '2px', backgroundColor: 'black', width: '100%' }}></div>
             <div style={{color:"black",marginTop:0}}>Vault Pubkey:{onChainData.vault_pubkey}</div>
-            <div style={{color:"black",marginTop:20}}>AMMO Ammount:{onChainData.ammo_amount}</div>
-            <div style={{color:"black",marginTop:20,marginBottom:20}}>ATLAS Ammount:{onChainData.atlas_amount}</div>
+            <div style={{color:"black",marginTop:20}}>AMMO Ammount: {numberToScale(onChainData.ammo_amount)}</div>
+            <div style={{color:"black",marginTop:20,marginBottom:20}}>ATLAS Ammount: {numberToScale(onChainData.atlas_amount/100e6)}</div>
 
             <div style={{ height: '2px', backgroundColor: 'black', width: '100%' }}></div>
             <div style={{color:"black",marginTop:0}}>Minimum Buy Qty:{String(onChainData.minimum_buy_qty)}</div>

@@ -321,10 +321,9 @@ function DataForm() {
         let pdaAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint,payer,marketPDA)
         let pdaAmmoInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,marketPDA)
 
-    
 
-        TradeData.ammo_amount = getTokenBalance(pdaAtlasInfo.ata)
-        TradeData.atlas_amount = getTokenBalance(pdaAmmoInfo.ata)
+        TradeData.atlas_amount = await getTokenBalance(pdaAtlasInfo.ata)
+        TradeData.ammo_amount = await getTokenBalance(pdaAmmoInfo.ata)
         TradeData.atlas_mint =atlasMint.toBase58()
         TradeData.resource_mint = ammoMint.toBase58()
 
