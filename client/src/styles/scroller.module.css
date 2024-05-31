@@ -5,22 +5,27 @@
 }
 
 .snappyContainer {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
   scroll-snap-type: y mandatory;
   overflow-y: scroll;
-  height: 32rem; /* Full viewport height */
+  height: 32rem;
+  /* Full viewport height */
   width: 100%;
 }
 
 .category {
   scroll-snap-align: start;
   width: 100%;
-  height: 100%; /* Each category section takes full viewport height */
+  height: 100%;
+  /* Each category section takes full viewport height */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* Adjusted for better content alignment */
+  justify-content: center;
+  /* Adjusted for better content alignment */
   margin-bottom: 0px;
 }
 
@@ -29,20 +34,27 @@
 }
 
 .assetContainer {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
   display: flex;
-  overflow-x: auto; /* Ensures horizontal scrolling */
-  scroll-snap-type: x mandatory; /* Snaps on horizontal scroll */
+  overflow-x: auto;
+  /* Ensures horizontal scrolling */
+  scroll-snap-type: x mandatory;
+  /* Snaps on horizontal scroll */
   width: 100%;
-  min-height: 100%; /* Minimum height to fill the container */
+  min-height: 100%;
+  /* Minimum height to fill the container */
   margin-left: 0.5rem;
 }
 
 .asset {
   scroll-snap-align: start;
-  flex: 0 0 100vw; /* Ensures each asset takes up exactly the width of the viewport */
-  height: 100%; /* Fills the vertical space in the asset container */
+  flex: 0 0 95vw;
+  /* Ensures each asset takes up exactly the width of the viewport */
+  height: 100%;
+  /* Fills the vertical space in the asset container */
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -52,38 +64,38 @@
   width: 100% !important;
 }
 
-.details{
-  background: linear-gradient(rgba(25,25,25,0), rgba(25,25,25,1));
+.details {
+  background: linear-gradient(rgba(25, 25, 25, 0), rgba(25, 25, 25, 1));
   border-radius: 12px;
   width: 100%;
   padding: 20px;
 }
 
-.topSection{
+.topSection {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.leftPart{
+.leftPart {
   display: flex;
   flex-direction: column;
   text-align: left;
   gap: 10px;
 }
 
-.leftPart .headingSection{
+.leftPart .headingSection {
   font-size: 20px;
   font-weight: 600;
 }
 
-.leftPart .foodName{
+.leftPart .foodName {
   font-size: 32px;
   margin-top: 0.3rem;
   text-transform: uppercase;
 }
 
-.leftPart .rarity{
+.leftPart .rarity {
   display: flex;
   gap: 0.5rem;
   align-items: center;
@@ -96,14 +108,14 @@
   width: 8rem;
 }
 
-.amountDetails{
+.amountDetails {
   display: flex;
   justify-content: space-between;
   text-align: left;
   margin-top: 2rem;
 }
 
-.glowCost{
+.glowCost {
   margin-top: -2.5rem;
   opacity: 0.7;
   z-index: 1;
@@ -111,68 +123,70 @@
   margin-right: -1rem;
 }
 
-.amountDetails .heading{
+.amountDetails .heading {
   font-size: 16px;
   font-weight: 500;
   text-transform: uppercase;
   opacity: 0.4;
 }
 
-.buying, .totalCost{
+.buying,
+.totalCost {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   z-index: 2;
 }
 
-.totalCost{
+.totalCost {
   text-align: right;
 }
 
-.totalCostAmount, .buyingAmount{
+.totalCostAmount,
+.buyingAmount {
   font-size: 26px;
   font-weight: 600;
 }
 
-.totalCostAmount{
+.totalCostAmount {
   display: flex;
   justify-content: right;
   align-items: center;
   gap: 0.5rem;
 }
 
-.totalCostAmount img{
+.totalCostAmount img {
   width: 1rem;
 }
 
 
-.manageBuyingAmount{
+.manageBuyingAmount {
   display: flex;
   flex-direction: column;
   margin-top: -1rem;
   gap: 0.2rem;
 }
 
-.topSectionManage{
+.topSectionManage {
   display: flex;
   justify-content: space-between;
 }
 
-.headingManage{
+.headingManage {
   font-size: 16px;
   font-weight: 500;
   text-transform: uppercase;
   opacity: 0.4;
 }
 
-.allManageButtons{
+.allManageButtons {
   display: flex;
   margin-top: 0.5rem;
   justify-content: space-between;
   gap: 0.75rem;
 }
 
-.manageButton{
+.manageButton {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -205,53 +219,73 @@
   margin-top: -3.5rem;
 }
 
-.navItem, .activeNavItem {
+.navItem,
+.activeNavItem {
   width: 7px;
   height: 7px;
   border-radius: 50%;
   margin: 0 5px;
-  background-color: #8a8a8a; /* Light gray background */
+  background-color: #8a8a8a;
+  /* Light gray background */
   border: none;
   transition: background-color 0.3s;
 }
 
 .activeNavItem {
-  background-color: #fff; /* White background for active item */
-  color: #333; /* Darker text for better contrast */
+  background-color: #fff;
+  /* White background for active item */
+  color: #333;
+  /* Darker text for better contrast */
   font-weight: bold;
 }
 
 /* Add to your existing styles */
 .categoryNavigation {
-  position: fixed; /* Fixed position on the left */
-  left: 5px; /* Spacing from the left side */
-  top: 50%; /* Center vertically */
-  transform: translateY(-50%); /* Adjust to perfectly center */
+  position: fixed;
+  /* Fixed position on the left */
+  left: 5px;
+  /* Spacing from the left side */
+  top: 50%;
+  /* Center vertically */
+  transform: translateY(-50%);
+  /* Adjust to perfectly center */
   display: flex;
-  flex-direction: column; /* Stack navigation items vertically */
+  flex-direction: column;
+  /* Stack navigation items vertically */
   align-items: center;
 }
 
-.navItem, .activeNavItem {
+.navItem,
+.activeNavItem {
   width: 7px;
   height: 7px;
   margin: 10px 5px;
   border-radius: 50%;
-  background-color: #8a8a8a; /* Default color */
+  background-color: #8a8a8a;
+  /* Default color */
   border: none;
   transition: background-color 0.3s;
 }
 
 .activeNavItem {
-  background-color: #fff; /* Active color */
+  background-color: #fff;
+  /* Active color */
 }
 
-.desktopAssetContainer{
+.desktopAssetContainer {
   display: none;
 }
 
 @media (min-width: 768px) {
+  .details{
+    width: 20rem;
+  }
+
   .desktopLayout {
+    position: relative;
+    left: 50%;
+    margin-top: 3rem;
+    transform: translateX(-50%);
     display: flex;
     align-items: center;
   }
@@ -270,54 +304,61 @@
   }
 
   .activeNavItem {
-      background-color: #fff; /* Active item color */
+    background-color: #fff;
+    /* Active item color */
   }
 
   .navItem {
-      background-color: #686868; /* Inactive item color */
+    background-color: #686868;
+    /* Inactive item color */
   }
 
   .snappyContainer {
-      display: none;
+    display: none;
   }
 
   .desktopAssetContainer::-webkit-scrollbar {
     display: none;
   }
-  
+
   .desktopAssetContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
     scroll-snap-type: y mandatory;
     overflow-y: scroll;
-    height: 29rem; /* Full viewport height */
+    height: 29rem;
+    /* Full viewport height */
     width: 100%;
     margin-top: 3rem;
-    scroll-snap-type: y mandatory; /* Enable vertical scroll snapping */
+    scroll-snap-type: y mandatory;
+    /* Enable vertical scroll snapping */
     overflow-y: auto;
   }
 
-  .desktopAssetRow{
+  .desktopAssetRow {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 2rem;
-    scroll-snap-align: start; /* Align each row to the start of the viewport */
+    scroll-snap-align: start;
+    /* Align each row to the start of the viewport */
     scroll-snap-stop: always;
     margin: 0 0 0.25rem 0;
   }
 
-  .desktopAsset{
+  .desktopAsset {
     display: flex;
     flex-direction: column;
     gap: 15px;
   }
 
-  .dropDownContainer{
+  .dropDownContainer {
     position: fixed;
     margin-top: -3rem;
     display: flex;
@@ -325,7 +366,7 @@
     color: #fff;
   }
 
-  .dropDownContainer .arrow{
+  .dropDownContainer .arrow {
     margin-left: -3rem;
     font-size: 0.8rem;
     pointer-events: none;
@@ -335,7 +376,8 @@
     background: rgba(255, 255, 255, 0.05);
     outline: none;
     border: 0.5px solid rgb(163, 163, 163);
-    padding: 0.5rem 2.5rem 0.5rem 1rem; /* Adjusted padding to make space for the arrow */
+    padding: 0.5rem 2.5rem 0.5rem 1rem;
+    /* Adjusted padding to make space for the arrow */
     border-radius: 5px;
     font-size: 1rem;
     font-weight: 400;
@@ -345,75 +387,78 @@
     color: #fff;
   }
 
-  .categorySelector option{
+  .categorySelector option {
     background: #444444;
   }
 }
 
 @media (min-width: 765px) and (max-width:1100px) {
   .desktopAssetRow {
-      display: grid;
-      align-items: center;
-      justify-content: center;
-      grid-template-columns: repeat(2, 1fr); /* 2 cards per row for screens between 765px and 1100px */
-      gap: 2rem;
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 cards per row for screens between 765px and 1100px */
+    gap: 2rem;
   }
 }
 
 @media (min-width: 1101px) and (max-width: 1499px) {
   .desktopAssetRow {
-      display: grid;
-      align-items: center;
-      justify-content: center;
-      grid-template-columns: repeat(3, 1fr); /* 3 cards per row for screens between 768px and 1499px */
-      gap: 2rem;
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    grid-template-columns: repeat(3, 1fr);
+    /* 3 cards per row for screens between 768px and 1499px */
+    gap: 2rem;
   }
 }
 
 @media (min-width: 1500px) and (max-width: 1799px) {
   .desktopAssetRow {
-      display: grid;
-      align-items: center;
-      justify-content: center;
-      grid-template-columns: repeat(4, 1fr); /* 4 cards per row for screens between 1500px and 1799px */
-      gap: 2rem;
+    display: grid;
+    align-items: center;
+    justify-content: center;
+    grid-template-columns: repeat(4, 1fr);
+    /* 4 cards per row for screens between 1500px and 1799px */
+    gap: 2rem;
   }
 }
 
 
 @media screen and (min-height: 750px) {
-  .amountDetails{
+  .amountDetails {
     margin-top: 3rem;
   }
 
-  .manageBuyingAmount{
+  .manageBuyingAmount {
     margin-top: 0rem;
   }
 
-  .asset{
+  .asset {
     gap: 15px;
   }
 
-  .snappyContainer{
+  .snappyContainer {
     height: 35rem;
   }
 
-  .assetNavigation{
+  .assetNavigation {
     margin-top: -3rem;
   }
 }
 
 @media screen and (min-height: 800px) {
-  .asset{
+  .asset {
     gap: 40px;
   }
 
-  .snappyContainer{
+  .snappyContainer {
     margin-top: 1rem;
     height: 40rem;
   }
 
-  .assetNavigation{
+  .assetNavigation {
     margin-top: -7rem;
   }
 }

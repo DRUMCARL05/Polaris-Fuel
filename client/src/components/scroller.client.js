@@ -198,7 +198,11 @@ export default function Scroller({ categories, buttonClick, activeTab }) {
                     <div className={styles.amountDetails}>
                       <div className={styles.buying}>
                         <p className={styles.heading}>{activeTab === 'Buy' ? 'Buying amount' : 'Selling amount'}</p>
-                        <p className={styles.buyingAmount}>{activeTab === 'Buy' ? numberToScale(asset.buy_price) : numberToScale(asset.sell_price)}</p>
+                        <p className={styles.buyingAmount}>
+                          {activeTab === 'Buy'
+                            ? numberToScale(asset.minimum_buy_qty)
+                            : numberToScale(asset.minimum_sell_qty)}
+                        </p>
                       </div>
                       <div className={styles.totalCost}>
                         <p className={styles.heading}>{activeTab === 'Buy' ? 'Total Cost' : 'Total Earnings'}</p>
@@ -243,7 +247,9 @@ export default function Scroller({ categories, buttonClick, activeTab }) {
                       </div>
                     </div>
                   </div>
-                  <button onClick={() => { buttonClick(asset,activeTab) }} className={styles.button}>{activeTab === 'Buy' ? `Buy ${asset.name}` : `Sell ${asset.name}`}</button>
+                  <button onClick={() => { buttonClick(asset, activeTab) }} className={styles.button}>
+                    {activeTab === 'Buy' ? `Buy ${asset.name}` : `Sell ${asset.name}`}
+                  </button>
                 </div>
               ))}
             </div>
@@ -318,7 +324,7 @@ export default function Scroller({ categories, buttonClick, activeTab }) {
                           <h2 className={styles.foodName}>{subAsset.name}</h2>
                           <h3 className={styles.rarity}>
                             <img style={{ marginTop: 2 }} src="/atlasIcon.svg" alt="Atlas Icon" />
-                            {subAsset.buy_price / subAsset.minimum_buy_qty}
+                            {subAsset.rarity}
                           </h3>
                         </div>
                         {subAsset.image && <img src={subAsset.image} alt={subAsset.name} className={styles.assetImage} />}
@@ -327,7 +333,11 @@ export default function Scroller({ categories, buttonClick, activeTab }) {
                       <div className={styles.amountDetails}>
                         <div className={styles.buying}>
                           <p className={styles.heading}>{activeTab === 'Buy' ? 'Buying amount' : 'Selling amount'}</p>
-                          <p className={styles.buyingAmount}>{activeTab === 'Buy' ? numberToScale(subAsset.minimum_buy_qty) : numberToScale(subAsset.minimum_sell_qty)}</p>
+                          <p className={styles.buyingAmount}>
+                            {activeTab === 'Buy'
+                              ? numberToScale(subAsset.minimum_buy_qty)
+                              : numberToScale(subAsset.minimum_sell_qty)}
+                          </p>
                         </div>
                         <div className={styles.totalCost}>
                           <p className={styles.heading}>{activeTab === 'Buy' ? 'Total Cost' : 'Total Earnings'}</p>
@@ -372,7 +382,9 @@ export default function Scroller({ categories, buttonClick, activeTab }) {
                         </div>
                       </div>
                     </div>
-                    <button onClick={() => { buttonClick(subAsset,activeTab) }} className={styles.button}>{activeTab === 'Buy' ? `Buy ${subAsset.name}` : `Sell ${subAsset.name}`}</button>
+                    <button onClick={() => { buttonClick(subAsset, activeTab) }} className={styles.button}>
+                      {activeTab === 'Buy' ? `Buy ${subAsset.name}` : `Sell ${subAsset.name}`}
+                    </button>
                   </div>
                 ))}
               </div>

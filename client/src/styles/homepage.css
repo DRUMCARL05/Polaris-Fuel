@@ -11,13 +11,6 @@
   border-radius: 50%;
 }
 
-nav{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0rem 1.5rem;
-}
-
 nav .logo{
     width: 10rem;
     margin-left: -1rem;
@@ -84,6 +77,13 @@ nav .logo{
     color: #ff7129;
     font-weight: 600;
 }
+
+.mainContent{
+  width: 100%;
+}
+
+
+
 /* 
 .hamburger{
   position: absolute;
@@ -169,6 +169,21 @@ nav .logo{
   display: none;
 }
 
+.earnImageContainer {
+  position: absolute;
+  text-align: center;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  font-size: 1.5rem;
+}
+
+.earnImage {
+  max-width: 100%;
+  height: auto;
+}
+
+
 @media (min-width: 768px) { /* Adjust this value based on your definition of mobile vs desktop */
   .desktopVersion{
     display: block;
@@ -236,5 +251,67 @@ nav .logo{
 @media screen and (min-height: 800px) {
   nav{
     padding: 1rem 1.5rem;
+  }
+}
+
+/* Add these styles to the existing CSS */
+
+@media (max-width: 768px) {
+  .desktopNav {
+    display: none;
+  }
+  
+  .mobileNav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .mobileTop {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 1.5rem;
+    align-items: center;
+  }
+
+  .mobileTabs {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+    padding: 1rem 0;
+  }
+
+  .mobileTabs button {
+    width: 80%;
+    background-color: #303030;
+    color: #acacac;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    outline: none;
+    text-align: center;
+  }
+
+  .mobileTabs button.active {
+    background-color: #ff7129;
+    color: #FFFFFF;
+  }
+}
+
+@media (min-width: 768px) {
+  .mobileNav {
+    display: none;
+  }
+
+  .desktopNav{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
   }
 }
