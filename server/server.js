@@ -1,13 +1,16 @@
 import express from 'express';
+import cors from 'cors'; // Import the cors package
 import { Connection, PublicKey } from '@solana/web3.js';
 import { findOrCreateAssociatedTokenAccount, getTokenBalance, fetchAndDeserializeMarketAccountData } from './utils.js';
 
 const programId = new PublicKey('9zYogG23hiVQLgFUrcVCNEpJaR6415bBotk8wwWYQDWL');
 let atlasMint = new PublicKey("ATLADWy6dnnY3McjmRvuvRZHR4WjYYtGGKS3duedyBmy");
 
-
 const app = express();
 const port = 3000;
+
+// Use the cors middleware
+app.use(cors());
 
 function convertToBase10(number, decimals) {
   const factor = Math.pow(10, decimals);
@@ -15,26 +18,6 @@ function convertToBase10(number, decimals) {
 }
 
 const auth = "PLRSGTRwq2rz8S62JFWbtFEixvetZ4v58KQWi21kLxg";
-// const mints = [
-//   "ammoK8AkX2wnebQb35cDAZtTkvsXQbi82cGeTnUvvfK",
-//   "tooLsNYLiVqzg8o4m3L2Uetbn62mvMWRqkog6PQeYKL",
-//   "fueL3hBZjLLLJHiFH9cqZoozTG3XQZ53diwFPwbzNim",
-//   "foodQJAztMzX1DKpLaiounNe2BDMds5RNuPC6jsNrDG",
-//   "HYDR4EPHJcDPcaLYUcNCtrXUdt1PnaN4MvE655pevBYp",
-//   "tiorehR1rLfeATZ96YoByUkvNFsBfUUSQWgSH2mizXL",
-//   "SiLiCA4xKGkyymB5XteUVmUeLqE4JGQTyWBpKFESLgh",
-//   "RCH1Zhg4zcSSQK8rw2s6rDMVsgBEWa4kiv1oLFndrN5",
-//   "Nitro6idW5JCb2ysUPGUAvVqv3HmUR7NVH7NdybGJ4L",
-//   "LUMACqD5LaKjs1AeuJYToybasTXoYQ7YkxJEc4jowNj",
-//   "FeorejFjRRAfusN9Fg3WjEZ1dRCf74o6xwT5vDt3R34J",
-//   "DMNDKqygEN3WXKVrAD4ofkYBc4CKNRhFUbXP4VK7a944",
-//   "CUore1tNkiubxSwDEtLc3Ybs1xfWLs8uGjyydUYZ25xc",
-//   "CARBWKWvxEuMcq3MqCxYfi7UoFVpL9c4rsQS99tw6i4X",
-//   "MASS9GqtJz6ABisAxcUn3FeR4phMqH1XfG6LPKJePog",
-//   "ARCoQ9dndpg6wE2rRexzfwgJR3NoWWhpcww3xQcQLukg"
-// ];
-
-
 
 const mints = [
   "AMMUxMuL93NDbTzCE6ntjF8U6fMdtiw6VbXS3FiLfaZd", //devnet
@@ -54,8 +37,6 @@ const mints = [
   "MASS9GqtJz6ABisAxcUn3FeR4phMqH1XfG6LPKJePog",
   "ARCoQ9dndpg6wE2rRexzfwgJR3NoWWhpcww3xQcQLukg"
 ];
-
-
 
 let categories = [
   {
@@ -86,7 +67,6 @@ let categories = [
   }
 ];
 
-// Function to remove specific keys from each object in the array
 function removeKeys(arr, keys) {
   arr.forEach(obj => {
     keys.forEach(key => {
@@ -94,8 +74,6 @@ function removeKeys(arr, keys) {
     });
   });
 }
-
-
 
 async function getMarketStatus(resourceAuth, resourceMint, categoryName, assetName) {
   console.log("Getting mint:", resourceMint.toBase58())
@@ -123,27 +101,22 @@ async function getMarketStatus(resourceAuth, resourceMint, categoryName, assetNa
         let TradeData = await fetchAndDeserializeMarketAccountData(marketPDA.toBase58());
         console.log(TradeData.beneficiary_resource_account);
         console.log(TradeData.beneficiary_atlast_account);
-    
+
         TradeData.resourceBalanceinVault = convertToBase10(resourceBalanceinVault,0);
         TradeData.atlasBalanceInVault = convertToBase10(atlasBalanceInVault,8);
-    
+
         //console.log(TradeData);
-    
+
         console.log(resourceBalanceinVault < TradeData.minimum_buy_qty);
         console.log("Resource is sold out");
-    
-        updateAssetInfo(categoryName, assetName, TradeData);
-    
-    
 
+        updateAssetInfo(categoryName, assetName, TradeData);
     }
     else
     {
       console.log("No Vault Data")
     }
 
-
-    // Sample data
     const data = [
       categories[0].assets[0],
       categories[0].assets[1],
@@ -163,22 +136,11 @@ async function getMarketStatus(resourceAuth, resourceMint, categoryName, assetNa
       categories[1].assets[11],
     ];
 
-    // Keys to remove
     const keysToRemove = ["beneficiary_resource_account", "beneficiary_atlast_account","vaultAuth","beneficiary_percent","mint","rarity"];
 
-    // Removing the keys
     removeKeys(data, keysToRemove);
 
-
     console.table(data);
-
-    // console.log(categories[0].assets[0])
-    // console.log('-----NAME-----------ResourceQty----------ATLASqty-----------SellPrice---------------BuyPrice')
-    // console.log('--------------------------------------------------------------------------------------------')
-    // console.log('|   ',categories[0].assets[0].name,'   |      ',categories[0].assets[0].resourceBalanceinVault,'   |      ',categories[0].assets[0].atlasBalanceInVault,'   |      ',categories[0].assets[0].sell_price,'   |      ',categories[0].assets[0].buy_price,'   |      ',categories[0].assets[0].beneficiary_percent.toFixed(2))
-
-
-
   } catch (error) {
     console.log(error);
   }
@@ -189,15 +151,15 @@ function updateAssetInfo(categoryName, assetName, newInfo) {
     if (category.name === categoryName) {
       for (let asset of category.assets) {
         if (asset.name === assetName) {
-          asset.minimum_buy_qty = newInfo.minimum_buy_qty.toString(); // Convert BigInt to string
-          asset.buy_price = newInfo.buy_price.toString(); // Convert to string if necessary
-          asset.minimum_sell_qty = newInfo.minimum_sell_qty.toString(); // Convert BigInt to string
-          asset.sell_price = newInfo.sell_price.toString(); // Convert to string if necessary
+          asset.minimum_buy_qty = newInfo.minimum_buy_qty.toString();
+          asset.buy_price = newInfo.buy_price.toString();
+          asset.minimum_sell_qty = newInfo.minimum_sell_qty.toString();
+          asset.sell_price = newInfo.sell_price.toString();
           asset.beneficiary_atlast_account = newInfo.beneficiary_atlast_account;
           asset.beneficiary_resource_account = newInfo.beneficiary_resource_account;
           asset.beneficiary_percent = newInfo.beneficiary_percent;
-          asset.resourceBalanceinVault = newInfo.resourceBalanceinVault.toString(); // Convert to string if necessary
-          asset.atlasBalanceInVault = newInfo.atlasBalanceInVault.toString(); // Convert to string if necessary
+          asset.resourceBalanceinVault = newInfo.resourceBalanceinVault.toString();
+          asset.atlasBalanceInVault = newInfo.atlasBalanceInVault.toString();
           asset.soldOut = newInfo.resourceBalanceinVault < newInfo.minimum_buy_qty;
         }
       }
@@ -209,11 +171,11 @@ let mintIndex = 0;
 setInterval(async () => {
   try {
     await getMarketStatus(new PublicKey(auth), new PublicKey(mints[mintIndex]), 'Consumables', 'Ammo');
-    mintIndex = (mintIndex + 1) % mints.length; // Cycle through the mints array
+    mintIndex = (mintIndex + 1) % mints.length;
   } catch (error) {
     console.error('Error during scheduled market status update:', error);
   }
-}, 10000); // 10000 ms = 10 seconds
+}, 10000);
 
 app.get('/market-status', (req, res) => {
   res.json(categories);
@@ -224,4 +186,4 @@ app.listen(port, () => {
 });
 
 await getMarketStatus(new PublicKey(auth), new PublicKey(mints[mintIndex]), 'Consumables', 'Ammo');
-mintIndex = (mintIndex + 1) % mints.length; // Cycle through the mints array
+mintIndex = (mintIndex + 1) % mints.length;
