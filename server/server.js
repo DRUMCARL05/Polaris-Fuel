@@ -1,5 +1,5 @@
 import express from 'express';
-import cors from 'cors'; // Import the cors package
+import cors from 'cors';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { findOrCreateAssociatedTokenAccount, getTokenBalance, fetchAndDeserializeMarketAccountData } from './utils.js';
 
@@ -9,7 +9,6 @@ let atlasMint = new PublicKey("ATLADWy6dnnY3McjmRvuvRZHR4WjYYtGGKS3duedyBmy");
 const app = express();
 const port = 3000;
 
-// Use the cors middleware
 app.use(cors());
 
 function convertToBase10(number, decimals) {
@@ -42,27 +41,27 @@ let categories = [
   {
     name: 'Consumables',
     assets: [
-      { name: 'Ammo', soldOut: null ,mint: mints[0], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null },
-      { name: 'Food', soldOut: true ,mint: mints[3], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null },
-      { name: 'Fuel', soldOut: true ,mint: mints[2], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null },
-      { name: 'Toolkit', soldOut: true ,mint: mints[1], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null }
+      { name: 'Ammo', soldOut: null, mint: mints[0], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null },
+      { name: 'Food', soldOut: true, mint: mints[3], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null },
+      { name: 'Fuel', soldOut: true, mint: mints[2], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null },
+      { name: 'Toolkit', soldOut: true, mint: mints[1], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null }
     ]
   },
   {
     name: 'Raw Material',
     assets: [
-      { name: 'Arco', soldOut: true ,mint: mints[15], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null },
-      { name: 'Biomass', soldOut: true ,mint: mints[14], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price:  null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null },
-      { name: 'Copper Ore', soldOut: true ,mint: mints[12], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price:  null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null },
-      { name: 'Carbon', soldOut: true ,mint: mints[11], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price:  null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null },
-      { name: 'Diamond', soldOut: true ,mint: mints[10], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price:  null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null },
-      { name: 'Hydrogen', soldOut: true ,mint: mints[4], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price:  null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null },
-      { name: 'Iron Ore', soldOut: true ,mint: mints[9], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price:  null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null },
-      { name: 'Lumanite', soldOut: true ,mint: mints[8], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price:  null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null },
-      { name: 'Nitrogen', soldOut: true ,mint: mints[7], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price:  null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null },
-      { name: 'Rochinol', soldOut: true ,mint: mints[6], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price:  null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null },
-      { name: 'Silica', soldOut: true ,mint: mints[5], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price:  null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null },
-      { name: 'Titanium Ore', soldOut: true ,mint: mints[16], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price:  null, rarity: 'Common', resourceBalanceinVault:null,atlasBalanceInVault:null }
+      { name: 'Arco', soldOut: true, mint: mints[15], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null },
+      { name: 'Biomass', soldOut: true, mint: mints[14], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null },
+      { name: 'Copper Ore', soldOut: true, mint: mints[12], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null },
+      { name: 'Carbon', soldOut: true, mint: mints[11], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null },
+      { name: 'Diamond', soldOut: true, mint: mints[10], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null },
+      { name: 'Hydrogen', soldOut: true, mint: mints[4], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null },
+      { name: 'Iron Ore', soldOut: true, mint: mints[9], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null },
+      { name: 'Lumanite', soldOut: true, mint: mints[8], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null },
+      { name: 'Nitrogen', soldOut: true, mint: mints[7], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null },
+      { name: 'Rochinol', soldOut: true, mint: mints[6], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null },
+      { name: 'Silica', soldOut: true, mint: mints[5], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null },
+      { name: 'Titanium Ore', soldOut: true, mint: mints[16], vaultAuth: auth, beneficiary_percent: null, beneficiary_atlast_account: null, beneficiary_resource_account: null, minimum_buy_qty: null, minimum_sell_qty: null, sell_price: null, buy_price: null, rarity: 'Common', resourceBalanceinVault: null, atlasBalanceInVault: null }
     ]
   }
 ];
@@ -76,11 +75,8 @@ function removeKeys(arr, keys) {
 }
 
 async function getMarketStatus(resourceAuth, resourceMint, categoryName, assetName) {
-  console.log("Getting mint:", resourceMint.toBase58())
+  console.log("Getting mint:", resourceMint.toBase58());
   try {
-    console.log("Getting Vault Info");
-
-    // Generate PDA
     let marketSeeds = [resourceAuth.toBuffer(), resourceMint.toBuffer()];
     const [marketPDA, marketBump] = PublicKey.findProgramAddressSync(marketSeeds, programId);
 
@@ -89,55 +85,20 @@ async function getMarketStatus(resourceAuth, resourceMint, categoryName, assetNa
     let pdaResourceInfo = await findOrCreateAssociatedTokenAccount(resourceMint, null, marketPDA);
     let pdaAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint, null, marketPDA);
 
-    console.log("Getting PDA Balance");
-
     let resourceBalanceinVault = await getTokenBalance(pdaResourceInfo.ata.toBase58());
     let atlasBalanceInVault = await getTokenBalance(pdaAtlasInfo.ata.toBase58());
 
-    if(resourceBalanceinVault && atlasBalanceInVault)
-    {
-        console.log({ resourceBalanceinVault, atlasBalanceInVault });
+    if (resourceBalanceinVault && atlasBalanceInVault) {
+      let TradeData = await fetchAndDeserializeMarketAccountData(marketPDA.toBase58());
 
-        let TradeData = await fetchAndDeserializeMarketAccountData(marketPDA.toBase58());
-        console.log(TradeData.beneficiary_resource_account);
-        console.log(TradeData.beneficiary_atlast_account);
+      TradeData.resourceBalanceinVault = convertToBase10(resourceBalanceinVault, 0);
+      TradeData.atlasBalanceInVault = convertToBase10(atlasBalanceInVault, 8);
 
-        TradeData.resourceBalanceinVault = convertToBase10(resourceBalanceinVault,0);
-        TradeData.atlasBalanceInVault = convertToBase10(atlasBalanceInVault,8);
-
-        //console.log(TradeData);
-
-        console.log(resourceBalanceinVault < TradeData.minimum_buy_qty);
-        console.log("Resource is sold out");
-
-        updateAssetInfo(categoryName, assetName, TradeData);
-    }
-    else
-    {
-      console.log("No Vault Data")
+      updateAssetInfo(categoryName, assetName, TradeData);
     }
 
-    const data = [
-      categories[0].assets[0],
-      categories[0].assets[1],
-      categories[0].assets[2],
-      categories[0].assets[3],
-      categories[1].assets[0],
-      categories[1].assets[1],
-      categories[1].assets[2],
-      categories[1].assets[3],
-      categories[1].assets[4],
-      categories[1].assets[5],
-      categories[1].assets[6],
-      categories[1].assets[7],
-      categories[1].assets[8],
-      categories[1].assets[9],
-      categories[1].assets[10],
-      categories[1].assets[11],
-    ];
-
-    const keysToRemove = ["beneficiary_resource_account", "beneficiary_atlast_account","vaultAuth","beneficiary_percent","mint","rarity"];
-
+    const data = categories.flatMap(category => category.assets);
+    const keysToRemove = ["beneficiary_resource_account", "beneficiary_atlast_account", "vaultAuth", "beneficiary_percent", "mint", "rarity"];
     removeKeys(data, keysToRemove);
 
     console.table(data);
@@ -167,11 +128,24 @@ function updateAssetInfo(categoryName, assetName, newInfo) {
   }
 }
 
-let mintIndex = 0;
+function getCategoryAndAssetNames() {
+  const categoryAssetPairs = [];
+  for (let category of categories) {
+    for (let asset of category.assets) {
+      categoryAssetPairs.push({ categoryName: category.name, assetName: asset.name });
+    }
+  }
+  return categoryAssetPairs;
+}
+
+let categoryAssetPairs = getCategoryAndAssetNames();
+let pairIndex = 0;
+
 setInterval(async () => {
   try {
-    await getMarketStatus(new PublicKey(auth), new PublicKey(mints[mintIndex]), 'Consumables', 'Ammo');
-    mintIndex = (mintIndex + 1) % mints.length;
+    const { categoryName, assetName } = categoryAssetPairs[pairIndex];
+    await getMarketStatus(new PublicKey(auth), new PublicKey(mints[pairIndex]), categoryName, assetName);
+    pairIndex = (pairIndex + 1) % categoryAssetPairs.length;
   } catch (error) {
     console.error('Error during scheduled market status update:', error);
   }
@@ -185,5 +159,5 @@ app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
 
-await getMarketStatus(new PublicKey(auth), new PublicKey(mints[mintIndex]), 'Consumables', 'Ammo');
-mintIndex = (mintIndex + 1) % mints.length;
+await getMarketStatus(new PublicKey(auth), new PublicKey(mints[pairIndex]), categoryAssetPairs[pairIndex].categoryName, categoryAssetPairs[pairIndex].assetName);
+pairIndex = (pairIndex + 1) % categoryAssetPairs.length;
