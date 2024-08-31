@@ -31,27 +31,27 @@ export default function Home() {
     {
       name: 'Consumables',
       assets: [
-        { name: 'Ammo', mint: ammoMint, vaultAuth: ammoAuth, image: '/ammo.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
-        { name: 'Food', mint: "", vaultAuth: "", image: '/food.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
-        { name: 'Fuel', mint: "", vaultAuth: "", image: '/fuel.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
-        { name: 'Toolkit', mint: "", vaultAuth: "", image: '/tools.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false }
+        { name: 'Ammo', mint: ammoMint, vaultAuth: ammoAuth, image: '/ammo.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 },
+        { name: 'Food', mint: "", vaultAuth: "", image: '/food.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 },
+        { name: 'Fuel', mint: "", vaultAuth: "", image: '/fuel.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 },
+        { name: 'Toolkit', mint: "", vaultAuth: "", image: '/tools.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 }
       ]
     },
     {
       name: 'Raw Material',
       assets: [
-        { name: 'Arco', mint: "", vaultAuth: "", image: '/ARCO.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
-        { name: 'Biomass', mint: "", vaultAuth: "", image: '/BIOMASS.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
-        { name: 'Copper Ore', mint: "", vaultAuth: "", image: '/CUORE.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
-        { name: 'Carbon', mint: "", vaultAuth: "", image: '/CARBON.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
-        { name: 'Diamond', mint: "", vaultAuth: "", image: '/DIAMOND.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
-        { name: 'Hydrogen', mint: "", vaultAuth: "", image: '/HYG.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
-        { name: 'Iron Ore', mint: "", vaultAuth: "", image: '/FEORE.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
-        { name: 'Lumanite', mint: "", vaultAuth: "", image: '/LUMAN.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
-        { name: 'Nitrogen', mint: "", vaultAuth: "", image: '/NITRO.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
-        { name: 'Rochinol', mint: "", vaultAuth: "", image: '/ROCH.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
-        { name: 'Silica', mint: "", vaultAuth: "", image: '/SAND.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
-        { name: 'Titanium Ore', mint: "", vaultAuth: "", image: '/TIORE.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false }
+        { name: 'Arco', mint: "", vaultAuth: "", image: '/ARCO.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 },
+        { name: 'Biomass', mint: "", vaultAuth: "", image: '/BIOMASS.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 },
+        { name: 'Copper Ore', mint: "", vaultAuth: "", image: '/CUORE.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 },
+        { name: 'Carbon', mint: "", vaultAuth: "", image: '/CARBON.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 },
+        { name: 'Diamond', mint: "", vaultAuth: "", image: '/DIAMOND.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 },
+        { name: 'Hydrogen', mint: "", vaultAuth: "", image: '/HYG.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 },
+        { name: 'Iron Ore', mint: "", vaultAuth: "", image: '/FEORE.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 },
+        { name: 'Lumanite', mint: "", vaultAuth: "", image: '/LUMAN.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 },
+        { name: 'Nitrogen', mint: "", vaultAuth: "", image: '/NITRO.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 },
+        { name: 'Rochinol', mint: "", vaultAuth: "", image: '/ROCH.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 },
+        { name: 'Silica', mint: "", vaultAuth: "", image: '/SAND.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 },
+        { name: 'Titanium Ore', mint: "", vaultAuth: "", image: '/TIORE.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false,multiplier:1 }
       ]
     }
   ]);
@@ -330,8 +330,40 @@ export default function Home() {
     }
   }
 
+  function handleMultiplier(name, multiplier) {
+    console.log("Handling multiplier for asset:", name);
+    console.log("Multiplier value:", multiplier);
+
+    setCategories(prevCategories => {
+      return prevCategories.map(category => {
+        console.log("Checking category:", category.name);
+        const updatedAssets = category.assets.map(a => {
+          console.log("Checking asset:", a.name);
+          if (a.name === name) {
+            console.log("Found matching asset:", a.name);
+            console.log("Old multiplier:", a.multiplier);
+            const newMultiplier = a.multiplier + multiplier;
+            console.log("New multiplier:", newMultiplier);
+
+            return {
+              ...a,
+              multiplier: newMultiplier
+            };
+          }
+          return a;
+        });
+
+        return {
+          ...category,
+          assets: updatedAssets
+        };
+      });
+    });
+  }
+
   async function buttonClick(asset,activeTap) {
     console.log(asset);
+
 
     const provider = getProvider(); // see "Detecting the Provider"
     let pubkey58;
@@ -408,7 +440,7 @@ export default function Home() {
           new PublicKey(TradeData.beneficiary_atlast_account),
           new PublicKey(configData.fee_star_atlas_account),
           new PublicKey(configData.fee_sol_account),
-          1
+          asset.multiplier
         );
 
       }
@@ -449,7 +481,7 @@ export default function Home() {
             rewardMint,
             rewardMintAccount.ata,
             rewardMintAuthPDA,
-            1
+            asset.multiplier
           );
   
         }
@@ -458,7 +490,7 @@ export default function Home() {
 
     transaction.add(polarisIx);
 
-    const { blockhash } = await connection.getRecentBlockhash();
+    const { blockhash } = await connection.getLatestBlockhash();
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = provider.publicKey;
 
@@ -492,14 +524,14 @@ export default function Home() {
       <div className="mobileLayout">
         <div className="glow"></div>
         <Nav deleteUsrObject={deleteUsrObject} updateUsrObject={updateUsrObject} setButtonText={setButtonText}  getProvider={getProvider} buttonText={buttonText} activeLink={activeTab} onLinkClick={buttonPressed}>
-          <Scroller categories={categories} buttonClick={buttonClick} activeTab={activeTab} />
+          <Scroller handleMultiplier={handleMultiplier} categories={categories} buttonClick={buttonClick} activeTab={activeTab} />
         </Nav>
         <Bottom pxp={0} />
       </div>
       <div className="desktopVersion">
         <div className="glow"></div>
         <Nav deleteUsrObject={deleteUsrObject} updateUsrObject={updateUsrObject} setButtonText={setButtonText}  getProvider={getProvider} buttonText={buttonText} activeLink={activeTab} onLinkClick={buttonPressed}>
-          <Scroller categories={categories} buttonClick={buttonClick} activeTab={activeTab} />
+          <Scroller handleMultiplier={handleMultiplier} categories={categories} buttonClick={buttonClick} activeTab={activeTab} />
         </Nav>
         <Bottom pxp={0} />
       </div>

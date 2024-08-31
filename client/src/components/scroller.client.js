@@ -6,7 +6,7 @@ import { LuInfo } from "react-icons/lu";
 import bg from '../../public/backgroundButtonManage.png';
 import { FaAngleDown } from "react-icons/fa6";
 
-export default function Scroller({ categories, buttonClick, activeTab }) {
+export default function Scroller({ categories, buttonClick, activeTab,handleMultiplier }) {
   const rowHeightRem = 23;
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(categories.length > 0 ? 0 : -1);
   const [localCategories, setLocalCategories] = useState([]);
@@ -192,7 +192,7 @@ export default function Scroller({ categories, buttonClick, activeTab }) {
                           {asset.rarity}
                         </h3>
                       </div>
-                      {asset.image && <img src={asset.image} alt={asset.name} className={styles.assetImage} />}
+                      {asset.image && <img draggable={false} src={asset.image} alt={asset.name} className={styles.assetImage} />}
                     </div>
 
                     <div className={styles.amountDetails}>
@@ -200,14 +200,14 @@ export default function Scroller({ categories, buttonClick, activeTab }) {
                         <p className={styles.heading}>{activeTab === 'Buy' ? 'Buying amount' : 'Selling amount'}</p>
                         <p className={styles.buyingAmount}>
                           {activeTab === 'Buy'
-                            ? numberToScale(asset.minimum_buy_qty)
+                            ? numberToScale(asset.minimum_buy_qty*asset.multiplier)
                             : numberToScale(asset.minimum_sell_qty)}
                         </p>
                       </div>
                       <div className={styles.totalCost}>
                         <p className={styles.heading}>{activeTab === 'Buy' ? 'Total Cost' : 'Total Earnings'}</p>
                         <p className={styles.totalCostAmount}>
-                          {numberToScale(activeTab === 'Buy' ? asset.buy_price : asset.sell_price)}
+                          {numberToScale(activeTab === 'Buy' ? asset.buy_price*asset.multiplier : asset.sell_price)}
                           <img src="/atlasIcon.svg" alt="Atlas Icon" />
                         </p>
                       </div>
@@ -220,25 +220,25 @@ export default function Scroller({ categories, buttonClick, activeTab }) {
                         <LuInfo style={{ opacity: 0.5 }} />
                       </div>
                       <div className={styles.allManageButtons}>
-                        <div className={styles.manageButton} onClick={() => { addValue('1M Add') }} style={{
+                        <div className={styles.manageButton} onClick={() => { handleMultiplier(asset.name,1) }} style={{
                           backgroundImage: `url(${bg.src})`,
                           backgroundSize: 'cover',
                           backgroundRepeat: 'no-repeat',
                           backgroundPosition: 'center'
                         }}>+1M</div>
-                        <div className={styles.manageButton} onClick={() => { addValue('10M Add') }} style={{
+                        <div className={styles.manageButton} onClick={() => {  handleMultiplier(asset.name,10) }} style={{
                           backgroundImage: `url(${bg.src})`,
                           backgroundSize: 'cover',
                           backgroundRepeat: 'no-repeat',
                           backgroundPosition: 'center'
                         }}>+10M</div>
-                        <div className={styles.manageButton} onClick={() => { addValue('1M Less') }} style={{
+                        <div className={styles.manageButton} onClick={() => { handleMultiplier(asset.name,-1) }} style={{
                           backgroundImage: `url(${bg.src})`,
                           backgroundSize: 'cover',
                           backgroundRepeat: 'no-repeat',
                           backgroundPosition: 'center'
                         }}>-1M</div>
-                        <div className={styles.manageButton} onClick={() => { addValue('10M Less') }} style={{
+                        <div className={styles.manageButton} onClick={() => { handleMultiplier(asset.name,-10) }} style={{
                           backgroundImage: `url(${bg.src})`,
                           backgroundSize: 'cover',
                           backgroundRepeat: 'no-repeat',
@@ -327,22 +327,22 @@ export default function Scroller({ categories, buttonClick, activeTab }) {
                             {subAsset.rarity}
                           </h3>
                         </div>
-                        {subAsset.image && <img src={subAsset.image} alt={subAsset.name} className={styles.assetImage} />}
+                        {subAsset.image && <img draggable={false} src={subAsset.image} alt={subAsset.name} className={styles.assetImage} />}
                       </div>
 
                       <div className={styles.amountDetails}>
                         <div className={styles.buying}>
-                          <p className={styles.heading}>{activeTab === 'Buy' ? 'Buying amount' : 'Selling amount'}</p>
+                          <p style={{ cursor: 'pointer' }} className={styles.heading}>{activeTab === 'Buy' ? 'Buying amount' : 'Selling amount'}</p>
                           <p className={styles.buyingAmount}>
                             {activeTab === 'Buy'
-                              ? numberToScale(subAsset.minimum_buy_qty)
+                              ? numberToScale(asset.minimum_buy_qty*asset.multiplier)
                               : numberToScale(subAsset.minimum_sell_qty)}
                           </p>
                         </div>
                         <div className={styles.totalCost}>
-                          <p className={styles.heading}>{activeTab === 'Buy' ? 'Total Cost' : 'Total Earnings'}</p>
+                          <p style={{ cursor: 'pointer' }} className={styles.heading}>{activeTab === 'Buy' ? 'Total Cost' : 'Total Earnings'}</p>
                           <p className={styles.totalCostAmount}>
-                            {numberToScale(activeTab === 'Buy' ? subAsset.buy_price : subAsset.sell_price)}
+                            {numberToScale(activeTab === 'Buy' ? subAsset.buy_price * asset.multiplier : subAsset.sell_price)}
                             <img style={{ marginTop: 1 }} src="/atlasIcon.svg" alt="Atlas Icon" />
                           </p>
                         </div>
@@ -355,29 +355,33 @@ export default function Scroller({ categories, buttonClick, activeTab }) {
                           <LuInfo style={{ opacity: 0.5 }} />
                         </div>
                         <div className={styles.allManageButtons}>
-                          <div className={styles.manageButton} onClick={() => { addValue('1M Add') }} style={{
+                          <div className={styles.manageButton} onClick={() => { handleMultiplier(asset.name,1) }} style={{
                             backgroundImage: `url(${bg.src})`,
                             backgroundSize: 'cover',
                             backgroundRepeat: 'no-repeat',
-                            backgroundPosition: 'center'
+                            backgroundPosition: 'center',
+                            cursor:"pointer"
                           }}>+1M</div>
-                          <div className={styles.manageButton} onClick={() => { addValue('10M Add') }} style={{
+                          <div className={styles.manageButton} onClick={() => {  handleMultiplier(asset.name,10) }} style={{
                             backgroundImage: `url(${bg.src})`,
                             backgroundSize: 'cover',
                             backgroundRepeat: 'no-repeat',
-                            backgroundPosition: 'center'
+                            backgroundPosition: 'center',
+                            cursor:"pointer"
                           }}>+10M</div>
-                          <div className={styles.manageButton} onClick={() => { addValue('1M Less') }} style={{
+                          <div className={styles.manageButton} onClick={() => { handleMultiplier(asset.name,-1) }} style={{
                             backgroundImage: `url(${bg.src})`,
                             backgroundSize: 'cover',
                             backgroundRepeat: 'no-repeat',
-                            backgroundPosition: 'center'
+                            backgroundPosition: 'center',
+                            cursor:"pointer"
                           }}>-1M</div>
-                          <div className={styles.manageButton} onClick={() => { addValue('10M Less') }} style={{
+                          <div className={styles.manageButton} onClick={() => { handleMultiplier(asset.name,-10) }} style={{
                             backgroundImage: `url(${bg.src})`,
                             backgroundSize: 'cover',
                             backgroundRepeat: 'no-repeat',
-                            backgroundPosition: 'center'
+                            backgroundPosition: 'center',
+                            cursor:"pointer"
                           }}>-10M</div>
                         </div>
                       </div>
