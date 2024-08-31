@@ -25,6 +25,8 @@ let connection = new Connection('https://devnet.helius-rpc.com/?api-key=5f494e50
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('Buy');
+  const [buttonText, setButtonText] = useState('Connect Wallet');
+  const [usrObject, setUsrObject] = useState({ pubkey: "", pxp: "" });
   const [categories, setCategories] = useState([
     {
       name: 'Consumables',
@@ -72,6 +74,7 @@ export default function Home() {
       })
     );
   };
+  
 
   async function getMarketStatus(resourceAuth, resourceMint) {
     try {
@@ -116,7 +119,32 @@ export default function Home() {
     }
   }
 
+  const updateUsrObject = (newPubkey, newPxp) => {
+    const updatedUsrObject = { pubkey: newPubkey, pxp: newPxp };
+    setUsrObject(updatedUsrObject);
+    localStorage.setItem('usrObject', JSON.stringify(updatedUsrObject));
+  };
+
+  const deleteUsrObject = () => {
+    localStorage.removeItem('usrObject');
+    setUsrObject({ pubkey: "", pxp: "" });
+  };
+
   useEffect(() => {
+
+    const storedUsrObject = localStorage.getItem('usrObject');
+
+    if (storedUsrObject) {
+      try {
+        // Parse the object since local storage saves it as a string
+        const parsedUsrObject = JSON.parse(storedUsrObject);
+        setUsrObject(parsedUsrObject);
+        setButtonText(parsedUsrObject.pubkey.slice(0,3)+"..."+parsedUsrObject.pubkey.slice(-3))
+      } catch (error) {
+        console.error('Error parsing usrObject:', error);
+      }
+    }
+
     const onBoot = async () => {
       try {
         console.log("App Loaded");
@@ -421,14 +449,14 @@ export default function Home() {
     <div>
       <div className="mobileLayout">
         <div className="glow"></div>
-        <Nav activeLink={activeTab} onLinkClick={buttonPressed}>
+        <Nav deleteUsrObject={deleteUsrObject} updateUsrObject={updateUsrObject} setButtonText={setButtonText}  getProvider={getProvider} buttonText={buttonText} activeLink={activeTab} onLinkClick={buttonPressed}>
           <Scroller categories={categories} buttonClick={buttonClick} activeTab={activeTab} />
         </Nav>
         <Bottom />
       </div>
       <div className="desktopVersion">
         <div className="glow"></div>
-        <Nav activeLink={activeTab} onLinkClick={buttonPressed}>
+        <Nav deleteUsrObject={deleteUsrObject} updateUsrObject={updateUsrObject} setButtonText={setButtonText}  getProvider={getProvider} buttonText={buttonText} activeLink={activeTab} onLinkClick={buttonPressed}>
           <Scroller categories={categories} buttonClick={buttonClick} activeTab={activeTab} />
         </Nav>
         <Bottom />
