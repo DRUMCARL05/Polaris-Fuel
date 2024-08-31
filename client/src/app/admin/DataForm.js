@@ -112,7 +112,7 @@ function DataForm() {
         
         transaction.add(atlastransferInstruction)
 
-        const { blockhash } = await connection.getRecentBlockhash();
+        const { blockhash } = await connection.getLatestBlockhash();
         transaction.recentBlockhash = blockhash;
         transaction.feePayer = provider.publicKey;
 
@@ -186,7 +186,7 @@ function DataForm() {
         
         transaction.add(spltransferInstruction)
 
-        const { blockhash } = await connection.getRecentBlockhash();
+        const { blockhash } = await connection.getLatestBlockhash();
         transaction.recentBlockhash = blockhash;
         transaction.feePayer = provider.publicKey;
 
@@ -570,7 +570,7 @@ function DataForm() {
         console.log(vaultIx)
         transaction.add(vaultIx)
 
-        const { blockhash } = await connection.getRecentBlockhash();
+        const { blockhash } = await connection.getLatestBlockhash();
         transaction.recentBlockhash = blockhash;
         transaction.feePayer = provider.publicKey;
 
