@@ -3,7 +3,19 @@
 import '../styles/homepage.css'
 import bg from '../../public/pxpBg.png'
 
-export default function Bottom() {
+export default function Bottom({ pxp }) {  // Accept pxp as a prop
+  // Determine the level based on the pxp value
+  let level = 'Bronze';
+  let levelImage = '/gold.png';
+
+  if (pxp >= 1000 && pxp < 2000) {
+    level = 'Silver';
+    levelImage = '/gold.png';
+  } else if (pxp >= 2000) {
+    level = 'Gold';
+    levelImage = '/gold.png';
+  }
+
   return (
     <div className="bottomPxp" style={{
         backgroundImage: `url(${bg.src})`,
@@ -12,12 +24,12 @@ export default function Bottom() {
         backgroundPosition: 'center'
     }}>
         <div className="level">
-            <img src="/gold.png" alt="Gold Level" />
-            <h3 className="levelText">Gold Level</h3>
+            <img src={levelImage} alt={`${level} Level`} />
+            <h3 className="levelText">{level} Level</h3>
         </div>
         <div className="pxp">
             <h3 className="currentHead">Current PXP</h3>
-            <h3 className="pxpValue">126,000</h3>
+            <h3 className="pxpValue">{pxp}</h3>  {/* Display the pxp value */}
         </div>
     </div>
   );

@@ -383,8 +383,13 @@ export default function Scroller({ categories, buttonClick, activeTab }) {
                       </div>
                     </div>
                     <button onClick={() => { buttonClick(subAsset, activeTab) }} className={styles.button}>
-                      {activeTab === 'Buy' ? `Buy ${subAsset.name}` : `Sell ${subAsset.name}`}
-                    </button>
+                    {asset.soldOut 
+                      ? 'SOLD OUT' 
+                      : activeTab === 'Buy' 
+                        ? `Buy ${asset.name}` 
+                        : `Sell ${asset.name}`
+                    }                   
+                  </button>
                   </div>
                 ))}
               </div>

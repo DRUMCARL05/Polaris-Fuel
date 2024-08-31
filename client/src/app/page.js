@@ -31,27 +31,27 @@ export default function Home() {
     {
       name: 'Consumables',
       assets: [
-        { name: 'Ammo', mint: ammoMint, vaultAuth: ammoAuth, image: '/ammo.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '20', rarity: 'Common', soldOut: false },
-        { name: 'Food', mint: "", vaultAuth: "", image: '/food.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '293', rarity: 'Common', soldOut: false },
-        { name: 'Fuel', mint: "", vaultAuth: "", image: '/fuel.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '10', rarity: 'Common', soldOut: false },
-        { name: 'Toolkit', mint: "", vaultAuth: "", image: '/tools.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '5', rarity: 'Common', soldOut: false }
+        { name: 'Ammo', mint: ammoMint, vaultAuth: ammoAuth, image: '/ammo.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
+        { name: 'Food', mint: "", vaultAuth: "", image: '/food.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
+        { name: 'Fuel', mint: "", vaultAuth: "", image: '/fuel.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
+        { name: 'Toolkit', mint: "", vaultAuth: "", image: '/tools.png', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false }
       ]
     },
     {
       name: 'Raw Material',
       assets: [
-        { name: 'Arco', mint: "", vaultAuth: "", image: '/ARCO.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '293', rarity: 'Common', soldOut: false },
-        { name: 'Biomass', mint: "", vaultAuth: "", image: '/BIOMASS.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '29', rarity: 'Common', soldOut: false },
-        { name: 'Copper Ore', mint: "", vaultAuth: "", image: '/CUORE.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '15', rarity: 'Common', soldOut: false },
-        { name: 'Carbon', mint: "", vaultAuth: "", image: '/CARBON.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '1', rarity: 'Common', soldOut: false },
-        { name: 'Diamond', mint: "", vaultAuth: "", image: '/DIAMOND.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '1', rarity: 'Common', soldOut: false },
-        { name: 'Hydrogen', mint: "", vaultAuth: "", image: '/HYG.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '1', rarity: 'Common', soldOut: false },
-        { name: 'Iron Ore', mint: "", vaultAuth: "", image: '/FEORE.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '1', rarity: 'Common', soldOut: false },
-        { name: 'Lumanite', mint: "", vaultAuth: "", image: '/LUMAN.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '1', rarity: 'Common', soldOut: false },
-        { name: 'Nitrogen', mint: "", vaultAuth: "", image: '/NITRO.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '1', rarity: 'Common', soldOut: false },
-        { name: 'Rochinol', mint: "", vaultAuth: "", image: '/ROCH.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '1', rarity: 'Common', soldOut: false },
-        { name: 'Silica', mint: "", vaultAuth: "", image: '/SAND.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '1', rarity: 'Common', soldOut: false },
-        { name: 'Titanium Ore', mint: "", vaultAuth: "", image: '/TIORE.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: '100000', minimum_sell_qty: '100000', sell_price: "20", buy_price: '1', rarity: 'Common', soldOut: false }
+        { name: 'Arco', mint: "", vaultAuth: "", image: '/ARCO.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
+        { name: 'Biomass', mint: "", vaultAuth: "", image: '/BIOMASS.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
+        { name: 'Copper Ore', mint: "", vaultAuth: "", image: '/CUORE.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
+        { name: 'Carbon', mint: "", vaultAuth: "", image: '/CARBON.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
+        { name: 'Diamond', mint: "", vaultAuth: "", image: '/DIAMOND.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
+        { name: 'Hydrogen', mint: "", vaultAuth: "", image: '/HYG.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
+        { name: 'Iron Ore', mint: "", vaultAuth: "", image: '/FEORE.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
+        { name: 'Lumanite', mint: "", vaultAuth: "", image: '/LUMAN.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
+        { name: 'Nitrogen', mint: "", vaultAuth: "", image: '/NITRO.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
+        { name: 'Rochinol', mint: "", vaultAuth: "", image: '/ROCH.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
+        { name: 'Silica', mint: "", vaultAuth: "", image: '/SAND.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false },
+        { name: 'Titanium Ore', mint: "", vaultAuth: "", image: '/TIORE.webp', beneficiary_percent: 0, beneficiary_atlast_account: "", beneficiary_resource_account: "", minimum_buy_qty: 0, minimum_sell_qty: 0, sell_price: 0, buy_price: 0, rarity: 'Common', soldOut: false }
       ]
     }
   ]);
@@ -131,31 +131,73 @@ export default function Home() {
   };
 
   useEffect(() => {
-
     const storedUsrObject = localStorage.getItem('usrObject');
-
+  
     if (storedUsrObject) {
       try {
-        // Parse the object since local storage saves it as a string
         const parsedUsrObject = JSON.parse(storedUsrObject);
         setUsrObject(parsedUsrObject);
-        setButtonText(parsedUsrObject.pubkey.slice(0,3)+"..."+parsedUsrObject.pubkey.slice(-3))
+        setButtonText(parsedUsrObject.pubkey.slice(0, 3) + "..." + parsedUsrObject.pubkey.slice(-3));
       } catch (error) {
         console.error('Error parsing usrObject:', error);
       }
     }
-
+  
+    const fetchMarketStatus = async () => {
+      try {
+        const response = await fetch('http://polaris.cheaprpc.com:3000/market-status');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log('Market Status:', data);
+        
+        // Update the categories based on the fetched market status
+        const updatedCategories = categories.map(category => {
+          return {
+            ...category,
+            assets: category.assets.map(asset => {
+              const correspondingAsset = data.find(
+                item => item.name === category.name && item.assets.find(a => a.name === asset.name)
+              );
+  
+              if (correspondingAsset) {
+                const updatedAsset = correspondingAsset.assets.find(a => a.name === asset.name);
+  
+                return {
+                  ...asset,
+                  soldOut: updatedAsset.soldOut,
+                  minimum_buy_qty: updatedAsset.minimum_buy_qty || asset.minimum_buy_qty,
+                  minimum_sell_qty: updatedAsset.minimum_sell_qty || asset.minimum_sell_qty,
+                  sell_price: updatedAsset.sell_price || asset.sell_price,
+                  buy_price: updatedAsset.buy_price || asset.buy_price,
+                  image: updatedAsset.soldOut ? '/soldout.png' : asset.image // Set image to /soldout.png if sold out
+                };
+              }
+  
+              return asset;
+            }),
+          };
+        });
+  
+        setCategories(updatedCategories);
+      } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+      }
+    };
+  
     const onBoot = async () => {
       try {
         console.log("App Loaded");
-        await getMarketStatus(categories[0].assets[0].vaultAuth, ammoMint);
+        await fetchMarketStatus(); // Fetch market status on app load
       } catch (error) {
         console.error(error);
       }
     };
-
+  
     onBoot();
   }, []); // Empty dependency array ensures this runs once on mount
+  
 
   useEffect(() => {
     console.log("Categories updated:", categories);
@@ -452,14 +494,14 @@ export default function Home() {
         <Nav deleteUsrObject={deleteUsrObject} updateUsrObject={updateUsrObject} setButtonText={setButtonText}  getProvider={getProvider} buttonText={buttonText} activeLink={activeTab} onLinkClick={buttonPressed}>
           <Scroller categories={categories} buttonClick={buttonClick} activeTab={activeTab} />
         </Nav>
-        <Bottom />
+        <Bottom pxp={0} />
       </div>
       <div className="desktopVersion">
         <div className="glow"></div>
         <Nav deleteUsrObject={deleteUsrObject} updateUsrObject={updateUsrObject} setButtonText={setButtonText}  getProvider={getProvider} buttonText={buttonText} activeLink={activeTab} onLinkClick={buttonPressed}>
           <Scroller categories={categories} buttonClick={buttonClick} activeTab={activeTab} />
         </Nav>
-        <Bottom />
+        <Bottom pxp={0} />
       </div>
     </div>
   );
