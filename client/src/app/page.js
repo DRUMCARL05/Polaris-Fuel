@@ -390,7 +390,9 @@ export default function Home() {
           if (a.name === name) {
             console.log("Found matching asset:", a.name);
             console.log("Old multiplier:", a.multiplier);
-            const newMultiplier = a.multiplier + multiplier;
+
+            const newMultiplier = Math.max(a.multiplier + multiplier, 0);
+
             console.log("New multiplier:", newMultiplier);
 
             return {
@@ -408,6 +410,7 @@ export default function Home() {
       });
     });
   }
+
   async function buttonClick(asset, activeTap) {
     console.log(asset);
 
