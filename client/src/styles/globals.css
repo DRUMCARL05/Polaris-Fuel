@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inria+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap");
 
 :root {
   --max-width: 1100px;
@@ -82,7 +82,6 @@
   font-family: "Inria Sans", sans-serif;
 }
 
-
 html,
 body {
   max-width: 100vw;
@@ -99,13 +98,42 @@ a {
   text-decoration: none;
 }
 
-body, button, input, textarea {
-  font-family: 'Inria Sans', sans-serif !important;
+body,
+button,
+input,
+textarea {
+  font-family: "Inria Sans", sans-serif !important;
 }
-
 
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
+  }
+}
+
+.loaderContainer{
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center ;
+}
+.loader {
+  --d: 22px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  color: #FE6C04;
+  box-shadow: calc(1 * var(--d)) calc(0 * var(--d)) 0 0,
+    calc(0.707 * var(--d)) calc(0.707 * var(--d)) 0 1px,
+    calc(0 * var(--d)) calc(1 * var(--d)) 0 2px,
+    calc(-0.707 * var(--d)) calc(0.707 * var(--d)) 0 3px,
+    calc(-1 * var(--d)) calc(0 * var(--d)) 0 4px,
+    calc(-0.707 * var(--d)) calc(-0.707 * var(--d)) 0 5px,
+    calc(0 * var(--d)) calc(-1 * var(--d)) 0 6px;
+  animation: l27 1s infinite steps(8);
+}
+@keyframes l27 {
+  100% {
+    transform: rotate(1turn);
   }
 }

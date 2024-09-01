@@ -448,7 +448,6 @@ export default function Scroller({
                     {categories[desktopCategory].assets
                       .slice(index, index + 4)
                       .map((subAsset, subIndex) => {
-                        console.log(asset, "asset");
                         return (
                           <div key={subIndex} className={styles.desktopAsset}>
                             <div className={styles.details}>
