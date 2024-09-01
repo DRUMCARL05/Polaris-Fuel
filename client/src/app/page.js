@@ -178,7 +178,6 @@ export default function Home() {
   };
 
   useEffect(() => {
-    setIsLoading(true);
     const storedUsrObject = localStorage.getItem("usrObject");
     console.log("use effect on first load");
     if (storedUsrObject) {
@@ -196,9 +195,7 @@ export default function Home() {
     }
 
     const fetchMarketStatus = async () => {
-      console.log("fetchMarketStatus ============>>>>>>>>>>>>>>");
       try {
-        setIsLoading(true);
         const response = await fetch(
           "http://polaris.cheaprpc.com:3000/market-status"
         );
@@ -609,13 +606,18 @@ export default function Home() {
           activeLink={activeTab}
           onLinkClick={buttonPressed}
         >
-          {/* <Scroller
-            handleMultiplier={handleMultiplier}
-            categories={categories}
-            buttonClick={buttonClick}
-            activeTab={activeTab}
-          /> */}
-          <h2>hello</h2>
+          {!isLoading && categories.length > 0 ? (
+            <Scroller
+              handleMultiplier={handleMultiplier}
+              categories={categories}
+              buttonClick={buttonClick}
+              activeTab={activeTab}
+            />
+          ) : (
+            <div className="loaderContainer">
+              <div className="loader" />
+            </div>
+          )}
         </Nav>
         <Bottom pxp={0} />
       </div>
@@ -630,7 +632,7 @@ export default function Home() {
           activeLink={activeTab}
           onLinkClick={buttonPressed}
         >
-          {!isLoading ? (
+          {!isLoading && categories.length > 0 ? (
             <Scroller
               handleMultiplier={handleMultiplier}
               categories={categories}
