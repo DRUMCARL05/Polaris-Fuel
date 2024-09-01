@@ -90,7 +90,7 @@
 }
 
 .leftPart .foodName {
-  font-size: 32px;
+  font-size: 26px;
   margin-top: 0.3rem;
   text-transform: uppercase;
 }
@@ -105,7 +105,8 @@
 }
 
 .assetImage {
-  width: 8rem;
+  width: 5rem;
+  height: 4rem;
 }
 
 .amountDetails {
@@ -332,7 +333,7 @@
     /* Firefox */
     scroll-snap-type: y mandatory;
     overflow-y: scroll;
-    height: 29rem;
+    height: 27rem;
     /* Full viewport height */
     width: 100%;
     margin-top: 3rem;
