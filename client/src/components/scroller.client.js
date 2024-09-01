@@ -243,12 +243,16 @@ export default function Scroller({
                     <div className={styles.amountDetails}>
                       <div className={styles.buying}>
                         <p className={styles.heading}>
-                          {activeTab === "Buy"
+                          {asset.soldOut
+                            ? "SOLD OUT"
+                            : activeTab === "Buy"
                             ? "Buying amount"
                             : "Selling amount"}
                         </p>
                         <p className={styles.buyingAmount}>
-                          {activeTab === "Buy"
+                          {asset.soldOut
+                            ? "SOLD OUT"
+                            : activeTab === "Buy"
                             ? numberToScale(
                                 asset.minimum_buy_qty * asset.multiplier
                               )
@@ -257,13 +261,17 @@ export default function Scroller({
                       </div>
                       <div className={styles.totalCost}>
                         <p className={styles.heading}>
-                          {activeTab === "Buy"
+                          {asset.soldOut
+                            ? "SOLD OUT"
+                            : activeTab === "Buy"
                             ? "Total Cost"
                             : "Total Earnings"}
                         </p>
                         <p className={styles.totalCostAmount}>
                           {numberToScale(
-                            activeTab === "Buy"
+                            asset.soldOut
+                              ? "SOLD OUT"
+                              : activeTab === "Buy"
                               ? asset.buy_price * asset.multiplier
                               : asset.sell_price
                           )}
@@ -280,7 +288,9 @@ export default function Scroller({
                     <div className={styles.manageBuyingAmount}>
                       <div className={styles.topSectionManage}>
                         <h4 className={styles.headingManage}>
-                          {activeTab === "Buy"
+                          {asset.soldOut
+                            ? "SOLD OUT"
+                            : activeTab === "Buy"
                             ? "Manage Buying Amount"
                             : "Manage Selling Amount"}
                         </h4>
@@ -352,7 +362,9 @@ export default function Scroller({
                     }}
                     className={styles.button}
                   >
-                    {activeTab === "Buy"
+                    {asset.soldOut
+                      ? "SOLD OUT"
+                      : activeTab === "Buy"
                       ? `Buy ${asset.name}`
                       : `Sell ${asset.name}`}
                   </button>
@@ -481,12 +493,16 @@ export default function Scroller({
                                     style={{ cursor: "pointer" }}
                                     className={styles.heading}
                                   >
-                                    {activeTab === "Buy"
+                                    {asset.soldOut
+                                      ? "SOLD OUT"
+                                      : activeTab === "Buy"
                                       ? "Buying amount"
                                       : "Selling amount"}
                                   </p>
                                   <p className={styles.buyingAmount}>
-                                    {activeTab === "Buy"
+                                    {asset.soldOut
+                                      ? "SOLD OUT"
+                                      : activeTab === "Buy"
                                       ? numberToScale(
                                           subAsset.minimum_buy_qty *
                                             subAsset.multiplier
@@ -502,15 +518,19 @@ export default function Scroller({
                                     style={{ cursor: "pointer" }}
                                     className={styles.heading}
                                   >
-                                    {activeTab === "Buy"
+                                    {asset.soldOut
+                                      ? "SOLD OUT"
+                                      : activeTab === "Buy"
                                       ? "Total Cost"
                                       : "Total Earnings"}
                                   </p>
                                   <p className={styles.totalCostAmount}>
                                     {numberToScale(
-                                      activeTab === "Buy"
+                                      asset.soldOut
+                                        ? "SOLD OUT"
+                                        : activeTab === "Buy"
                                         ? subAsset.buy_price *
-                                            subAsset.multiplier
+                                          subAsset.multiplier
                                         : subAsset.sell_price
                                     )}
                                     <img
@@ -530,7 +550,9 @@ export default function Scroller({
                               <div className={styles.manageBuyingAmount}>
                                 <div className={styles.topSectionManage}>
                                   <h4 className={styles.headingManage}>
-                                    {activeTab === "Buy"
+                                    {asset.soldOut
+                                      ? "SOLD OUT"
+                                      : activeTab === "Buy"
                                       ? "Manage Buying Amount"
                                       : "Manage Selling Amount"}
                                   </h4>
@@ -607,6 +629,8 @@ export default function Scroller({
                               className={styles.button}
                             >
                               {asset.soldOut
+                                ? "SOLD OUT"
+                                : asset.soldOut
                                 ? "SOLD OUT"
                                 : activeTab === "Buy"
                                 ? `Buy ${subAsset.name}`
