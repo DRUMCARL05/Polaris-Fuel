@@ -83,7 +83,7 @@ export default function Scroller({
     return () => {
       container.removeEventListener("scroll", handleDesktopScroll);
     };
-  }, [activeRow]);
+  }, [activeRow, desktopCategory]);
 
   useEffect(() => {
     const ref = containerRef.current;
