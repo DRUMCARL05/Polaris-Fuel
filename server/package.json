@@ -10,6 +10,7 @@
     "@solana/spl-token": "^0.4.6",
     "@solana/web3.js": "^1.30.2",
     "cli-table": "^0.3.11",
+    "cors": "^2.8.5",
     "express": "^4.17.1"
   }
 }

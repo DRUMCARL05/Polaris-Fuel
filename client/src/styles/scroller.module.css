@@ -90,7 +90,7 @@
 }
 
 .leftPart .foodName {
-  font-size: 32px;
+  font-size: 26px;
   margin-top: 0.3rem;
   text-transform: uppercase;
 }
@@ -144,7 +144,7 @@
 
 .totalCostAmount,
 .buyingAmount {
-  font-size: 26px;
+  font-size: 32px;
   font-weight: 600;
 }
 
