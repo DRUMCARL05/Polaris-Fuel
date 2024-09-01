@@ -25,7 +25,10 @@ import {
 } from "@solana/spl-token";
 
 const Nav = dynamic(() => import("@/components/nav.client"), { ssr: false });
-const Scroller = dynamic(() => import("@/components/scroller.client"), {
+const ScrollerDesktop = dynamic(() => import("@/components/scrollerDesktop.client"), {
+  ssr: false,
+});
+const ScrollerMobile = dynamic(() => import("@/components/scrollerMobile.client"), {
   ssr: false,
 });
 const Bottom = dynamic(() => import("@/components/bottom.client"), {
@@ -607,7 +610,7 @@ export default function Home() {
           onLinkClick={buttonPressed}
         >
           {!isLoading && categories.length > 0 ? (
-            <Scroller
+            <ScrollerMobile
               handleMultiplier={handleMultiplier}
               categories={categories}
               buttonClick={buttonClick}
@@ -633,7 +636,7 @@ export default function Home() {
           onLinkClick={buttonPressed}
         >
           {!isLoading && categories.length > 0 ? (
-            <Scroller
+            <ScrollerDesktop
               handleMultiplier={handleMultiplier}
               categories={categories}
               buttonClick={buttonClick}
