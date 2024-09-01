@@ -551,7 +551,7 @@ export default function Scroller({
                                       cursor: "pointer",
                                     }}
                                   >
-                                    +1Mk
+                                    +1M
                                   </div>
                                   <div
                                     className={styles.manageButton}
