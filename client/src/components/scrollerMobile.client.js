@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from "react";
 import styles from "../styles/scroller.module.css";
 import { LuInfo } from "react-icons/lu";
 import bg from "../../public/backgroundButtonManage.png";
-import { FaAngleDown } from "react-icons/fa6";
 
 export default function Scroller({
   categories,
