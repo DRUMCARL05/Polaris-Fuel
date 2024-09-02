@@ -136,7 +136,6 @@ export default function Scroller({
     return <div>No assets to display</div>;
   }
 
-  console.log(activeAssetIndex, "activeAssetIndex");
   return (
     <div>
       <div className={styles.snappyContainer} ref={containerRef}>
