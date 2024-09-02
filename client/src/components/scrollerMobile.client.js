@@ -26,8 +26,6 @@ export default function Scroller({
 
   const containerRefs = useRef([]);
   const containerRef = useRef(null);
-  const [activeRow, setActiveRow] = useState(0);
-  const desktopContainerRef = useRef(null);
 
   const numberToScale = (number) => {
     const num = parseFloat(number);
