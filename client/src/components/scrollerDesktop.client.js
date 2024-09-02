@@ -253,10 +253,17 @@ export default function Scroller({
                                           src="/atlasIcon.svg"
                                           alt="Atlas Icon"
                                         />
-                                        {(subAsset.buy_price *
-                                          subAsset.multiplier) /
-                                          (subAsset.minimum_buy_qty *
-                                            subAsset.multiplier)}
+                                        {Number.isNaN(
+                                          (subAsset.buy_price *
+                                            subAsset.multiplier) /
+                                            (subAsset.minimum_buy_qty *
+                                              subAsset.multiplier)
+                                        )
+                                          ? 0
+                                          : (subAsset.buy_price *
+                                              subAsset.multiplier) /
+                                            (subAsset.minimum_buy_qty *
+                                              subAsset.multiplier)}
                                       </h3>
                                     </>
                                   )}
