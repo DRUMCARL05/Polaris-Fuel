@@ -93,13 +93,22 @@ export default function Scroller({
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+  
   useEffect(() => {
     const handleScroll = (catIndex) => {
       const container = containerRefs.current[catIndex].current;
       if (container) {
         const scrollPosition = container.scrollLeft;
         const assetWidth = container.clientWidth;
-        const newIndex = Math.floor(scrollPosition / assetWidth);
+
+        const tolerance = 5;
+
+        let newIndex;
+        if (scrollPosition <= tolerance) {
+          newIndex = 0;
+        } else {
+          newIndex = Math.floor(scrollPosition / assetWidth);
+        }
 
         if (activeAssetIndex[catIndex] !== newIndex) {
           let newIndexes = [...activeAssetIndex];
@@ -110,7 +119,7 @@ export default function Scroller({
     };
 
     const eventListeners = categories.map((category, index) => {
-      const container = containerRefs.current[index].current;
+      const container = containerRefs.current[index]?.current;
       if (container) {
         const eventListener = () => handleScroll(index);
         container.addEventListener("scroll", eventListener);
@@ -120,14 +129,13 @@ export default function Scroller({
     });
 
     return () => {
-      eventListeners.forEach((eventListener, index) => {
-        const container = containerRefs.current[index].current;
-        if (container) {
-          container.removeEventListener("scroll", eventListener);
+      eventListeners.forEach((removeEventListener) => {
+        if (removeEventListener) {
+          removeEventListener();
         }
       });
     };
-  }, [isRefAvailable]);
+  }, [isRefAvailable, activeAssetIndex]);
 
   if (
     !localCategories[activeCategoryIndex] ||
@@ -135,7 +143,6 @@ export default function Scroller({
   ) {
     return <div>No assets to display</div>;
   }
-
   return (
     <div>
       <div className={styles.snappyContainer} ref={containerRef}>
