@@ -165,7 +165,6 @@ export default function Scroller({
   ) {
     return <div>No assets to display</div>;
   }
-  console.log(categories, "categories");
   return (
     <div>
       <div className={styles.desktopLayout}>
@@ -216,6 +215,18 @@ export default function Scroller({
                     {categories[desktopCategory].assets
                       .slice(index, index + 4)
                       .map((subAsset, subIndex) => {
+                        console.log(
+                          (subAsset.buy_price * subAsset.multiplier) /
+                            (subAsset.minimum_buy_qty * subAsset.multiplier)
+                        );
+                        console.log(
+                          subAsset.buy_price * subAsset.multiplier,
+                          "(subAsset.buy_price * subAsset.multiplier)"
+                        );
+                        console.log(
+                          subAsset.minimum_buy_qty * subAsset.multiplier,
+                          "(subAsset.minimum_buy_qty * subAsset.multiplier)"
+                        );
                         return (
                           <div key={subIndex} className={styles.desktopAsset}>
                             <div className={styles.details}>
@@ -224,14 +235,31 @@ export default function Scroller({
                                   <h2 className={styles.foodName}>
                                     {subAsset.name}
                                   </h2>
-                                  <h3 className={styles.rarity}>
-                                    <img
-                                      style={{ marginTop: 2 }}
-                                      src="/atlasIcon.svg"
-                                      alt="Atlas Icon"
-                                    />
-                                    {subAsset.rarity}
-                                  </h3>
+                                  {!subAsset.soldOut && (
+                                    <>
+                                      <h3 className={styles.rarity}>
+                                        <img
+                                          style={{ marginTop: 2 }}
+                                          src="/atlasIcon.svg"
+                                          alt="Atlas Icon"
+                                        />
+                                        {activeTab === "Buy"
+                                          ? subAsset.resourceBalanceinVault
+                                          : subAsset.atlasBalanceInVault}
+                                      </h3>
+                                      <h3 className={styles.rarity}>
+                                        <img
+                                          style={{ marginTop: 2 }}
+                                          src="/atlasIcon.svg"
+                                          alt="Atlas Icon"
+                                        />
+                                        {(subAsset.buy_price *
+                                          subAsset.multiplier) /
+                                          (subAsset.minimum_buy_qty *
+                                            subAsset.multiplier)}
+                                      </h3>
+                                    </>
+                                  )}
                                 </div>
                                 {subAsset.image && (
                                   <img
