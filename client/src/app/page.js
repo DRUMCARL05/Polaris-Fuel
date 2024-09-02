@@ -440,6 +440,8 @@ export default function Home() {
 
     let payer = new PublicKey(pubkey58);
 
+    console.log(asset)
+
     //generate pda
     let marketSeeds = [asset.vaultAuth?.toBuffer(), asset.mint?.toBuffer()];
 
@@ -528,11 +530,19 @@ export default function Home() {
     }
 
     if (activeTab == "Sell") {
+
+
+      console.log("User is selling resources with multiplier:",asset.name,asset.multiplier)
+
+
+
       let rewardMintAccount = await findOrCreateAssociatedTokenAccount(
         rewardMint,
         payer,
         payer
       );
+
+
 
       console.log(
         "User has rewardMintAccount account:",
@@ -547,11 +557,19 @@ export default function Home() {
         transaction.add(rewardMintAccount.ataIx);
       }
 
+
+
       // derive the pda address for the Metadata account
       const rewardMintAuthPDA = PublicKey.findProgramAddressSync(
         [rewardMint.toBuffer()],
         programId
       )[0];
+
+      console.log("Reward Mint")
+      console.log(rewardMint.toBase58())
+
+      console.log("marketPDA")
+      console.log(marketPDA.toBase58())
 
       polarisIx = createSellInstruction(
         programId,
@@ -573,6 +591,7 @@ export default function Home() {
         asset.multiplier
       );
     }
+
 
     transaction.add(polarisIx);
 
