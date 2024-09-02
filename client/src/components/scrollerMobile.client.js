@@ -160,32 +160,70 @@ export default function Scroller({
                             {category.name}
                           </h2>
                           <h2 className={styles.foodName}>{asset.name}</h2>
-                          <h3 className={styles.rarity}>
-                            <svg
-                              width="10"
-                              height="10"
-                              viewBox="0 0 10 10"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <rect
-                                x="0.4"
-                                y="0.4"
-                                width="9.2"
-                                height="9.2"
-                                stroke="white"
-                                strokeWidth="0.8"
-                              />
-                              <rect
-                                x="2.22223"
-                                y="2.22222"
-                                width="5.55556"
-                                height="5.55556"
-                                fill="white"
-                              />
-                            </svg>
-                            {asset.rarity}
-                          </h3>
+                          {!asset.soldOut && (
+                            <>
+                              <h3 className={styles.rarity}>
+                                <svg
+                                  width="10"
+                                  height="10"
+                                  viewBox="0 0 10 10"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <rect
+                                    x="0.4"
+                                    y="0.4"
+                                    width="9.2"
+                                    height="9.2"
+                                    stroke="white"
+                                    strokeWidth="0.8"
+                                  />
+                                  <rect
+                                    x="2.22223"
+                                    y="2.22222"
+                                    width="5.55556"
+                                    height="5.55556"
+                                    fill="white"
+                                  />
+                                </svg>
+                                {activeTab === "Buy"
+                                  ? asset.resourceBalanceinVault
+                                  : asset.atlasBalanceInVault}
+                              </h3>
+                              <h3 className={styles.rarity}>
+                                <svg
+                                  width="10"
+                                  height="10"
+                                  viewBox="0 0 10 10"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <rect
+                                    x="0.4"
+                                    y="0.4"
+                                    width="9.2"
+                                    height="9.2"
+                                    stroke="white"
+                                    strokeWidth="0.8"
+                                  />
+                                  <rect
+                                    x="2.22223"
+                                    y="2.22222"
+                                    width="5.55556"
+                                    height="5.55556"
+                                    fill="white"
+                                  />
+                                </svg>
+                                {Number.isNaN(
+                                  (asset.buy_price * asset.multiplier) /
+                                    (asset.minimum_buy_qty * asset.multiplier)
+                                )
+                                  ? 0
+                                  : (asset.buy_price * asset.multiplier) /
+                                    (asset.minimum_buy_qty * asset.multiplier)}
+                              </h3>
+                            </>
+                          )}
                         </div>
                         {asset.image && (
                           <img
