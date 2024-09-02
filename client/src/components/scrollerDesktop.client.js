@@ -11,6 +11,7 @@ export default function Scroller({
   buttonClick,
   activeTab,
   handleMultiplier,
+  isBuyLoading,
 }) {
   const rowHeightRem = 23;
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(
@@ -164,7 +165,7 @@ export default function Scroller({
   ) {
     return <div>No assets to display</div>;
   }
-
+  console.log(categories, "categories");
   return (
     <div>
       <div className={styles.desktopLayout}>
@@ -372,7 +373,16 @@ export default function Scroller({
                                 buttonClick(subAsset, activeTab);
                               }}
                               className={styles.button}
+                              style={{
+                                display: "flex",
+                                gap: "10px",
+                                justifyContent: "center",
+                              }}
+                              disabled={isBuyLoading === subAsset.name}
                             >
+                              {isBuyLoading === subAsset.name && (
+                                <div className="btnLoader" />
+                              )}
                               {subAsset.soldOut
                                 ? "SOLD OUT"
                                 : activeTab === "Buy"

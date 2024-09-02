@@ -159,7 +159,6 @@
   width: 1rem;
 }
 
-
 .manageBuyingAmount {
   display: flex;
   flex-direction: column;
@@ -196,7 +195,6 @@
   width: 100%;
   font-size: 14px;
 }
-
 
 .button {
   padding: 14px 16px;
@@ -277,7 +275,7 @@
 }
 
 @media (min-width: 768px) {
-  .details{
+  .details {
     width: 20rem;
   }
 
@@ -392,7 +390,7 @@
   }
 }
 
-@media (min-width: 765px) and (max-width:1100px) {
+@media (min-width: 765px) and (max-width: 1100px) {
   .desktopAssetRow {
     display: grid;
     align-items: center;
@@ -424,7 +422,6 @@
     gap: 2rem;
   }
 }
-
 
 @media screen and (min-height: 750px) {
   .amountDetails {

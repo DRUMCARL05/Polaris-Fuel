@@ -25,12 +25,18 @@ import {
 } from "@solana/spl-token";
 
 const Nav = dynamic(() => import("@/components/nav.client"), { ssr: false });
-const ScrollerDesktop = dynamic(() => import("@/components/scrollerDesktop.client"), {
-  ssr: false,
-});
-const ScrollerMobile = dynamic(() => import("@/components/scrollerMobile.client"), {
-  ssr: false,
-});
+const ScrollerDesktop = dynamic(
+  () => import("@/components/scrollerDesktop.client"),
+  {
+    ssr: false,
+  }
+);
+const ScrollerMobile = dynamic(
+  () => import("@/components/scrollerMobile.client"),
+  {
+    ssr: false,
+  }
+);
 const Bottom = dynamic(() => import("@/components/bottom.client"), {
   ssr: false,
 });
@@ -54,7 +60,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [usrObject, setUsrObject] = useState({ pubkey: "", pxp: "" });
   const [categories, setCategories] = useState([]);
-
+  const [isBuyLoading, setIsBuyLoading] = useState("");
   const updateCategoryAsset = (categoryName, assetName, key, value) => {
     setCategories((prevCategories) =>
       prevCategories.map((category) => {
@@ -413,12 +419,17 @@ export default function Home() {
 
   async function buttonClick(asset, activeTap) {
     console.log(asset);
+    setIsBuyLoading(asset.name);
+    setTimeout(() => {
+      setIsBuyLoading(null);
+    }, 3000);
 
+    return 0;
     const provider = getProvider(); // see "Detecting the Provider"
     let pubkey58;
     try {
       const resp = await provider.connect();
-      console.log(resp.publicKey.toString());
+      console.log(resp.publicKey.toString(), "public api");
       pubkey58 = resp.publicKey.toString();
       // 26qv4GCcx98RihuK3c4T6ozB3J7L6VwCuFVc7Ta2A3Uo
     } catch (err) {
@@ -430,10 +441,10 @@ export default function Home() {
     let payer = new PublicKey(pubkey58);
 
     //generate pda
-    let marketSeeds = [asset.vaultAuth.toBuffer(), asset.mint.toBuffer()];
+    let marketSeeds = [asset.vaultAuth?.toBuffer(), asset.mint?.toBuffer()];
 
     // Generate the PDA
-    const [marketPDA, marketBump] = PublicKey.findProgramAddressSync(
+    const [marketPDA, marketBump] = PublicKey?.findProgramAddressSync(
       marketSeeds,
       programId
     );
@@ -615,6 +626,7 @@ export default function Home() {
               categories={categories}
               buttonClick={buttonClick}
               activeTab={activeTab}
+              isBuyLoading={isBuyLoading}
             />
           ) : (
             <div className="loaderContainer">
@@ -641,6 +653,7 @@ export default function Home() {
               categories={categories}
               buttonClick={buttonClick}
               activeTab={activeTab}
+              isBuyLoading={isBuyLoading}
             />
           ) : (
             <div className="loaderContainer">

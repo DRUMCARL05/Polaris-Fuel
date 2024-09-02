@@ -11,6 +11,7 @@ export default function Scroller({
   buttonClick,
   activeTab,
   handleMultiplier,
+  isBuyLoading,
 }) {
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(
     categories.length > 0 ? 0 : -1
@@ -93,7 +94,7 @@ export default function Scroller({
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
-  
+
   useEffect(() => {
     const handleScroll = (catIndex) => {
       const container = containerRefs.current[catIndex].current;
@@ -310,7 +311,16 @@ export default function Scroller({
                         buttonClick(asset, activeTab);
                       }}
                       className={styles.button}
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                        justifyContent: "center",
+                      }}
+                      disabled={isBuyLoading === asset.name}
                     >
+                      {isBuyLoading === asset.name && (
+                        <div className="btnLoader" />
+                      )}
                       {activeTab === "Buy"
                         ? `Buy ${asset.name}`
                         : `Sell ${asset.name}`}

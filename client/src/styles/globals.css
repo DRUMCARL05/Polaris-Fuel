@@ -111,18 +111,18 @@ textarea {
   }
 }
 
-.loaderContainer{
+.loaderContainer {
   height: 80vh;
   display: flex;
   align-items: center;
-  justify-content: center ;
+  justify-content: center;
 }
 .loader {
   --d: 22px;
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  color: #FE6C04;
+  color: #fe6c04;
   box-shadow: calc(1 * var(--d)) calc(0 * var(--d)) 0 0,
     calc(0.707 * var(--d)) calc(0.707 * var(--d)) 0 1px,
     calc(0 * var(--d)) calc(1 * var(--d)) 0 2px,
@@ -130,6 +130,28 @@ textarea {
     calc(-1 * var(--d)) calc(0 * var(--d)) 0 4px,
     calc(-0.707 * var(--d)) calc(-0.707 * var(--d)) 0 5px,
     calc(0 * var(--d)) calc(-1 * var(--d)) 0 6px;
+  animation: l27 1s infinite steps(8);
+}
+@keyframes l27 {
+  100% {
+    transform: rotate(1turn);
+  }
+}
+.btnLoader {
+  --d: 15px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  color: white;
+  margin-top: 6px;
+  margin-right: 20px;
+  box-shadow: calc(1 * var(--d)) calc(0 * var(--d)) 0 0,
+    calc(0.707 * var(--d)) calc(0.707 * var(--d)) 0 1px,
+    calc(0 * var(--d)) calc(1 * var(--d)) 0 2px,
+    calc(-0.707 * var(--d)) calc(0.707 * var(--d)) 0 2px,
+    calc(-1 * var(--d)) calc(0 * var(--d)) 0 4px,
+    calc(-0.707 * var(--d)) calc(-0.707 * var(--d)) 0 3px,
+    calc(0 * var(--d)) calc(-1 * var(--d)) 0 4px;
   animation: l27 1s infinite steps(8);
 }
 @keyframes l27 {
