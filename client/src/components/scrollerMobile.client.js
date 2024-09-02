@@ -127,7 +127,7 @@ export default function Scroller({
         }
       });
     };
-  }, [categories.length, activeAssetIndex, categories]);
+  }, [isRefAvailable]);
 
   if (
     !localCategories[activeCategoryIndex] ||
@@ -136,6 +136,7 @@ export default function Scroller({
     return <div>No assets to display</div>;
   }
 
+  console.log(activeAssetIndex, "activeAssetIndex");
   return (
     <div>
       <div className={styles.snappyContainer} ref={containerRef}>
