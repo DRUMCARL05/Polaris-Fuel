@@ -21,7 +21,6 @@ export default async function Page() {
   };
 
   const categories = await fetchMarketStatus();
-  console.log(categories, "data");
   return (
     <div>
       {categories ? (
