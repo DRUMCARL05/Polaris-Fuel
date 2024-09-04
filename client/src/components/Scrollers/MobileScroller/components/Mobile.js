@@ -159,7 +159,7 @@ const Mobile = ({
                           <div
                             className={styles.manageButton}
                             onClick={() => {
-                              handleMultiplier(asset.name, 1);
+                              handleMultiplier(asset, 1);
                             }}
                             style={{
                               backgroundImage: `url(${bg.src})`,
@@ -173,7 +173,7 @@ const Mobile = ({
                           <div
                             className={styles.manageButton}
                             onClick={() => {
-                              handleMultiplier(asset.name, 10);
+                              handleMultiplier(asset, 10);
                             }}
                             style={{
                               backgroundImage: `url(${bg.src})`,
@@ -187,7 +187,7 @@ const Mobile = ({
                           <div
                             className={styles.manageButton}
                             onClick={() => {
-                              handleMultiplier(asset.name, -1);
+                              handleMultiplier(asset, -1);
                             }}
                             style={{
                               backgroundImage: `url(${bg.src})`,
@@ -201,7 +201,7 @@ const Mobile = ({
                           <div
                             className={styles.manageButton}
                             onClick={() => {
-                              handleMultiplier(asset.name, -10);
+                              handleMultiplier(asset, -10);
                             }}
                             style={{
                               backgroundImage: `url(${bg.src})`,

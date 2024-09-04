@@ -18,7 +18,6 @@ const Desktop = ({
   setDesktopCategory,
   setActiveRow,
 }) => {
-  console.log("running desktop");
   return (
     <div>
       <div className={styles.desktopLayout}>
@@ -79,34 +78,75 @@ const Desktop = ({
                                   </h2>
                                   {!subAsset.soldOut && (
                                     <>
-                                      <h3 className={styles.rarity}>
-                                        <img
-                                          style={{ marginTop: 2 }}
-                                          src="/atlasIcon.svg"
-                                          alt="Atlas Icon"
-                                        />
+
                                         {activeTab === "Buy"
-                                          ? subAsset.resourceBalanceinVault
-                                          : subAsset.atlasBalanceInVault}
-                                      </h3>
-                                      <h3 className={styles.rarity}>
-                                        <img
-                                          style={{ marginTop: 2 }}
-                                          src="/atlasIcon.svg"
-                                          alt="Atlas Icon"
-                                        />
-                                        {Number.isNaN(
-                                          (subAsset.buy_price *
-                                            subAsset.multiplier) /
-                                            (subAsset.minimum_buy_qty *
-                                              subAsset.multiplier)
-                                        )
-                                          ? 0
-                                          : (subAsset.buy_price *
-                                              subAsset.multiplier) /
-                                            (subAsset.minimum_buy_qty *
-                                              subAsset.multiplier)}
-                                      </h3>
+                                          ? (
+                                            <div>
+                                                                                          <h3 className={styles.rarity}>
+                                              <img
+                                                style={{ marginTop: -1, width: 15, marginLeft: 0 }}
+                                                src={subAsset.name + ".png"}
+                                                alt={subAsset.name + " Icon"}
+                                              />
+                                              {numberToScale(subAsset.resourceBalanceinVault)}
+                                            </h3>
+                                            <h3 className={styles.rarity}>
+                                            <img
+                                              style={{ marginTop: 2 }}
+                                              src="/atlasIcon.svg"
+                                              alt="Atlas Icon"
+                                            />
+                                            {Number.isNaN(
+                                              (subAsset.buy_price *
+                                                subAsset.multiplier) /
+                                                (subAsset.minimum_buy_qty *
+                                                  subAsset.multiplier)
+                                            )
+                                              ? 0
+                                              : (subAsset.buy_price *
+                                                  subAsset.multiplier) /
+                                                (subAsset.minimum_buy_qty *
+                                                  subAsset.multiplier)}
+                                          </h3>
+
+                                            </div>
+
+                                          )
+                                          : (
+                                            <div>
+                                             <h3 className={styles.rarity}>
+                                              <img
+                                                style={{ marginTop: 4, marginLeft: 0 }}
+                                                src='/atlasIcon.svg'
+                                                alt="Atlas Icon"
+                                              />
+                                              {numberToScale(subAsset.atlasBalanceInVault)}
+                                            </h3>
+                                            <h3 className={styles.rarity}>
+                                            <img
+                                              style={{ marginTop: 2 }}
+                                              src="/atlasIcon.svg"
+                                              alt="Atlas Icon"
+                                            />
+                                            {Number.isNaN(
+                                              (subAsset.sell_price *
+                                                subAsset.multiplier) /
+                                                (subAsset.minimum_sell_qty *
+                                                  subAsset.multiplier)
+                                            )
+                                              ? 0
+                                              : (subAsset.sell_price *
+                                                  subAsset.multiplier) /
+                                                (subAsset.minimum_sell_qty *
+                                                  subAsset.multiplier)}
+                                          </h3>
+
+                                            </div>
+
+                                          )
+                                        }
+
+
                                     </>
                                   )}
                                 </div>
@@ -156,7 +196,7 @@ const Desktop = ({
                                       activeTab === "Buy"
                                         ? subAsset.buy_price *
                                             subAsset.multiplier
-                                        : subAsset.sell_price
+                                        : subAsset.sell_price * subAsset.multiplier
                                     )}
                                     <img
                                       style={{ marginTop: 1 }}
@@ -185,7 +225,7 @@ const Desktop = ({
                                   <div
                                     className={styles.manageButton}
                                     onClick={() => {
-                                      handleMultiplier(subAsset.name, 1);
+                                      handleMultiplier(subAsset, 1);
                                     }}
                                     style={{
                                       backgroundImage: `url(${bg.src})`,
@@ -200,7 +240,7 @@ const Desktop = ({
                                   <div
                                     className={styles.manageButton}
                                     onClick={() => {
-                                      handleMultiplier(subAsset.name, 10);
+                                      handleMultiplier(subAsset, 10);
                                     }}
                                     style={{
                                       backgroundImage: `url(${bg.src})`,
@@ -215,7 +255,7 @@ const Desktop = ({
                                   <div
                                     className={styles.manageButton}
                                     onClick={() => {
-                                      handleMultiplier(subAsset.name, -1);
+                                      handleMultiplier(subAsset, -1);
                                     }}
                                     style={{
                                       backgroundImage: `url(${bg.src})`,
@@ -230,7 +270,7 @@ const Desktop = ({
                                   <div
                                     className={styles.manageButton}
                                     onClick={() => {
-                                      handleMultiplier(subAsset.name, -10);
+                                      handleMultiplier(subAsset, -10);
                                     }}
                                     style={{
                                       backgroundImage: `url(${bg.src})`,
