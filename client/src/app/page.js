@@ -439,17 +439,15 @@ export default function Home() {
   }
 
 
+  if(activeTab=="Buy")
+  {
     console.log(asset);
     console.log(asset.resourceBalanceinVault);
-  
     const minimumBuyQty = parseInt(asset.minimum_buy_qty, 10); // e.g., 1 million units
     const adjustedAmount = minimumBuyQty * multiplier; // Positive or negative depending on multiplier
     const availableBalance = parseInt(asset.resourceBalanceinVault, 10);
-  
     // Calculate the new balance based on the multiplier
     let newBalance = availableBalance - adjustedAmount;
-  
-
     // If the user is trying to subtract from the vault (increase purchase)
     if (newBalance < 0) {
       setAlertMessage("Trying to buy more assets than are available in the vault.");
@@ -457,13 +455,11 @@ export default function Home() {
       //alert("Trying to buy more assets than are available in the vault.");
       return 0
     }
-    
-  
     console.log("Handling multiplier for asset:", asset.name);
     console.log("Multiplier value:", multiplier);
     console.log("Adjusted amount:", adjustedAmount);
     console.log("New balance:", newBalance);
-  
+    //set multiplier
     setCategories((prevCategories) => {
       return prevCategories.map((category) => {
         console.log("Checking category:", category.name);
@@ -472,12 +468,9 @@ export default function Home() {
           if (a.name === asset.name) {
             console.log("Found matching asset:", a.name);
             console.log("Old multiplier:", a.multiplier);
-  
             // Adjust multiplier, ensure it doesn’t go below 0
             const newMultiplier = Math.max(a.multiplier + multiplier, 0);
-  
             console.log("New multiplier:", newMultiplier);
-  
             return {
               ...a,
               resourceBalanceinVault: newBalance.toString(),
@@ -493,6 +486,71 @@ export default function Home() {
         };
       });
     });
+  }
+
+
+  if(activeTab=="Sell")
+    {
+      console.log(asset);
+      console.log(asset.atlasBalanceInVault);
+      const minimum_sell_qty = parseInt(asset.minimum_sell_qty, 10); // e.g., 1 million units
+
+
+      console.log(minimum_sell_qty)
+      console.log(asset.multiplier + multiplier)
+      console.log(asset.sell_price)
+
+      const adjustedAmount = (asset.sell_price * multiplier); // Positive or negative depending on multiplier
+      const availableBalance = parseInt(asset.atlasBalanceInVault, 10);
+      // Calculate the new balance based on the multiplier
+      console.log(adjustedAmount)
+      console.log(availableBalance)
+
+      let newBalance = availableBalance - adjustedAmount;
+      // If the user is trying to subtract from the vault (increase purchase)
+      if (newBalance < 0) {
+        setAlertMessage("Trying to buy more assets than are available in the vault.");
+        setIsAlertOpen(true); // Trigger the alert with the message
+        //alert("Trying to buy more assets than are available in the vault.");
+        return 0
+      }
+      console.log("Handling multiplier for asset:", asset.name);
+      console.log("Multiplier value:", multiplier);
+      console.log("Adjusted amount:", adjustedAmount);
+      console.log("New balance:", newBalance);
+      //set multiplier
+      setCategories((prevCategories) => {
+        return prevCategories.map((category) => {
+          console.log("Checking category:", category.name);
+          const updatedAssets = category.assets.map((a) => {
+            console.log("Checking asset:", a.name);
+            if (a.name === asset.name) {
+              console.log("Found matching asset:", a.name);
+              console.log("Old multiplier:", a.multiplier);
+              // Adjust multiplier, ensure it doesn’t go below 0
+              const newMultiplier = Math.max(a.multiplier + multiplier, 0);
+              console.log("New multiplier:", newMultiplier);
+              return {
+                ...a,
+                atlasBalanceInVault: newBalance.toString(),
+                multiplier: newMultiplier,
+              };
+            }
+            return a;
+          });
+    
+          return {
+            ...category,
+            assets: updatedAssets,
+          };
+        });
+      });
+    }
+
+
+
+
+
   }
   
   
