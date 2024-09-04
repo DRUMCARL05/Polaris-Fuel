@@ -1,10 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import styles from "../../../styles/scroller.module.css";
-import { LuInfo } from "react-icons/lu";
-import { FaAngleDown } from "react-icons/fa6";
-import Desktop from "./components/Desktop";
+import ScrollerUi from "./components/Scroller";
 
 export default function Scroller({
   categories,
@@ -26,6 +23,8 @@ export default function Scroller({
   const containerRef = useRef(null);
   const [activeRow, setActiveRow] = useState(0);
   const desktopContainerRef = useRef(null);
+  const [isRefAvailable, setIsRefAvailable] = useState(false);
+  const [isMobile, setIsMobile] = useState(null);
 
   const numberToScale = (number) => {
     const num = parseFloat(number);
@@ -35,6 +34,9 @@ export default function Scroller({
     if (num >= 1e3) return `${(num / 1e3).toFixed(0)} K`;
     return num.toString();
   };
+  useEffect(() => {
+    setIsRefAvailable(true);
+  }, []);
 
   useEffect(() => {
     containerRefs.current = categories.map(() => React.createRef());
@@ -75,55 +77,29 @@ export default function Scroller({
   };
 
   useEffect(() => {
-    const container = desktopContainerRef.current;
-    if (!container) return;
+    const desktopContainer = desktopContainerRef.current;
+    if (!desktopContainer) return;
 
-    container.addEventListener("scroll", handleDesktopScroll);
+    desktopContainer.addEventListener("scroll", handleDesktopScroll);
 
     return () => {
-      container.removeEventListener("scroll", handleDesktopScroll);
+      desktopContainer.removeEventListener("scroll", handleDesktopScroll);
     };
-  }, [activeRow, desktopCategory]);
+  }, [activeRow, isMobile]);
 
   useEffect(() => {
-    const ref = containerRef.current;
-    if (!ref) return;
-
-    const handleScroll = () => {
+    const ref = containerRef?.current;
+    const handleMobileScroll = () => {
       const scrollY = ref.scrollTop;
-      const height = ref.clientHeight;
-      const currentIndex = Math.floor(scrollY / height);
-      if (currentIndex !== activeCategoryIndex) {
-        setActiveCategoryIndex(currentIndex);
+      const containerHeight = ref.clientHeight;
+      const newActiveCategoryIndex = Math.floor(scrollY / containerHeight);
+
+      if (newActiveCategoryIndex !== activeCategoryIndex) {
+        setActiveCategoryIndex(newActiveCategoryIndex);
       }
     };
 
-    ref.addEventListener("scroll", handleScroll);
-
-    return () => {
-      if (ref) ref.removeEventListener("scroll", handleScroll);
-    };
-  }, [activeCategoryIndex]);
-
-  useEffect(() => {
-    const ref = containerRef.current;
-    if (!ref) return;
-
-    const handleScroll = () => {
-      const scrollY = ref.scrollTop;
-      const height = ref.clientHeight;
-      const currentIndex = Math.floor(scrollY / height);
-      if (currentIndex !== activeCategoryIndex) {
-        setActiveCategoryIndex(currentIndex);
-      }
-    };
-
-    ref.addEventListener("scroll", handleScroll);
-
-    return () => ref.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
+    ref?.addEventListener("scroll", handleMobileScroll);
     const handleScroll = (catIndex) => {
       const container = containerRefs.current[catIndex].current;
       if (container) {
@@ -155,9 +131,22 @@ export default function Scroller({
         if (container) {
           container.removeEventListener("scroll", eventListener);
         }
+        if (ref) ref.removeEventListener("scroll", handleMobileScroll);
       });
     };
-  }, [categories.length, activeAssetIndex]);
+  }, [isMobile, activeCategoryIndex]);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkIsMobile();
+    window.addEventListener("resize", checkIsMobile);
+
+    return () => {
+      window.removeEventListener("resize", checkIsMobile);
+    };
+  }, []);
 
   if (
     !localCategories[activeCategoryIndex] ||
@@ -191,7 +180,7 @@ export default function Scroller({
           Loading
         </div>
       ) : (
-        <Desktop
+        <ScrollerUi
           getNumberOfRows={getNumberOfRows}
           desktopCategory={desktopCategory}
           activeRow={activeRow}
@@ -204,6 +193,13 @@ export default function Scroller({
           buttonClick={buttonClick}
           setDesktopCategory={setDesktopCategory}
           setActiveRow={setActiveRow}
+          activeCategoryIndex={activeCategoryIndex}
+          activeAssetIndex={activeAssetIndex}
+          containerRef={containerRef}
+          containerRefs={containerRefs}
+          setActiveCategoryIndex={setActiveCategoryIndex}
+          isMobile={isMobile}
+          setIsMobile={setIsMobile}
         />
       )}
     </>

@@ -25,14 +25,8 @@ import {
 } from "@solana/spl-token";
 
 const Nav = dynamic(() => import("@/components/nav.client"), { ssr: false });
-const ScrollerDesktop = dynamic(
-  () => import("@/components/Scrollers/DesktopScroller/scrollerDesktop.client"),
-  {
-    ssr: false,
-  }
-);
-const ScrollerMobile = dynamic(
-  () => import("@/components/Scrollers/MobileScroller/scrollerMobile.client"),
+const Scroller = dynamic(
+  () => import("@/components/Scrollers/scroller.client"),
   {
     ssr: false,
   }
@@ -367,8 +361,8 @@ export function Home(data) {
       return prevCategories.map((category) => {
         console.log("Checking category:", category.name);
         const updatedAssets = category.assets.map((a) => {
-          console.log("Checking asset:", a.name);
-          if (a.name === name) {
+          console.log("Checking asset:", a.name, name);
+          if (a.name === name.name) {
             console.log("Found matching asset:", a.name);
             console.log("Old multiplier:", a.multiplier);
 
@@ -596,10 +590,9 @@ export function Home(data) {
     setActiveTab(tab);
     // Any other logic you want to perform when a tab is pressed
   };
-  console.log(categories, "categories 1");
   return (
     <div>
-      <div className="mobileLayout">
+      <div className="desktopVersion1">
         {!isLoading ? (
           <div>
             <div className="glow"></div>
@@ -612,36 +605,7 @@ export function Home(data) {
               activeLink={activeTab}
               onLinkClick={buttonPressed}
             >
-              <ScrollerMobile
-                handleMultiplier={handleMultiplier}
-                categories={categories}
-                buttonClick={buttonClick}
-                activeTab={activeTab}
-                isBuyLoading={isBuyLoading}
-              />
-            </Nav>
-          </div>
-        ) : (
-          <div className="loaderContainer">
-            <div className="loader" />
-          </div>
-        )}
-        <Bottom pxp={0} />
-      </div>
-      <div className="desktopVersion">
-        {!isLoading ? (
-          <div>
-            <div className="glow"></div>
-            <Nav
-              deleteUsrObject={deleteUsrObject}
-              updateUsrObject={updateUsrObject}
-              setButtonText={setButtonText}
-              getProvider={getProvider}
-              buttonText={buttonText}
-              activeLink={activeTab}
-              onLinkClick={buttonPressed}
-            >
-              <ScrollerDesktop
+              <Scroller
                 handleMultiplier={handleMultiplier}
                 categories={categories}
                 buttonClick={buttonClick}
