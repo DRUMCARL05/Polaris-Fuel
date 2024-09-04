@@ -9,7 +9,7 @@ import Greeting from "./component/Market.js"
 import { document } from 'postcss';
 
 
-import { programId, connection, feePubKey, atlasMint, ammoMint, rewardMint } from '../global.js';
+import { programId, connection, feePubKey, atlasMint, ammoMint,foodMint,fuelMint,toolMint, rewardMint } from '../global.js';
 
 
 
@@ -53,6 +53,33 @@ function DataForm() {
     async function stockAtlas(ammount)
     {
 
+
+        let resourceMint;
+        switch (formData.category) {
+            case "AMMO":
+                resourceMint=ammoMint
+                break;
+
+            case "FOOD":
+                resourceMint=foodMint
+                break;
+
+            case "FUEL":
+                resourceMint=fuelMint
+                break;
+
+            case "TOOL":
+                resourceMint=toolMint
+                break;
+        
+            default:
+                alert("Error")
+                return
+                break;
+        }
+
+
+
         const provider = getProvider(); // see "Detecting the Provider"
         let pubkey58;
         try {
@@ -78,7 +105,7 @@ function DataForm() {
         console.log("User Atlas Account:",userAtlasInfo.ata.toBase58())
 
         //generate pda
-        let marketSeeds = [payer.toBuffer(),ammoMint.toBuffer()]
+        let marketSeeds = [payer.toBuffer(),resourceMint.toBuffer()]
         // Generate the PDA
         const [marketPDA, marketBump] = PublicKey.findProgramAddressSync(
             marketSeeds,
@@ -129,6 +156,30 @@ function DataForm() {
     async function stockResource(ammount)
     {
 
+        let resourceMint;
+        switch (formData.category) {
+            case "AMMO":
+                resourceMint=ammoMint
+                break;
+
+            case "FOOD":
+                resourceMint=foodMint
+                break;
+
+            case "FUEL":
+                resourceMint=fuelMint
+                break;
+
+            case "TOOL":
+                resourceMint=toolMint
+                break;
+        
+            default:
+                alert("Error")
+                return
+                break;
+        }
+
         const provider = getProvider(); // see "Detecting the Provider"
         let pubkey58;
         try {
@@ -151,7 +202,7 @@ function DataForm() {
 
 
         //generate pda
-        let marketSeeds = [payer.toBuffer(),ammoMint.toBuffer()]
+        let marketSeeds = [payer.toBuffer(),resourceMint.toBuffer()]
         // Generate the PDA
         const [marketPDA, marketBump] = PublicKey.findProgramAddressSync(
             marketSeeds,
@@ -159,15 +210,15 @@ function DataForm() {
         );
 
 
-        let pdaAmmoInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,marketPDA)
+        let pdaresourceInfo = await findOrCreateAssociatedTokenAccount(resourceMint,payer,marketPDA)
 
-        let userAmmoInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,payer)
+        let userresourceInfo = await findOrCreateAssociatedTokenAccount(resourceMint,payer,payer)
 
         //stock the pda with atlas
         const spltransferInstruction = createTransferInstruction
         (
-            userAmmoInfo.ata,
-            pdaAmmoInfo.ata,
+            userresourceInfo.ata,
+            pdaresourceInfo.ata,
             payer,
             ammount,
             [],
@@ -273,6 +324,32 @@ function DataForm() {
 
     async function getMarketData()
     {
+
+        let resourceMint;
+        switch (formData.category) {
+            case "AMMO":
+                resourceMint=ammoMint
+                break;
+
+            case "FOOD":
+                resourceMint=foodMint
+                break;
+
+            case "FUEL":
+                resourceMint=fuelMint
+                break;
+
+            case "TOOL":
+                resourceMint=toolMint
+                break;
+        
+            default:
+                alert("Error")
+                return
+                break;
+        }
+
+
         const provider = getProvider(); // see "Detecting the Provider"
         let pubkey58;
         try {
@@ -292,7 +369,7 @@ function DataForm() {
 
 
         //generate pda
-        let marketSeeds = [payer.toBuffer(),ammoMint.toBuffer()]
+        let marketSeeds = [payer.toBuffer(),resourceMint.toBuffer()]
         // Generate the PDA
         const [marketPDA, marketBump] = PublicKey.findProgramAddressSync(
             marketSeeds,
@@ -313,13 +390,13 @@ function DataForm() {
         TradeData.vault_pubkey = marketPDA.toBase58()
 
         let pdaAtlasInfo = await findOrCreateAssociatedTokenAccount(atlasMint,payer,marketPDA)
-        let pdaAmmoInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,marketPDA)
+        let pdaresourceInfo = await findOrCreateAssociatedTokenAccount(resourceMint,payer,marketPDA)
 
 
         TradeData.atlas_amount = await getTokenBalance(pdaAtlasInfo.ata)
-        TradeData.ammo_amount = await getTokenBalance(pdaAmmoInfo.ata)
+        TradeData.resource_amount = await getTokenBalance(pdaresourceInfo.ata)
         TradeData.atlas_mint =atlasMint.toBase58()
-        TradeData.resource_mint = ammoMint.toBase58()
+        TradeData.resource_mint = resourceMint.toBase58()
 
 
         setOnChainData(TradeData)
@@ -412,9 +489,21 @@ function DataForm() {
             case "AMMO":
                 resourceMint=ammoMint
                 break;
+
+            case "FOOD":
+                resourceMint=foodMint
+                break;
+
+            case "FUEL":
+                resourceMint=fuelMint
+                break;
+
+            case "TOOL":
+                resourceMint=toolMint
+                break;
         
             default:
-                alert("Only Ammo Valut can be created at this time")
+                alert("Error")
                 return
                 break;
         }
@@ -463,15 +552,15 @@ function DataForm() {
 
 
         
-        let userAmmoInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,payer)
-        console.log("Has Ammo account:",userAmmoInfo.hasAta)
-        console.log("Ammo ata",userAmmoInfo.ata)
-        console.log(userAmmoInfo.ata.toBase58())
-        if(userAmmoInfo.hasAta == false)
+        let userResourceInfo = await findOrCreateAssociatedTokenAccount(resourceMint,payer,payer)
+        console.log("Has Ammo account:",userResourceInfo.hasAta)
+        console.log("Ammo ata",userResourceInfo.ata)
+        console.log(userResourceInfo.ata.toBase58())
+        if(userResourceInfo.hasAta == false)
         {
             console.log("Adding Instruction to create User Ammo Account")
-            //await sendIxArray([userAmmoInfo.ataIx],[feePayerKp])
-            transaction.add(userAmmoInfo.ataIx)
+            //await sendIxArray([userResourceInfo.ataIx],[feePayerKp])
+            transaction.add(userResourceInfo.ataIx)
     
         }
 
@@ -493,7 +582,7 @@ function DataForm() {
         
         
         //generate pda
-        let marketSeeds = [payer.toBuffer(),ammoMint.toBuffer()]
+        let marketSeeds = [payer.toBuffer(),resourceMint.toBuffer()]
         // Generate the PDA
         const [marketPDA, marketBump] = PublicKey.findProgramAddressSync(
             marketSeeds,
@@ -520,15 +609,15 @@ function DataForm() {
 
     
         
-        let pdaAmmoInfo = await findOrCreateAssociatedTokenAccount(ammoMint,payer,marketPDA)
-        console.log("PDA has ammo account:",pdaAmmoInfo.hasAta)
-        console.log("PDA ammo account:",pdaAmmoInfo.ata.toBase58())
+        let pdaResourceInfo = await findOrCreateAssociatedTokenAccount(resourceMint,payer,marketPDA)
+        console.log("PDA has Resource account:",pdaResourceInfo.hasAta)
+        console.log("PDA Resource account:",pdaResourceInfo.ata.toBase58())
     
-        // console.log(pdaAmmoInfo.ataIx)
-        if(pdaAmmoInfo.hasAta == false)
+        // console.log(pdaResourceInfo.ataIx)
+        if(pdaResourceInfo.hasAta == false)
         {
-            //await sendIxArray([pdaAmmoInfo.ataIx],[feePayerKp])
-            transaction.add(pdaAmmoInfo.ataIx)
+            //await sendIxArray([pdaResourceInfo.ataIx],[feePayerKp])
+            transaction.add(pdaResourceInfo.ataIx)
     
         }
     
@@ -540,7 +629,7 @@ function DataForm() {
             minimum_sell_qty: formData.minimum_sell_qty,
             sell_price: formData.sell_price,
             beneficiary_atlast_account: pdaAtlasInfo.ata.toBuffer(), // Assuming this is already a Buffer of 32 bytes
-            beneficiary_resource_account: pdaAmmoInfo.ata.toBuffer(), // Assuming this is already a Buffer of 32 bytes
+            beneficiary_resource_account: pdaResourceInfo.ata.toBuffer(), // Assuming this is already a Buffer of 32 bytes
             beneficiary_percent: formData.beneficiary_percent, // Decimal value
         };
 

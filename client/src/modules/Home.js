@@ -386,14 +386,10 @@ export function Home(data) {
     });
   }
 
-  async function buttonClick(asset, activeTap) {
+  async function buttonClick(asset) {
     console.log(asset);
     setIsBuyLoading(asset.name);
-    setTimeout(() => {
-      setIsBuyLoading(null);
-    }, 3000);
 
-    return 0;
     const provider = getProvider(); // see "Detecting the Provider"
     let pubkey58;
     try {
@@ -412,7 +408,10 @@ export function Home(data) {
     console.log(asset);
 
     //generate pda
-    let marketSeeds = [asset.vaultAuth?.toBuffer(), asset.mint?.toBuffer()];
+    let marketSeeds = [
+      new PublicKey(asset.vaultAuth).toBuffer(),
+      new PublicKey(asset.mint).toBuffer(),
+    ];
 
     // Generate the PDA
     const [marketPDA, marketBump] = PublicKey?.findProgramAddressSync(
@@ -429,7 +428,7 @@ export function Home(data) {
     );
     console.log(userAtlasInfo.ata.toBase58());
     let userResourceAccountInfo = await findOrCreateAssociatedTokenAccount(
-      asset.mint,
+      new PublicKey(asset.mint),
       payer,
       payer
     );
@@ -440,7 +439,7 @@ export function Home(data) {
       marketPDA
     );
     let pdaResourceInfo = await findOrCreateAssociatedTokenAccount(
-      asset.mint,
+      new PublicKey(asset.mint),
       payer,
       marketPDA
     );
@@ -487,8 +486,8 @@ export function Home(data) {
         marketPDA,
         userAtlasInfo.ata,
         pdaAtlasInfo.ata,
-        asset.vaultAuth,
-        asset.mint,
+        new PublicKey(asset.vaultAuth),
+        new PublicKey(asset.mint),
         userResourceAccountInfo.ata,
         pdaResourceInfo.ata,
         new PublicKey(TradeData.beneficiary_atlast_account),
@@ -542,8 +541,8 @@ export function Home(data) {
         marketPDA,
         userAtlasInfo.ata,
         pdaAtlasInfo.ata,
-        asset.vaultAuth,
-        asset.mint,
+        new PublicKey(asset.vaultAuth),
+        new PublicKey(asset.mint),
         userResourceAccountInfo.ata,
         pdaResourceInfo.ata,
         new PublicKey(TradeData.beneficiary_resource_account),
@@ -582,7 +581,9 @@ export function Home(data) {
         skipPreflight: true,
       }
     );
-
+    setIsBuyLoading(null);
+    setAlertMessage("Transaction Submitted");
+    setIsAlertOpen(true); // Trigger the alert with the message
     console.log(transactionId);
   }
 
