@@ -9,14 +9,8 @@ import Greeting from "./component/Market.js"
 import { document } from 'postcss';
 
 
-let connection = new Connection('https://devnet.helius-rpc.com/?api-key=5f494e50-2433-4bec-8e68-0823bae9d973')
-let feePubKey = new PublicKey("5SYuwdp6eL8rSjfRWJ45P6WRLeV9Vnegxf8p2jrJh4xb")
-let atlasMint = new PublicKey("ATLADWy6dnnY3McjmRvuvRZHR4WjYYtGGKS3duedyBmy")
-let ammoMint = new PublicKey("AMMUxMuL93NDbTzCE6ntjF8U6fMdtiw6VbXS3FiLfaZd")
-const rewardMint = new PublicKey("29MBBn147j7NdaYA215ysqxwrKec6B8Aqhnm8QoxsErf");
+import { programId, connection, feePubKey, atlasMint, ammoMint, rewardMint } from '../global.js';
 
-
-export const programId = new PublicKey('9zYogG23hiVQLgFUrcVCNEpJaR6415bBotk8wwWYQDWL');
 
 
 function DataForm() {

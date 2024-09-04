@@ -32,9 +32,11 @@ export default function Scroller({
     if (isNaN(num)) return "";
     if (num >= 1e9) return `${(num / 1e9).toFixed(0)} B`;
     if (num >= 1e6) return `${(num / 1e6).toFixed(0)} M`;
-    if (num >= 1e3) return `${(num / 1e3).toFixed(0)} K`;
+    if (num >= 1e3 && num < 1e5) return num.toFixed(0); // Allow 4 digits for 1k-9999 range
+    if (num >= 1e3) return `${(num / 1e3).toFixed(0)} K`; // Rounds after 10k
     return num.toString();
   };
+  
 
   useEffect(() => {
     containerRefs.current = categories.map(() => React.createRef());
@@ -215,18 +217,18 @@ export default function Scroller({
                     {categories[desktopCategory].assets
                       .slice(index, index + 4)
                       .map((subAsset, subIndex) => {
-                        console.log(
-                          (subAsset.buy_price * subAsset.multiplier) /
-                            (subAsset.minimum_buy_qty * subAsset.multiplier)
-                        );
-                        console.log(
-                          subAsset.buy_price * subAsset.multiplier,
-                          "(subAsset.buy_price * subAsset.multiplier)"
-                        );
-                        console.log(
-                          subAsset.minimum_buy_qty * subAsset.multiplier,
-                          "(subAsset.minimum_buy_qty * subAsset.multiplier)"
-                        );
+                        // console.log(
+                        //   (subAsset.buy_price * subAsset.multiplier) /
+                        //     (subAsset.minimum_buy_qty * subAsset.multiplier)
+                        // );
+                        // console.log(
+                        //   subAsset.buy_price * subAsset.multiplier,
+                        //   "(subAsset.buy_price * subAsset.multiplier)"
+                        // );
+                        // console.log(
+                        //   subAsset.minimum_buy_qty * subAsset.multiplier,
+                        //   "(subAsset.minimum_buy_qty * subAsset.multiplier)"
+                        // );
                         return (
                           <div key={subIndex} className={styles.desktopAsset}>
                             <div className={styles.details}>
@@ -343,7 +345,7 @@ export default function Scroller({
                                   <div
                                     className={styles.manageButton}
                                     onClick={() => {
-                                      handleMultiplier(subAsset.name, 1);
+                                      handleMultiplier(subAsset, 1);
                                     }}
                                     style={{
                                       backgroundImage: `url(${bg.src})`,
@@ -358,7 +360,7 @@ export default function Scroller({
                                   <div
                                     className={styles.manageButton}
                                     onClick={() => {
-                                      handleMultiplier(subAsset.name, 10);
+                                      handleMultiplier(subAsset, 10);
                                     }}
                                     style={{
                                       backgroundImage: `url(${bg.src})`,
@@ -373,7 +375,7 @@ export default function Scroller({
                                   <div
                                     className={styles.manageButton}
                                     onClick={() => {
-                                      handleMultiplier(subAsset.name, -1);
+                                      handleMultiplier(subAsset, -1);
                                     }}
                                     style={{
                                       backgroundImage: `url(${bg.src})`,
@@ -388,7 +390,7 @@ export default function Scroller({
                                   <div
                                     className={styles.manageButton}
                                     onClick={() => {
-                                      handleMultiplier(subAsset.name, -10);
+                                      handleMultiplier(subAsset, -10);
                                     }}
                                     style={{
                                       backgroundImage: `url(${bg.src})`,

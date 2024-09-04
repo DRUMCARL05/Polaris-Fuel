@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import MyAlert from './myalert'; // Import the custom alert component
+
 import "../styles/homepage.css";
 import dynamic from "next/dynamic";
 import {
@@ -24,6 +26,8 @@ import {
   createTransferInstruction,
 } from "@solana/spl-token";
 
+import { programId, connection, feePubKey, atlasMint, ammoMint, rewardMint } from './global.js';
+
 const Nav = dynamic(() => import("@/components/nav.client"), { ssr: false });
 const ScrollerDesktop = dynamic(
   () => import("@/components/scrollerDesktop.client"),
@@ -41,25 +45,24 @@ const Bottom = dynamic(() => import("@/components/bottom.client"), {
   ssr: false,
 });
 
-const programId = new PublicKey("9zYogG23hiVQLgFUrcVCNEpJaR6415bBotk8wwWYQDWL");
-let ammoMint = new PublicKey("AMMUxMuL93NDbTzCE6ntjF8U6fMdtiw6VbXS3FiLfaZd");
-let atlasMint = new PublicKey("ATLADWy6dnnY3McjmRvuvRZHR4WjYYtGGKS3duedyBmy");
 
 let ammoAuth = new PublicKey("PLRSGTRwq2rz8S62JFWbtFEixvetZ4v58KQWi21kLxg");
-let feePubKey = new PublicKey("5SYuwdp6eL8rSjfRWJ45P6WRLeV9Vnegxf8p2jrJh4xb");
 
-let rewardMint = new PublicKey("29MBBn147j7NdaYA215ysqxwrKec6B8Aqhnm8QoxsErf");
 
-let connection = new Connection(
-  "https://devnet.helius-rpc.com/?api-key=5f494e50-2433-4bec-8e68-0823bae9d973"
-);
+
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("Buy");
   const [buttonText, setButtonText] = useState("Connect Wallet");
   const [isLoading, setIsLoading] = useState(true);
+  const [isDesktop, setIsDesktop] = useState(true);
   const [usrObject, setUsrObject] = useState({ pubkey: "", pxp: "" });
   const [categories, setCategories] = useState([]);
+  const [maxCategories, setMaxCategories] = useState([]);
+
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+
   const [isBuyLoading, setIsBuyLoading] = useState("");
   const updateCategoryAsset = (categoryName, assetName, key, value) => {
     setCategories((prevCategories) =>
@@ -186,9 +189,11 @@ export default function Home() {
     setUsrObject({ pubkey: "", pxp: "" });
   };
 
+
   useEffect(() => {
     const storedUsrObject = localStorage.getItem("usrObject");
     console.log("use effect on first load");
+  
     if (storedUsrObject) {
       try {
         const parsedUsrObject = JSON.parse(storedUsrObject);
@@ -202,7 +207,7 @@ export default function Home() {
         console.error("Error parsing usrObject:", error);
       }
     }
-
+  
     const fetchMarketStatus = async () => {
       try {
         const response = await fetch(
@@ -213,14 +218,37 @@ export default function Home() {
         }
         const data = await response.json();
         console.log("Market Status:", data);
-
+  
+        // Set the fetched data to the categories state
         setCategories(data);
-        setIsLoading(false);
+  
+        // Create an object to store the max values for each asset
+        const maxValues = data.map((category) => ({
+          name: category.name,
+          assets: category.assets.map((asset) => ({
+            name: asset.name,
+            maxResourceBalanceinVault: asset.resourceBalanceinVault ? parseInt(asset.resourceBalanceinVault, 10) : 0,
+            maxAtlasBalanceInVault: asset.atlasBalanceInVault ? parseFloat(asset.atlasBalanceInVault) : 0,
+          })),
+        }));
+  
+        // Set the maxValues object to the maxCategories state
+        setMaxCategories(maxValues);
+  
+        console.log("Max Categories Object:", maxValues);
+  
+        // Set loading to false after 2 seconds
+        const timer = setTimeout(() => {
+          setIsLoading(false);
+        }, 2000);
+  
+        // Cleanup the timeout if the component is unmounted before the timer finishes
+        return () => clearTimeout(timer);
       } catch (error) {
         console.error("There was a problem with the fetch operation:", error);
       }
     };
-
+  
     const onBoot = async () => {
       try {
         console.log("App Loaded");
@@ -229,9 +257,13 @@ export default function Home() {
         console.error(error);
       }
     };
-
+  
     onBoot();
   }, []); // Empty dependency array ensures this runs once on mount
+  
+
+
+  
 
   useEffect(() => {
     console.log("Categories updated:", categories);
@@ -384,31 +416,77 @@ export default function Home() {
     }
   }
 
-  function handleMultiplier(name, multiplier) {
-    console.log("Handling multiplier for asset:", name);
-    console.log("Multiplier value:", multiplier);
+  function handleMultiplier(asset, multiplier) {
 
+
+  console.log(activeTab)
+  console.log(asset)
+  console.log(multiplier)
+
+  //check if buying less than minimum
+  if(asset.multiplier + multiplier <= 0){
+    if(activeTab=="Buy")
+    {
+      setAlertMessage("Can't buy less than a million units.");
+    }
+    if(activeTab=="Sell")
+    {
+      setAlertMessage("Can't sell less than a million units.");
+    }
+    setIsAlertOpen(true); // Trigger the alert with the message
+    //alert("Can't buy less than a million units")
+    return 0
+  }
+
+
+    console.log(asset);
+    console.log(asset.resourceBalanceinVault);
+  
+    const minimumBuyQty = parseInt(asset.minimum_buy_qty, 10); // e.g., 1 million units
+    const adjustedAmount = minimumBuyQty * multiplier; // Positive or negative depending on multiplier
+    const availableBalance = parseInt(asset.resourceBalanceinVault, 10);
+  
+    // Calculate the new balance based on the multiplier
+    let newBalance = availableBalance - adjustedAmount;
+  
+
+    // If the user is trying to subtract from the vault (increase purchase)
+    if (newBalance < 0) {
+      setAlertMessage("Trying to buy more assets than are available in the vault.");
+      setIsAlertOpen(true); // Trigger the alert with the message
+      //alert("Trying to buy more assets than are available in the vault.");
+      return 0
+    }
+    
+  
+    console.log("Handling multiplier for asset:", asset.name);
+    console.log("Multiplier value:", multiplier);
+    console.log("Adjusted amount:", adjustedAmount);
+    console.log("New balance:", newBalance);
+  
     setCategories((prevCategories) => {
       return prevCategories.map((category) => {
         console.log("Checking category:", category.name);
         const updatedAssets = category.assets.map((a) => {
           console.log("Checking asset:", a.name);
-          if (a.name === name) {
+          if (a.name === asset.name) {
             console.log("Found matching asset:", a.name);
             console.log("Old multiplier:", a.multiplier);
-
+  
+            // Adjust multiplier, ensure it doesn’t go below 0
             const newMultiplier = Math.max(a.multiplier + multiplier, 0);
-
+  
             console.log("New multiplier:", newMultiplier);
-
+  
             return {
               ...a,
+              resourceBalanceinVault: newBalance.toString(),
               multiplier: newMultiplier,
             };
           }
           return a;
         });
-
+  
         return {
           ...category,
           assets: updatedAssets,
@@ -416,6 +494,10 @@ export default function Home() {
       });
     });
   }
+  
+  
+  
+  
 
   async function buttonClick(asset, activeTap) {
     console.log(asset);
@@ -626,47 +708,60 @@ export default function Home() {
     setActiveTab(tab);
     // Any other logic you want to perform when a tab is pressed
   };
+
+
+  
+
+
+
   return (
-    <div>
-      <div className="mobileLayout">
-        <div className="glow"></div>
-        <Nav
-          deleteUsrObject={deleteUsrObject}
-          updateUsrObject={updateUsrObject}
-          setButtonText={setButtonText}
-          getProvider={getProvider}
-          buttonText={buttonText}
-          activeLink={activeTab}
-          onLinkClick={buttonPressed}
+    <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
+      {isLoading && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundImage: 'url("https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmhybWU4bDhrODJtb3ZydWIxZ3ZpNXg3azc3YTJjNnIyajMzc2xqNiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ilu6c4Ohog14k4WHHy/giphy-downsized-large.gif")',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundColor: 'rgba(0, 0, 0, 0.85)',
+            backgroundBlendMode: 'overlay',
+            zIndex: 9999,
+            pointerEvents: 'none',
+            display: 'flex',          // Flexbox container
+            justifyContent: 'center', // Center horizontally
+            alignItems: 'center',     // Center vertically
+            textAlign: 'center',      // Center text inside the flex container
+          }}
         >
-          {!isLoading && categories.length > 0 ? (
-            <ScrollerMobile
-              handleMultiplier={handleMultiplier}
-              categories={categories}
-              buttonClick={buttonClick}
-              activeTab={activeTab}
-              isBuyLoading={isBuyLoading}
-            />
-          ) : (
-            <div className="loaderContainer">
-              <div className="loader" />
-            </div>
-          )}
-        </Nav>
-        <Bottom pxp={0} />
-      </div>
-      <div className="desktopVersion">
-        <div className="glow"></div>
-        <Nav
-          deleteUsrObject={deleteUsrObject}
-          updateUsrObject={updateUsrObject}
-          setButtonText={setButtonText}
-          getProvider={getProvider}
-          buttonText={buttonText}
-          activeLink={activeTab}
-          onLinkClick={buttonPressed}
-        >
-          {!isLoading && categories.length > 0 ? (
+          <div>
+            <h1 style={{ margin: 0 }}>Polaris Fuel</h1>
+            <h4 style={{ margin: '10px 0' }}>loading...</h4>
+          </div>
+        </div>
+      )}
+  
+      {isDesktop ? (
+        <div className="desktopVersion">
+          <MyAlert
+            isOpen={isAlertOpen}
+            onClose={() => setIsAlertOpen(false)}
+            message={alertMessage} // Pass the message prop
+          />
+          <div className="glow"></div>
+          <Nav
+            deleteUsrObject={deleteUsrObject}
+            updateUsrObject={updateUsrObject}
+            setButtonText={setButtonText}
+            getProvider={getProvider}
+            buttonText={buttonText}
+            activeLink={activeTab}
+            onLinkClick={buttonPressed}
+          >
             <ScrollerDesktop
               handleMultiplier={handleMultiplier}
               categories={categories}
@@ -674,14 +769,36 @@ export default function Home() {
               activeTab={activeTab}
               isBuyLoading={isBuyLoading}
             />
-          ) : (
-            <div className="loaderContainer">
-              <div className="loader" />
-            </div>
-          )}
-        </Nav>
-        <Bottom pxp={0} />
-      </div>
+          </Nav>
+          <Bottom pxp={0} />
+        </div>
+      ) : (
+        <div className="mobileLayout">
+          <div className="glow"></div>
+          <Nav
+            deleteUsrObject={deleteUsrObject}
+            updateUsrObject={updateUsrObject}
+            setButtonText={setButtonText}
+            getProvider={getProvider}
+            buttonText={buttonText}
+            activeLink={activeTab}
+            onLinkClick={buttonPressed}
+          >
+            <ScrollerMobile
+              handleMultiplier={handleMultiplier}
+              categories={categories}
+              buttonClick={buttonClick}
+              activeTab={activeTab}
+              isBuyLoading={isBuyLoading}
+            />
+          </Nav>
+          <Bottom pxp={0} />
+        </div>
+      )}
     </div>
   );
+  
+  
+
 }
+
