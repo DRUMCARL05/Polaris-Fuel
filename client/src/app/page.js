@@ -211,7 +211,7 @@ export default function Home() {
     const fetchMarketStatus = async () => {
       try {
         const response = await fetch(
-          "http://polaris.cheaprpc.com:3000/market-status"
+          "https://polaris.cheaprpc.com:3000/market-status"
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
