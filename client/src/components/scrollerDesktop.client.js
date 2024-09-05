@@ -246,8 +246,8 @@ export default function Scroller({
                                                                                           <h3 className={styles.rarity}>
                                               <img
                                                 style={{ marginTop: -1, width: 15, marginLeft: 0 }}
-                                                src={subAsset.name + ".png"}
-                                                alt={subAsset.name + " Icon"}
+                                                src={subAsset.image}
+                                                alt={subAsset.name}
                                               />
                                               {numberToScale(subAsset.resourceBalanceinVault)}
                                             </h3>
