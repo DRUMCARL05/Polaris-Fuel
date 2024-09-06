@@ -237,13 +237,10 @@ export default function Scroller({
                                   <h2 className={styles.foodName}>
                                     {subAsset.name}
                                   </h2>
-                                  {!subAsset.soldOut && (
-                                    <>
-
                                         {activeTab === "Buy"
                                           ? (
                                             <div>
-                                                                                          <h3 className={styles.rarity}>
+                                              <h3 className={styles.rarity}>
                                               <img
                                                 style={{ marginTop: -1, width: 15, marginLeft: 0 }}
                                                 src={subAsset.image}
@@ -308,17 +305,17 @@ export default function Scroller({
                                         }
 
 
-                                    </>
-                                  )}
+                          
+                            
                                 </div>
-                                {subAsset.image && (
+                          
                                   <img
                                     draggable={false}
-                                    src={subAsset.image}
+                                    src={subAsset.soldOut ? `${subAsset.image.slice(0, -4)}so.png` : subAsset.image}
                                     alt={subAsset.name}
                                     className={styles.assetImage}
                                   />
-                                )}
+                           
                               </div>
 
                               <div className={styles.amountDetails}>

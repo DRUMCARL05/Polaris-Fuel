@@ -58,7 +58,6 @@ export default function Home() {
   const [isDesktop, setIsDesktop] = useState(true);
   const [usrObject, setUsrObject] = useState({ pubkey: "", pxp: "" });
   const [categories, setCategories] = useState([]);
-  const [maxCategories, setMaxCategories] = useState([]);
 
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -222,20 +221,6 @@ export default function Home() {
         // Set the fetched data to the categories state
         setCategories(data);
   
-        // Create an object to store the max values for each asset
-        const maxValues = data.map((category) => ({
-          name: category.name,
-          assets: category.assets.map((asset) => ({
-            name: asset.name,
-            maxResourceBalanceinVault: asset.resourceBalanceinVault ? parseInt(asset.resourceBalanceinVault, 10) : 0,
-            maxAtlasBalanceInVault: asset.atlasBalanceInVault ? parseFloat(asset.atlasBalanceInVault) : 0,
-          })),
-        }));
-  
-        // Set the maxValues object to the maxCategories state
-        setMaxCategories(maxValues);
-  
-        console.log("Max Categories Object:", maxValues);
   
         // Set loading to false after 2 seconds
         const timer = setTimeout(() => {
