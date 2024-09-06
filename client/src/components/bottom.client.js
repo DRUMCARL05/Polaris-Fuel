@@ -6,15 +6,19 @@ import bg from '../../public/pxpBg.png'
 export default function Bottom({ pxp }) {  // Accept pxp as a prop
   // Determine the level based on the pxp value
   let level = 'Bronze';
-  let levelImage = '/gold.png';
+  let levelImage = '/GOLDpxp.png';
 
-  if (pxp >= 1000 && pxp < 2000) {
+  if (pxp >= 0 && pxp < 2000) {
     level = 'Silver';
-    levelImage = '/gold.png';
-  } else if (pxp >= 2000) {
+    levelImage = '/SILVERpxp.png';
+  } else if (pxp >= 2000 && pxp < 5000) {
     level = 'Gold';
-    levelImage = '/gold.png';
+    levelImage = '/GOLDpxp.png';
+  } else if (pxp >= 5000) {
+    level = 'Diamond';
+    levelImage = '/DIAMONDpxp.png';
   }
+  
 
   return (
     <div className="bottomPxp" style={{
