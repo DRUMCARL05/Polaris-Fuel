@@ -16,9 +16,7 @@ export default function Scroller({
 
 
   const rowHeightRem = 23;
-  const [activeCategoryIndex, setActiveCategoryIndex] = useState(
-    categories.length > 0 ? 0 : -1
-  );
+  const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
   const [localCategories, setLocalCategories] = useState([]);
   const [desktopCategory, setDesktopCategory] = useState(0);
   const [activeAssetIndex, setActiveAssetIndex] = useState(
@@ -40,9 +38,9 @@ export default function Scroller({
   };
   
 
-  useEffect(() => {
-    containerRefs.current = categories.map(() => React.createRef());
-  }, [categories]);
+  // useEffect(() => {
+  //   containerRefs.current = categories.map(() => React.createRef());
+  // }, [categories]);
 
   useEffect(() => {
     if (categories && categories.length > 0) {
@@ -145,6 +143,7 @@ export default function Scroller({
     };
 
     const eventListeners = categories.map((category, index) => {
+      containerRefs.current = categories.map(() => React.createRef());
       const container = containerRefs.current[index].current;
       if (container) {
         const eventListener = () => handleScroll(index);
