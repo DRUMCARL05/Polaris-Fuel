@@ -8,7 +8,11 @@ export default function Bottom({ pxp }) {  // Accept pxp as a prop
   let level = 'Bronze';
   let levelImage = '/GOLDpxp.png';
 
-  if (pxp >= 0 && pxp < 2000) {
+  if (pxp >= 0 && pxp < 1000) {
+    level = 'Bronze';
+    levelImage = '/BRONZEpxp.png';
+  } 
+  else if (pxp >= 1000 && pxp < 2000) {
     level = 'Silver';
     levelImage = '/SILVERpxp.png';
   } else if (pxp >= 2000 && pxp < 5000) {

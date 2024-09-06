@@ -61,6 +61,7 @@ export default function Home() {
 
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  const [pxp,setPxp] = useState(0);
 
   const [isBuyLoading, setIsBuyLoading] = useState("");
   const updateCategoryAsset = (categoryName, assetName, key, value) => {
@@ -81,6 +82,12 @@ export default function Home() {
       })
     );
   };
+
+
+  function convertToBase10(number, decimals) {
+    const factor = Math.pow(10, decimals);
+    return number / factor;
+  }
 
   async function getMarketStatus(resourceAuth, resourceMint) {
     try {
@@ -110,10 +117,10 @@ export default function Home() {
 
       let resourceBalanceinVault = await getTokenBalance(
         pdaResourceInfo.ata.toBase58()
-      );
+      ).amount;
       let atlasBalanceInVault = await getTokenBalance(
         pdaAtlasInfo.ata.toBase58()
-      );
+      ).amount;
 
       console.log({ resourceBalanceinVault, atlasBalanceInVault });
 
@@ -124,7 +131,7 @@ export default function Home() {
       console.log(TradeData.beneficiary_atlast_account);
       console.log(TradeData);
 
-      console.log(resourceBalanceinVault < TradeData.minimum_buy_qty);
+      console.log(resourceBalanceinVault.amount < TradeData.minimum_buy_qty);
       console.log("Resource is sold out");
 
       updateCategoryAsset(
@@ -193,48 +200,63 @@ export default function Home() {
     const storedUsrObject = localStorage.getItem("usrObject");
     console.log("use effect on first load");
   
-    if (storedUsrObject) {
-      try {
-        const parsedUsrObject = JSON.parse(storedUsrObject);
-        setUsrObject(parsedUsrObject);
-        setButtonText(
-          parsedUsrObject.pubkey.slice(0, 3) +
-            "..." +
-            parsedUsrObject.pubkey.slice(-3)
-        );
-      } catch (error) {
-        console.error("Error parsing usrObject:", error);
-      }
-    }
+    const initialize = async () => {
+      console.log("Init Called")
+      if (storedUsrObject) {
+        try {
+          const parsedUsrObject = JSON.parse(storedUsrObject);
+          let pxpRewardAta = await findOrCreateAssociatedTokenAccount(
+            rewardMint,
+            null,
+            new PublicKey(parsedUsrObject.pubkey)
+          );
   
-    const fetchMarketStatus = async () => {
-      try {
-        const response = await fetch(
-          "https://polaris.cheaprpc.com:3000/market-status"
-        );
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+          let userPxpBalance = await getTokenBalance(
+            pxpRewardAta.ata.toBase58()
+          );
+
+          console.log("UserPxpBalance")
+          console.log(userPxpBalance)
+
+          setPxp(convertToBase10(userPxpBalance.amount,userPxpBalance.decimals))
+  
+          setUsrObject(parsedUsrObject);
+          setButtonText(
+            parsedUsrObject.pubkey.slice(0, 3) +
+              "..." +
+              parsedUsrObject.pubkey.slice(-3)
+          );
+        } catch (error) {
+          console.error("Error processing usrObject:", error);
         }
-        const data = await response.json();
-        console.log("Market Status:", data);
-  
-        // Set the fetched data to the categories state
-        setCategories(data);
-  
-  
-        // Set loading to false after 2 seconds
-        const timer = setTimeout(() => {
-          setIsLoading(false);
-        }, 2000);
-  
-        // Cleanup the timeout if the component is unmounted before the timer finishes
-        return () => clearTimeout(timer);
-      } catch (error) {
-        console.error("There was a problem with the fetch operation:", error);
       }
-    };
   
-    const onBoot = async () => {
+      const fetchMarketStatus = async () => {
+        try {
+          const response = await fetch(
+            "https://polaris.cheaprpc.com:3000/market-status"
+          );
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const data = await response.json();
+          console.log("Market Status:", data);
+  
+          // Set the fetched data to the categories state
+          setCategories(data);
+  
+          // Set loading to false after 2 seconds
+          const timer = setTimeout(() => {
+            setIsLoading(false);
+          }, 2000);
+  
+          // Cleanup the timeout if the component is unmounted before the timer finishes
+          return () => clearTimeout(timer);
+        } catch (error) {
+          console.error("There was a problem with the fetch operation:", error);
+        }
+      };
+  
       try {
         console.log("App Loaded");
         await fetchMarketStatus(); // Fetch market status on app load
@@ -243,16 +265,15 @@ export default function Home() {
       }
     };
   
-    onBoot();
+    initialize();
   }, []); // Empty dependency array ensures this runs once on mount
   
 
-
   
 
-  useEffect(() => {
-    console.log("Categories updated:", categories);
-  }, [categories]); // This will log whenever categories change
+  // useEffect(() => {
+  //   console.log("Categories updated:", categories);
+  // }, [categories]); // This will log whenever categories change
 
   const getProvider = () => {
     if ("phantom" in window && window.phantom != null) {
@@ -394,7 +415,7 @@ export default function Home() {
       console.log(`Token Balance: ${tokenAmount.amount}`);
       console.log(`Decimals: ${tokenAmount.decimals}`);
 
-      return tokenAmount.amount;
+      return tokenAmount;
     } catch (error) {
       console.error("Error fetching token balance:", error);
       return 0;
@@ -556,6 +577,7 @@ export default function Home() {
       // 26qv4GCcx98RihuK3c4T6ozB3J7L6VwCuFVc7Ta2A3Uo
     } catch (err) {
       alert("Phantom Wallet Needed to use blendhit");
+      setIsBuyLoading(null);
       return;
       // { code: 4001, message: 'User rejected the request.' }
     }
@@ -721,30 +743,34 @@ export default function Home() {
     transaction.recentBlockhash = blockhash;
     transaction.feePayer = provider.publicKey;
 
-    let signedTransaction = await provider.signTransaction(transaction);
-    console.log(signedTransaction);
-    const serializedTransaction = signedTransaction.serialize();
-    //  try {
-    //     const transactionId = await connection.sendRawTransaction(serializedTransaction, {
-    //         skipPreflight:true
-    //     });
-    //     console.log("Transaction ID:", transactionId);
-    //     window.open(`https://explorer.solana.com/tx/${transactionId}?cluster=devnet`)
-    //     } catch (error) {
-    //         console.log(error)
-    //  }
+    try {
+      let signedTransaction = await provider.signTransaction(transaction);
+      console.log(signedTransaction);
+      const serializedTransaction = signedTransaction.serialize();
+  
+  
+      const transactionId = await connection.sendRawTransaction(
+        serializedTransaction,
+        {
+          skipPreflight: true,
+        }
+      );
 
-    const transactionId = await connection.sendRawTransaction(
-      serializedTransaction,
-      {
-        skipPreflight: true,
-      }
-    );
+      setAlertMessage("Transaction Submitted");
+      setIsAlertOpen(true); // Trigger the alert with the message
+      setIsBuyLoading(null);
+      console.log(transactionId);
+      
+    } catch (error) {
+      setAlertMessage("Transaction Cancelled");
+      setIsAlertOpen(true); // Trigger the alert with the message
+      setIsBuyLoading(null);
 
-    setIsBuyLoading(null);
-    setAlertMessage("Transaction Submitted");
-    setIsAlertOpen(true); // Trigger the alert with the message
-    console.log(transactionId);
+    }
+
+
+
+
   }
 
   const buttonPressed = (tab) => {
@@ -813,7 +839,7 @@ export default function Home() {
               isBuyLoading={isBuyLoading}
             />
           </Nav>
-          <Bottom pxp={0} />
+          <Bottom pxp={pxp} />
         </div>
       ) : (
         <div className="mobileLayout">
@@ -835,7 +861,7 @@ export default function Home() {
               isBuyLoading={isBuyLoading}
             />
           </Nav>
-          <Bottom pxp={0} />
+          <Bottom pxp={pxp} />
         </div>
       )}
     </div>

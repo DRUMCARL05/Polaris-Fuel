@@ -343,7 +343,10 @@ let categories = [
   }
 ];
 
-
+function convertToBase10(number, decimals) {
+  const factor = Math.pow(10, decimals);
+  return number / factor;
+}
 
 async function getMarketStatus(resourceAuth, resourceMint, categoryName, assetName) {
   console.log("Getting mint:", resourceMint.toBase58());
