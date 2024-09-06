@@ -308,14 +308,21 @@ export default function Scroller({
                           
                             
                                 </div>
-                          
-                                  <img
-                                    draggable={false}
-                                    src={subAsset.soldOut ? `${subAsset.image.slice(0, -4)}so.png` : subAsset.image}
-                                    alt={subAsset.name}
-                                    className={styles.assetImage}
-                                  />
-                           
+                                {subAsset.soldOut ? (
+                                    <img
+                                      draggable={false}
+                                      src={`${subAsset.image.slice(0, -4)}so.png`}
+                                      alt={subAsset.name}
+                                      className={styles.assetImage}
+                                    />
+                                  ) : (
+                                    <img
+                                      draggable={false}
+                                      src={subAsset.image}
+                                      alt={subAsset.name}
+                                      className={styles.assetImage}
+                                    />
+                                  )}
                               </div>
 
                               <div className={styles.amountDetails}>
