@@ -56,7 +56,7 @@ export default function Nav({ onLinkClick, children,buttonText,getProvider,setBu
   return (
     <nav className="nav">
       <div className="desktopNav">
-        <img src="/polarisTextLogo.png" alt="polaris logo" className="logo" />
+        <img style={{userSelect:'none'}} draggable='false' src="/polarisTextLogo.png" alt="polaris logo" className="logo" />
         <div className="middleLinks">
           <h2 className={activeTab === 'Buy' ? 'active' : ''} onClick={() => handleLinkClick('Buy')}>
             <span></span>Buy
@@ -80,7 +80,8 @@ export default function Nav({ onLinkClick, children,buttonText,getProvider,setBu
             alignItems: 'center',
             border: 'none', // Optional: remove border
             cursor: 'pointer', // Optional: change cursor on hover
-            padding: 0 // Remove any default padding
+            padding: 0, // Remove any default padding
+            userSelect:'none'
         }}>
           <PiWalletLight className='walletIcon' />
           {buttonText}

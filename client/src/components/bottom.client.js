@@ -28,7 +28,7 @@ export default function Bottom({ pxp }) {  // Accept pxp as a prop
         backgroundPosition: 'center'
     }}>
         <div className="level">
-            <img src={levelImage} alt={`${level} Level`} />
+            <img style={{userSelect:'none'}} draggable={false} src={levelImage} alt={`${level} Level`} />
             <h3 className="levelText">{level} Level</h3>
         </div>
         <div className="pxp">
