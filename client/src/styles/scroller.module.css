@@ -105,6 +105,7 @@
 }
 
 .assetImage {
+  user-select: none;
   width: 8rem;
 }
 
@@ -116,6 +117,7 @@
 }
 
 .glowCost {
+  user-select: none;
   margin-top: -2.5rem;
   opacity: 0.7;
   z-index: 1;
@@ -144,6 +146,7 @@
 
 .totalCostAmount,
 .buyingAmount {
+  user-select: none;
   font-size: 32px;
   font-weight: 600;
 }
@@ -172,6 +175,7 @@
 }
 
 .headingManage {
+  user-select: none;
   font-size: 16px;
   font-weight: 500;
   text-transform: uppercase;

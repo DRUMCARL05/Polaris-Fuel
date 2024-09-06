@@ -328,7 +328,8 @@ export default function Scroller({
                               <div className={styles.amountDetails}>
                                 <div className={styles.buying}>
                                   <p
-                                    style={{ cursor: "pointer" }}
+                                    
+                                    style={{ userSelect:'none' }}
                                     className={styles.heading}
                                   >
                                     {activeTab === "Buy"
@@ -349,7 +350,7 @@ export default function Scroller({
                                 </div>
                                 <div className={styles.totalCost}>
                                   <p
-                                    style={{ cursor: "pointer" }}
+                                    style={{ userSelect:'none' }}
                                     className={styles.heading}
                                   >
                                     {activeTab === "Buy"
@@ -364,7 +365,7 @@ export default function Scroller({
                                         : subAsset.sell_price * subAsset.multiplier
                                     )}
                                     <img
-                                      style={{ marginTop: 1 }}
+                                      style={{ marginTop: 1,userSelect:'none' }}
                                       src="/atlasIcon.svg"
                                       alt="Atlas Icon"
                                     />
@@ -398,6 +399,7 @@ export default function Scroller({
                                       backgroundRepeat: "no-repeat",
                                       backgroundPosition: "center",
                                       cursor: "pointer",
+                                      userSelect:'none'
                                     }}
                                   >
                                     +1M
@@ -413,6 +415,8 @@ export default function Scroller({
                                       backgroundRepeat: "no-repeat",
                                       backgroundPosition: "center",
                                       cursor: "pointer",
+                                      userSelect:'none'
+
                                     }}
                                   >
                                     +10M
@@ -428,6 +432,8 @@ export default function Scroller({
                                       backgroundRepeat: "no-repeat",
                                       backgroundPosition: "center",
                                       cursor: "pointer",
+                                      userSelect:'none'
+
                                     }}
                                   >
                                     -1M
@@ -443,6 +449,8 @@ export default function Scroller({
                                       backgroundRepeat: "no-repeat",
                                       backgroundPosition: "center",
                                       cursor: "pointer",
+                                      userSelect:'none'
+
                                     }}
                                   >
                                     -10M
@@ -459,6 +467,8 @@ export default function Scroller({
                                 display: "flex",
                                 gap: "10px",
                                 justifyContent: "center",
+                                userSelect:'none'
+
                               }}
                               disabled={isBuyLoading === subAsset.name}
                             >
