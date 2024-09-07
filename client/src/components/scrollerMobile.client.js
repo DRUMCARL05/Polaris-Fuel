@@ -59,18 +59,28 @@ export default function Scroller({
   }, [categories]);
 
   useEffect(() => {
-    if (!isRefAvailable) return;
+    if (!containerRef.current) return; // Ensure ref is available
 
-    const ref = containerRef.current;
+    const ref = containerRef.current; // Now ref should be a DOM element, not null
+    let lastScrollTop = ref.scrollTop;
 
     const handleScroll = () => {
       const scrollY = ref.scrollTop;
-      const containerHeight = ref.clientHeight;
-      const newActiveCategoryIndex = Math.floor(scrollY / containerHeight);
 
-      if (newActiveCategoryIndex !== activeCategoryIndex) {
-        setActiveCategoryIndex(newActiveCategoryIndex);
+      // Determine if we're scrolling up or down
+      if (scrollY > lastScrollTop) {
+        // Scrolling down, set index to 0
+        if (activeCategoryIndex !== 0) {
+          setActiveCategoryIndex(0);
+        }
+      } else if (scrollY < lastScrollTop) {
+        // Scrolling up, set index to 1
+        if (activeCategoryIndex !== 1) {
+          setActiveCategoryIndex(1);
+        }
       }
+
+      lastScrollTop = scrollY;
     };
 
     ref.addEventListener("scroll", handleScroll);
@@ -142,7 +152,7 @@ export default function Scroller({
     return <div>No assets to display</div>;
   }
   return (
-    <div>
+    <div style={{ userSelect: "none" }}>
       <div className={styles.snappyContainer} ref={containerRef}>
         {categories.map((category, catIndex) => {
           return (
