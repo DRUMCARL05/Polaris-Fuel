@@ -11,7 +11,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} use-inria`}>{children}</body>
+      <body
+        style={{ overflow: "hidden", touchAction: "none" }}
+        className={`${inter.className} use-inria`}
+      >
+        {children}
+      </body>
     </html>
   );
 }

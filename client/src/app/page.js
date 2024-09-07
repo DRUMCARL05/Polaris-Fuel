@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import MyAlert from "./myalert"; // Import the custom alert component
+import bg from "../../public/backgroundButtonManage.png";
+import { PiWalletLight } from "react-icons/pi";
 
 import "../styles/homepage.css";
 import dynamic from "next/dynamic";
@@ -34,6 +36,7 @@ import {
   ammoMint,
   rewardMint,
 } from "./global.js";
+import Mobiel from "@/components/Mobile";
 
 const Nav = dynamic(() => import("@/components/nav.client"), { ssr: false });
 const ScrollerDesktop = dynamic(
@@ -65,6 +68,86 @@ export default function Home() {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [pxp, setPxp] = useState(0);
+
+  const [indexA, setIndexA] = useState(0); // Toggles between 0 and 1
+  const [indexB, setIndexB] = useState(0); // Enumerates between 0 and 12
+
+  let startX = 0;
+  let startY = 0;
+
+  const handleTouchStart = (event) => {
+    // Get the initial touch coordinates
+    const touch = event.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+  };
+
+  const [buttonBottom, setButtonBottom] = useState(40); // default value
+
+  useEffect(() => {
+    const bottomNav = document.getElementById("bottomNav");
+    if (bottomNav) {
+      const bottomNavHeight = bottomNav.offsetHeight;
+      setButtonBottom(bottomNavHeight + 10); // Adjust this value to position the button above the bottom nav
+    }
+  }, []);
+
+  const handleTouchMove = (event) => {
+    if (!startX || !startY) {
+      return;
+    }
+
+    const touch = event.touches[0];
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+
+    // Vertical swipe: Toggle indexA between 0 and 1 on both up and down swipes
+    if (Math.abs(deltaY) > Math.abs(deltaX)) {
+      setIndexA((prevIndexA) => {
+        if (prevIndexA === 1) {
+          // Ensure indexB is <= 3 before switching to indexA = 0
+          if (indexB > 3) {
+            setIndexB(3); // Limit indexB to 3
+          }
+          return 0; // Switch to indexA = 0
+        } else {
+          return 1; // Switch to indexA = 1
+        }
+      });
+    }
+
+    // Horizontal swipe: Adjust indexB within the appropriate range
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      setIndexB((prevIndexB) => {
+        // Define maxB based on indexA
+        const maxB = indexA === 0 ? 3 : 11;
+
+        let newIndexB = prevIndexB + (deltaX > 0 ? 1 : -1); // Swipe right: +1, Swipe left: -1
+
+        // Ensure indexB loops around within its respective range
+        if (newIndexB < 0) newIndexB = maxB; // Loop back to maxB if below 0
+        if (newIndexB > maxB) newIndexB = 0; // Loop back to 0 if above maxB
+
+        return newIndexB;
+      });
+    }
+
+    // Reset touch start positions
+    startX = 0;
+    startY = 0;
+  };
+
+  useEffect(() => {
+    // Add event listeners for touch events
+    window.addEventListener("touchstart", handleTouchStart);
+    window.addEventListener("touchmove", handleTouchMove);
+
+    // Cleanup listeners on component unmount
+    return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+    };
+  }, [indexA, indexB]); // Ensure indexA and indexB are in the dependency array
 
   const [isBuyLoading, setIsBuyLoading] = useState("");
   const updateCategoryAsset = (categoryName, assetName, key, value) => {
@@ -773,10 +856,57 @@ export default function Home() {
     }
   }
 
+  const numberToScale = (number) => {
+    const num = parseFloat(number);
+    if (isNaN(num)) return "";
+    if (num >= 1e9) return `${(num / 1e9).toFixed(0)} B`;
+    if (num >= 1e6) return `${(num / 1e6).toFixed(0)} M`;
+    if (num >= 1e3 && num < 1e5) return num.toFixed(0); // Allow 4 digits for 1k-9999 range
+    if (num >= 1e3) return `${(num / 1e3).toFixed(0)} K`; // Rounds after 10k
+    return num.toString();
+  };
+
   const buttonPressed = (tab) => {
     setActiveTab(tab);
     // Any other logic you want to perform when a tab is pressed
   };
+
+  async function connectWallet() {
+    if (buttonText !== "Connect Wallet") {
+      setButtonText("Connect Wallet");
+      deleteUsrObject();
+    } else {
+      const provider = getProvider(); // see "Detecting the Provider"
+      let pubkey58;
+      try {
+        const resp = await provider.connect();
+        console.log(resp.publicKey.toString());
+        pubkey58 = resp.publicKey.toString();
+        updateUsrObject(pubkey58, 0);
+        const formattedPubkey =
+          pubkey58.length <= 6
+            ? pubkey58
+            : `${pubkey58.slice(0, 3)}...${pubkey58.slice(-3)}`;
+
+        // Now you can use formattedPubkey as needed
+        console.log(formattedPubkey);
+        console.log(pubkey58);
+
+        // console.log(firstThree+"..."+lastThree)
+        setButtonText(formattedPubkey);
+      } catch (err) {
+        alert("Phantom Wallet Needed to use blendhit");
+        alert(err);
+        return;
+        // { code: 4001, message: 'User rejected the request.' }
+      }
+    }
+  }
+
+  function handleLinkClick(link) {
+    setActiveTab(link);
+    buttonPressed(link);
+  }
 
   return (
     <div style={{ position: "relative", height: "100vh", overflow: "hidden" }}>
@@ -826,6 +956,7 @@ export default function Home() {
             buttonText={buttonText}
             activeLink={activeTab}
             onLinkClick={buttonPressed}
+            connectWallet={connectWallet}
           >
             <ScrollerDesktop
               handleMultiplier={handleMultiplier}
@@ -838,25 +969,44 @@ export default function Home() {
           <Bottom pxp={pxp} />
         </div>
       ) : (
-        <div className="mobileLayout">
-          <div className="glow"></div>
-          <Nav
-            deleteUsrObject={deleteUsrObject}
-            updateUsrObject={updateUsrObject}
-            setButtonText={setButtonText}
-            getProvider={getProvider}
+        <div>
+          <Mobiel
+            categories={categories}
+            activeTab={activeTab}
+            numberToScale={numberToScale}
+            isBuyLoading={isBuyLoading}
+            indexA={indexA}
+            indexB={indexB}
+            handleMultiplier={handleMultiplier}
+            buttonClick={buttonClick}
+            connectWallet={connectWallet}
             buttonText={buttonText}
-            activeLink={activeTab}
-            onLinkClick={buttonPressed}
+            handleLinkClick={handleLinkClick}
+          />
+          <button
+            onClick={connectWallet}
+            className="connectWallet"
+            style={{
+              backgroundImage: `url(${bg.src})`,
+              backgroundSize: "cover",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              width: "120%",
+              height: 30,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              border: "none",
+              cursor: "pointer",
+              userSelect: "none",
+              position: "fixed",
+              bottom: buttonBottom - 12, // Dynamic bottom position
+              marginLeft: -30,
+            }}
           >
-            <ScrollerMobile
-              handleMultiplier={handleMultiplier}
-              categories={categories}
-              buttonClick={buttonClick}
-              activeTab={activeTab}
-              isBuyLoading={isBuyLoading}
-            />
-          </Nav>
+            <PiWalletLight className="walletIcon" />
+            {buttonText}
+          </button>
           <Bottom pxp={pxp} />
         </div>
       )}
