@@ -160,60 +160,26 @@ export default function Scroller({
                             {category.name}
                           </h2>
                           <h2 className={styles.foodName}>{asset.name}</h2>
-                          {!asset.soldOut && (
-                            <>
+                          {activeTab === "Buy" ? (
+                            <div>
                               <h3 className={styles.rarity}>
-                                <svg
-                                  width="10"
-                                  height="10"
-                                  viewBox="0 0 10 10"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <rect
-                                    x="0.4"
-                                    y="0.4"
-                                    width="9.2"
-                                    height="9.2"
-                                    stroke="white"
-                                    strokeWidth="0.8"
-                                  />
-                                  <rect
-                                    x="2.22223"
-                                    y="2.22222"
-                                    width="5.55556"
-                                    height="5.55556"
-                                    fill="white"
-                                  />
-                                </svg>
-                                {activeTab === "Buy"
-                                  ? asset.resourceBalanceinVault
-                                  : asset.atlasBalanceInVault}
+                                <img
+                                  style={{
+                                    marginTop: -1,
+                                    width: 15,
+                                    marginLeft: 0,
+                                  }}
+                                  src={asset.image}
+                                  alt={asset.name}
+                                />
+                                {numberToScale(asset.resourceBalanceinVault)}
                               </h3>
                               <h3 className={styles.rarity}>
-                                <svg
-                                  width="10"
-                                  height="10"
-                                  viewBox="0 0 10 10"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                >
-                                  <rect
-                                    x="0.4"
-                                    y="0.4"
-                                    width="9.2"
-                                    height="9.2"
-                                    stroke="white"
-                                    strokeWidth="0.8"
-                                  />
-                                  <rect
-                                    x="2.22223"
-                                    y="2.22222"
-                                    width="5.55556"
-                                    height="5.55556"
-                                    fill="white"
-                                  />
-                                </svg>
+                                <img
+                                  style={{ marginTop: 2 }}
+                                  src="/atlasIcon.svg"
+                                  alt="Atlas Icon"
+                                />
                                 {Number.isNaN(
                                   (asset.buy_price * asset.multiplier) /
                                     (asset.minimum_buy_qty * asset.multiplier)
@@ -222,7 +188,35 @@ export default function Scroller({
                                   : (asset.buy_price * asset.multiplier) /
                                     (asset.minimum_buy_qty * asset.multiplier)}
                               </h3>
-                            </>
+                            </div>
+                          ) : (
+                            <div>
+                              <h3 className={styles.rarity}>
+                                <img
+                                  style={{
+                                    marginTop: 4,
+                                    marginLeft: 0,
+                                  }}
+                                  src="/atlasIcon.svg"
+                                  alt="Atlas Icon"
+                                />
+                                {numberToScale(asset.atlasBalanceInVault)}
+                              </h3>
+                              <h3 className={styles.rarity}>
+                                <img
+                                  style={{ marginTop: 2 }}
+                                  src="/atlasIcon.svg"
+                                  alt="Atlas Icon"
+                                />
+                                {Number.isNaN(
+                                  (asset.sell_price * asset.multiplier) /
+                                    (asset.minimum_sell_qty * asset.multiplier)
+                                )
+                                  ? 0
+                                  : (asset.sell_price * asset.multiplier) /
+                                    (asset.minimum_sell_qty * asset.multiplier)}
+                              </h3>
+                            </div>
                           )}
                         </div>
                         {asset.image && (

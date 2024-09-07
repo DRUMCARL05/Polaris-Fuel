@@ -13,8 +13,6 @@ export default function Scroller({
   handleMultiplier,
   isBuyLoading,
 }) {
-
-
   const rowHeightRem = 23;
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
   const [localCategories, setLocalCategories] = useState([]);
@@ -36,7 +34,6 @@ export default function Scroller({
     if (num >= 1e3) return `${(num / 1e3).toFixed(0)} K`; // Rounds after 10k
     return num.toString();
   };
-  
 
   // useEffect(() => {
   //   containerRefs.current = categories.map(() => React.createRef());
@@ -56,7 +53,6 @@ export default function Scroller({
       setLocalCategories([]); // Ensure localCategories is empty if categories are not valid
     }
   }, [categories]);
-  
 
   const getNumberOfRows = (categoryIndex) => {
     const numAssets = localCategories[categoryIndex].assets.length;
@@ -169,10 +165,7 @@ export default function Scroller({
     !localCategories[activeCategoryIndex].assets.length
   ) {
     return <div>Loading assets...</div>; // Changed message to "Loading assets..." to indicate it's waiting for data
-  }
-  
-  else
-  {
+  } else {
     return (
       <div>
         <div className={styles.desktopLayout}>
@@ -197,7 +190,10 @@ export default function Scroller({
               )
             )}
           </div>
-          <div className={styles.desktopAssetContainer} ref={desktopContainerRef}>
+          <div
+            className={styles.desktopAssetContainer}
+            ref={desktopContainerRef}
+          >
             <div className={styles.dropDownContainer}>
               <select
                 onChange={(e) => {
@@ -214,7 +210,7 @@ export default function Scroller({
               </select>
               <FaAngleDown className={styles.arrow} />
             </div>
-  
+
             <div className={styles.desktopCategory}>
               {categories[desktopCategory].assets.map(
                 (asset, index) =>
@@ -223,18 +219,6 @@ export default function Scroller({
                       {categories[desktopCategory].assets
                         .slice(index, index + 4)
                         .map((subAsset, subIndex) => {
-                          // console.log(
-                          //   (subAsset.buy_price * subAsset.multiplier) /
-                          //     (subAsset.minimum_buy_qty * subAsset.multiplier)
-                          // );
-                          // console.log(
-                          //   subAsset.buy_price * subAsset.multiplier,
-                          //   "(subAsset.buy_price * subAsset.multiplier)"
-                          // );
-                          // console.log(
-                          //   subAsset.minimum_buy_qty * subAsset.multiplier,
-                          //   "(subAsset.minimum_buy_qty * subAsset.multiplier)"
-                          // );
                           return (
                             <div key={subIndex} className={styles.desktopAsset}>
                               <div className={styles.details}>
@@ -243,99 +227,101 @@ export default function Scroller({
                                     <h2 className={styles.foodName}>
                                       {subAsset.name}
                                     </h2>
-                                          {activeTab === "Buy"
-                                            ? (
-                                              <div>
-                                                <h3 className={styles.rarity}>
-                                                <img
-                                                  style={{ marginTop: -1, width: 15, marginLeft: 0 }}
-                                                  src={subAsset.image}
-                                                  alt={subAsset.name}
-                                                />
-                                                {numberToScale(subAsset.resourceBalanceinVault)}
-                                              </h3>
-                                              <h3 className={styles.rarity}>
-                                              <img
-                                                style={{ marginTop: 2 }}
-                                                src="/atlasIcon.svg"
-                                                alt="Atlas Icon"
-                                              />
-                                              {Number.isNaN(
-                                                (subAsset.buy_price *
-                                                  subAsset.multiplier) /
-                                                  (subAsset.minimum_buy_qty *
-                                                    subAsset.multiplier)
-                                              )
-                                                ? 0
-                                                : (subAsset.buy_price *
-                                                    subAsset.multiplier) /
-                                                  (subAsset.minimum_buy_qty *
-                                                    subAsset.multiplier)}
-                                            </h3>
-  
-                                              </div>
-  
-                                            )
-                                            : (
-                                              <div>
-                                               <h3 className={styles.rarity}>
-                                                <img
-                                                  style={{ marginTop: 4, marginLeft: 0 }}
-                                                  src='/atlasIcon.svg'
-                                                  alt="Atlas Icon"
-                                                />
-                                                {numberToScale(subAsset.atlasBalanceInVault)}
-                                              </h3>
-                                              <h3 className={styles.rarity}>
-                                              <img
-                                                style={{ marginTop: 2 }}
-                                                src="/atlasIcon.svg"
-                                                alt="Atlas Icon"
-                                              />
-                                              {Number.isNaN(
-                                                (subAsset.sell_price *
-                                                  subAsset.multiplier) /
-                                                  (subAsset.minimum_sell_qty *
-                                                    subAsset.multiplier)
-                                              )
-                                                ? 0
-                                                : (subAsset.sell_price *
-                                                    subAsset.multiplier) /
-                                                  (subAsset.minimum_sell_qty *
-                                                    subAsset.multiplier)}
-                                            </h3>
-  
-                                              </div>
-  
-                                            )
-                                          }
-  
-  
-                            
-                              
+                                    {activeTab === "Buy" ? (
+                                      <div>
+                                        <h3 className={styles.rarity}>
+                                          <img
+                                            style={{
+                                              marginTop: -1,
+                                              width: 15,
+                                              marginLeft: 0,
+                                            }}
+                                            src={subAsset.image}
+                                            alt={subAsset.name}
+                                          />
+                                          {numberToScale(
+                                            subAsset.resourceBalanceinVault
+                                          )}
+                                        </h3>
+                                        <h3 className={styles.rarity}>
+                                          <img
+                                            style={{ marginTop: 2 }}
+                                            src="/atlasIcon.svg"
+                                            alt="Atlas Icon"
+                                          />
+                                          {Number.isNaN(
+                                            (subAsset.buy_price *
+                                              subAsset.multiplier) /
+                                              (subAsset.minimum_buy_qty *
+                                                subAsset.multiplier)
+                                          )
+                                            ? 0
+                                            : (subAsset.buy_price *
+                                                subAsset.multiplier) /
+                                              (subAsset.minimum_buy_qty *
+                                                subAsset.multiplier)}
+                                        </h3>
+                                      </div>
+                                    ) : (
+                                      <div>
+                                        <h3 className={styles.rarity}>
+                                          <img
+                                            style={{
+                                              marginTop: 4,
+                                              marginLeft: 0,
+                                            }}
+                                            src="/atlasIcon.svg"
+                                            alt="Atlas Icon"
+                                          />
+                                          {numberToScale(
+                                            subAsset.atlasBalanceInVault
+                                          )}
+                                        </h3>
+                                        <h3 className={styles.rarity}>
+                                          <img
+                                            style={{ marginTop: 2 }}
+                                            src="/atlasIcon.svg"
+                                            alt="Atlas Icon"
+                                          />
+                                          {Number.isNaN(
+                                            (subAsset.sell_price *
+                                              subAsset.multiplier) /
+                                              (subAsset.minimum_sell_qty *
+                                                subAsset.multiplier)
+                                          )
+                                            ? 0
+                                            : (subAsset.sell_price *
+                                                subAsset.multiplier) /
+                                              (subAsset.minimum_sell_qty *
+                                                subAsset.multiplier)}
+                                        </h3>
+                                      </div>
+                                    )}
                                   </div>
                                   {subAsset.soldOut ? (
-                                      <img
-                                        draggable={false}
-                                        src={`${subAsset.image.slice(0, -4)}so.png`}
-                                        alt={subAsset.name}
-                                        className={styles.assetImage}
-                                      />
-                                    ) : (
-                                      <img
-                                        draggable={false}
-                                        src={subAsset.image}
-                                        alt={subAsset.name}
-                                        className={styles.assetImage}
-                                      />
-                                    )}
+                                    <img
+                                      draggable={false}
+                                      src={`${subAsset.image.slice(
+                                        0,
+                                        -4
+                                      )}so.png`}
+                                      alt={subAsset.name}
+                                      className={styles.assetImage}
+                                    />
+                                  ) : (
+                                    <img
+                                      draggable={false}
+                                      src={subAsset.image}
+                                      alt={subAsset.name}
+                                      className={styles.assetImage}
+                                    />
+                                  )}
                                 </div>
-  
+
                                 <div className={styles.amountDetails}>
                                   <div className={styles.buying}>
                                     <p
-                                      
-                                      style={{ userSelect:'none' }}
+                                      style={{ userSelect: "none" }}
                                       className={styles.heading}
                                     >
                                       {activeTab === "Buy"
@@ -356,7 +342,7 @@ export default function Scroller({
                                   </div>
                                   <div className={styles.totalCost}>
                                     <p
-                                      style={{ userSelect:'none' }}
+                                      style={{ userSelect: "none" }}
                                       className={styles.heading}
                                     >
                                       {activeTab === "Buy"
@@ -368,10 +354,14 @@ export default function Scroller({
                                         activeTab === "Buy"
                                           ? subAsset.buy_price *
                                               subAsset.multiplier
-                                          : subAsset.sell_price * subAsset.multiplier
+                                          : subAsset.sell_price *
+                                              subAsset.multiplier
                                       )}
                                       <img
-                                        style={{ marginTop: 1,userSelect:'none' }}
+                                        style={{
+                                          marginTop: 1,
+                                          userSelect: "none",
+                                        }}
                                         src="/atlasIcon.svg"
                                         alt="Atlas Icon"
                                       />
@@ -383,7 +373,7 @@ export default function Scroller({
                                     className={styles.glowCost}
                                   />
                                 </div>
-  
+
                                 <div className={styles.manageBuyingAmount}>
                                   <div className={styles.topSectionManage}>
                                     <h4 className={styles.headingManage}>
@@ -405,7 +395,7 @@ export default function Scroller({
                                         backgroundRepeat: "no-repeat",
                                         backgroundPosition: "center",
                                         cursor: "pointer",
-                                        userSelect:'none'
+                                        userSelect: "none",
                                       }}
                                     >
                                       +1M
@@ -421,8 +411,7 @@ export default function Scroller({
                                         backgroundRepeat: "no-repeat",
                                         backgroundPosition: "center",
                                         cursor: "pointer",
-                                        userSelect:'none'
-  
+                                        userSelect: "none",
                                       }}
                                     >
                                       +10M
@@ -438,8 +427,7 @@ export default function Scroller({
                                         backgroundRepeat: "no-repeat",
                                         backgroundPosition: "center",
                                         cursor: "pointer",
-                                        userSelect:'none'
-  
+                                        userSelect: "none",
                                       }}
                                     >
                                       -1M
@@ -455,8 +443,7 @@ export default function Scroller({
                                         backgroundRepeat: "no-repeat",
                                         backgroundPosition: "center",
                                         cursor: "pointer",
-                                        userSelect:'none'
-  
+                                        userSelect: "none",
                                       }}
                                     >
                                       -10M
@@ -473,8 +460,7 @@ export default function Scroller({
                                   display: "flex",
                                   gap: "10px",
                                   justifyContent: "center",
-                                  userSelect:'none'
-  
+                                  userSelect: "none",
                                 }}
                                 disabled={isBuyLoading === subAsset.name}
                               >
@@ -498,7 +484,5 @@ export default function Scroller({
         </div>
       </div>
     );
-
   }
-
 }
