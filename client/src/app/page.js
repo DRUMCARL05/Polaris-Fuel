@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import MyAlert from './myalert'; // Import the custom alert component
+import MyAlert from "./myalert"; // Import the custom alert component
 
 import "../styles/homepage.css";
 import dynamic from "next/dynamic";
@@ -26,7 +26,14 @@ import {
   createTransferInstruction,
 } from "@solana/spl-token";
 
-import { programId, connection, feePubKey, atlasMint, ammoMint, rewardMint } from './global.js';
+import {
+  programId,
+  connection,
+  feePubKey,
+  atlasMint,
+  ammoMint,
+  rewardMint,
+} from "./global.js";
 
 const Nav = dynamic(() => import("@/components/nav.client"), { ssr: false });
 const ScrollerDesktop = dynamic(
@@ -45,11 +52,7 @@ const Bottom = dynamic(() => import("@/components/bottom.client"), {
   ssr: false,
 });
 
-
 let ammoAuth = new PublicKey("PLRSGTRwq2rz8S62JFWbtFEixvetZ4v58KQWi21kLxg");
-
-
-
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("Buy");
@@ -60,8 +63,8 @@ export default function Home() {
   const [categories, setCategories] = useState([]);
 
   const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');
-  const [pxp,setPxp] = useState(0);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [pxp, setPxp] = useState(0);
 
   const [isBuyLoading, setIsBuyLoading] = useState("");
   const updateCategoryAsset = (categoryName, assetName, key, value) => {
@@ -82,7 +85,6 @@ export default function Home() {
       })
     );
   };
-
 
   function convertToBase10(number, decimals) {
     const factor = Math.pow(10, decimals);
@@ -195,13 +197,36 @@ export default function Home() {
     setUsrObject({ pubkey: "", pxp: "" });
   };
 
+  useEffect(() => {
+    console.log("Checking Mobile");
+    // Function to check the width of the window
+    const checkIfDesktop = () => {
+      if (window.innerWidth > 768) {
+        // Assuming 768px is the threshold for desktop
+        setIsDesktop(true);
+      } else {
+        setIsDesktop(false);
+      }
+    };
+
+    // Call the function initially
+    checkIfDesktop();
+
+    // Add event listener to update the value when window is resized
+    window.addEventListener("resize", checkIfDesktop);
+
+    // Cleanup function to remove the event listener on component unmount
+    return () => {
+      window.removeEventListener("resize", checkIfDesktop);
+    };
+  }, []); // Empty dependency array ensures it runs only on mount/unmount
 
   useEffect(() => {
     const storedUsrObject = localStorage.getItem("usrObject");
     console.log("use effect on first load");
-  
+
     const initialize = async () => {
-      console.log("Init Called")
+      console.log("Init Called");
       if (storedUsrObject) {
         try {
           const parsedUsrObject = JSON.parse(storedUsrObject);
@@ -210,16 +235,18 @@ export default function Home() {
             null,
             new PublicKey(parsedUsrObject.pubkey)
           );
-  
+
           let userPxpBalance = await getTokenBalance(
             pxpRewardAta.ata.toBase58()
           );
 
-          console.log("UserPxpBalance")
-          console.log(userPxpBalance)
+          console.log("UserPxpBalance");
+          console.log(userPxpBalance);
 
-          setPxp(convertToBase10(userPxpBalance.amount,userPxpBalance.decimals))
-  
+          setPxp(
+            convertToBase10(userPxpBalance.amount, userPxpBalance.decimals)
+          );
+
           setUsrObject(parsedUsrObject);
           setButtonText(
             parsedUsrObject.pubkey.slice(0, 3) +
@@ -230,7 +257,7 @@ export default function Home() {
           console.error("Error processing usrObject:", error);
         }
       }
-  
+
       const fetchMarketStatus = async () => {
         try {
           const response = await fetch(
@@ -241,22 +268,22 @@ export default function Home() {
           }
           const data = await response.json();
           console.log("Market Status:", data);
-  
+
           // Set the fetched data to the categories state
           setCategories(data);
-  
+
           // Set loading to false after 2 seconds
           const timer = setTimeout(() => {
             setIsLoading(false);
           }, 2000);
-  
+
           // Cleanup the timeout if the component is unmounted before the timer finishes
           return () => clearTimeout(timer);
         } catch (error) {
           console.error("There was a problem with the fetch operation:", error);
         }
       };
-  
+
       try {
         console.log("App Loaded");
         await fetchMarketStatus(); // Fetch market status on app load
@@ -264,12 +291,9 @@ export default function Home() {
         console.error(error);
       }
     };
-  
+
     initialize();
   }, []); // Empty dependency array ensures this runs once on mount
-  
-
-  
 
   // useEffect(() => {
   //   console.log("Categories updated:", categories);
@@ -423,102 +447,97 @@ export default function Home() {
   }
 
   function handleMultiplier(asset, multiplier) {
-
-
-  console.log(activeTab)
-  console.log(asset)
-  console.log(multiplier)
-
-  //check if buying less than minimum
-  if(asset.multiplier + multiplier <= 0){
-    if(activeTab=="Buy")
-    {
-      setAlertMessage("Can't buy less than a million units.");
-    }
-    if(activeTab=="Sell")
-    {
-      setAlertMessage("Can't sell less than a million units.");
-    }
-    setIsAlertOpen(true); // Trigger the alert with the message
-    //alert("Can't buy less than a million units")
-    return 0
-  }
-
-
-  if(activeTab=="Buy")
-  {
+    console.log(activeTab);
     console.log(asset);
-    console.log(asset.resourceBalanceinVault);
-    const minimumBuyQty = parseInt(asset.minimum_buy_qty, 10); // e.g., 1 million units
-    const adjustedAmount = minimumBuyQty * multiplier; // Positive or negative depending on multiplier
-    const availableBalance = parseInt(asset.resourceBalanceinVault, 10);
-    // Calculate the new balance based on the multiplier
-    let newBalance = availableBalance - adjustedAmount;
-    // If the user is trying to subtract from the vault (increase purchase)
-    if (newBalance < 0) {
-      setAlertMessage("Trying to buy more assets than are available in the vault.");
+    console.log(multiplier);
+
+    //check if buying less than minimum
+    if (asset.multiplier + multiplier <= 0) {
+      if (activeTab == "Buy") {
+        setAlertMessage("Can't buy less than a million units.");
+      }
+      if (activeTab == "Sell") {
+        setAlertMessage("Can't sell less than a million units.");
+      }
       setIsAlertOpen(true); // Trigger the alert with the message
-      //alert("Trying to buy more assets than are available in the vault.");
-      return 0
+      //alert("Can't buy less than a million units")
+      return 0;
     }
-    console.log("Handling multiplier for asset:", asset.name);
-    console.log("Multiplier value:", multiplier);
-    console.log("Adjusted amount:", adjustedAmount);
-    console.log("New balance:", newBalance);
-    //set multiplier
-    setCategories((prevCategories) => {
-      return prevCategories.map((category) => {
-        console.log("Checking category:", category.name);
-        const updatedAssets = category.assets.map((a) => {
-          console.log("Checking asset:", a.name);
-          if (a.name === asset.name) {
-            console.log("Found matching asset:", a.name);
-            console.log("Old multiplier:", a.multiplier);
-            // Adjust multiplier, ensure it doesn’t go below 0
-            const newMultiplier = Math.max(a.multiplier + multiplier, 0);
-            console.log("New multiplier:", newMultiplier);
-            return {
-              ...a,
-              resourceBalanceinVault: newBalance.toString(),
-              multiplier: newMultiplier,
-            };
-          }
-          return a;
+
+    if (activeTab == "Buy") {
+      console.log(asset);
+      console.log(asset.resourceBalanceinVault);
+      const minimumBuyQty = parseInt(asset.minimum_buy_qty, 10); // e.g., 1 million units
+      const adjustedAmount = minimumBuyQty * multiplier; // Positive or negative depending on multiplier
+      const availableBalance = parseInt(asset.resourceBalanceinVault, 10);
+      // Calculate the new balance based on the multiplier
+      let newBalance = availableBalance - adjustedAmount;
+      // If the user is trying to subtract from the vault (increase purchase)
+      if (newBalance < 0) {
+        setAlertMessage(
+          "Trying to buy more assets than are available in the vault."
+        );
+        setIsAlertOpen(true); // Trigger the alert with the message
+        //alert("Trying to buy more assets than are available in the vault.");
+        return 0;
+      }
+      console.log("Handling multiplier for asset:", asset.name);
+      console.log("Multiplier value:", multiplier);
+      console.log("Adjusted amount:", adjustedAmount);
+      console.log("New balance:", newBalance);
+      //set multiplier
+      setCategories((prevCategories) => {
+        return prevCategories.map((category) => {
+          console.log("Checking category:", category.name);
+          const updatedAssets = category.assets.map((a) => {
+            console.log("Checking asset:", a.name);
+            if (a.name === asset.name) {
+              console.log("Found matching asset:", a.name);
+              console.log("Old multiplier:", a.multiplier);
+              // Adjust multiplier, ensure it doesn’t go below 0
+              const newMultiplier = Math.max(a.multiplier + multiplier, 0);
+              console.log("New multiplier:", newMultiplier);
+              return {
+                ...a,
+                resourceBalanceinVault: newBalance.toString(),
+                multiplier: newMultiplier,
+              };
+            }
+            return a;
+          });
+
+          return {
+            ...category,
+            assets: updatedAssets,
+          };
         });
-  
-        return {
-          ...category,
-          assets: updatedAssets,
-        };
       });
-    });
-  }
+    }
 
-
-  if(activeTab=="Sell")
-    {
+    if (activeTab == "Sell") {
       console.log(asset);
       console.log(asset.atlasBalanceInVault);
       const minimum_sell_qty = parseInt(asset.minimum_sell_qty, 10); // e.g., 1 million units
 
+      console.log(minimum_sell_qty);
+      console.log(asset.multiplier + multiplier);
+      console.log(asset.sell_price);
 
-      console.log(minimum_sell_qty)
-      console.log(asset.multiplier + multiplier)
-      console.log(asset.sell_price)
-
-      const adjustedAmount = (asset.sell_price * multiplier); // Positive or negative depending on multiplier
+      const adjustedAmount = asset.sell_price * multiplier; // Positive or negative depending on multiplier
       const availableBalance = parseInt(asset.atlasBalanceInVault, 10);
       // Calculate the new balance based on the multiplier
-      console.log(adjustedAmount)
-      console.log(availableBalance)
+      console.log(adjustedAmount);
+      console.log(availableBalance);
 
       let newBalance = availableBalance - adjustedAmount;
       // If the user is trying to subtract from the vault (increase purchase)
       if (newBalance < 0) {
-        setAlertMessage("Trying to buy more assets than are available in the vault.");
+        setAlertMessage(
+          "Trying to buy more assets than are available in the vault."
+        );
         setIsAlertOpen(true); // Trigger the alert with the message
         //alert("Trying to buy more assets than are available in the vault.");
-        return 0
+        return 0;
       }
       console.log("Handling multiplier for asset:", asset.name);
       console.log("Multiplier value:", multiplier);
@@ -544,7 +563,7 @@ export default function Home() {
             }
             return a;
           });
-    
+
           return {
             ...category,
             assets: updatedAssets,
@@ -552,21 +571,11 @@ export default function Home() {
         });
       });
     }
-
-
-
-
-
   }
-  
-  
-  
-  
 
   async function buttonClick(asset) {
     console.log(asset);
     setIsBuyLoading(asset.name);
-
 
     const provider = getProvider(); // see "Detecting the Provider"
     let pubkey58;
@@ -584,10 +593,13 @@ export default function Home() {
 
     let payer = new PublicKey(pubkey58);
 
-    console.log(asset)
+    console.log(asset);
 
     //generate pda
-    let marketSeeds = [new PublicKey(asset.vaultAuth).toBuffer(), new PublicKey(asset.mint).toBuffer()];
+    let marketSeeds = [
+      new PublicKey(asset.vaultAuth).toBuffer(),
+      new PublicKey(asset.mint).toBuffer(),
+    ];
 
     // Generate the PDA
     const [marketPDA, marketBump] = PublicKey?.findProgramAddressSync(
@@ -674,19 +686,17 @@ export default function Home() {
     }
 
     if (activeTab == "Sell") {
-
-
-      console.log("User is selling resources with multiplier:",asset.name,asset.multiplier)
-
-
+      console.log(
+        "User is selling resources with multiplier:",
+        asset.name,
+        asset.multiplier
+      );
 
       let rewardMintAccount = await findOrCreateAssociatedTokenAccount(
         rewardMint,
         payer,
         payer
       );
-
-
 
       console.log(
         "User has rewardMintAccount account:",
@@ -701,19 +711,17 @@ export default function Home() {
         transaction.add(rewardMintAccount.ataIx);
       }
 
-
-
       // derive the pda address for the Metadata account
       const rewardMintAuthPDA = PublicKey.findProgramAddressSync(
         [rewardMint.toBuffer()],
         programId
       )[0];
 
-      console.log("Reward Mint")
-      console.log(rewardMint.toBase58())
+      console.log("Reward Mint");
+      console.log(rewardMint.toBase58());
 
-      console.log("marketPDA")
-      console.log(marketPDA.toBase58())
+      console.log("marketPDA");
+      console.log(marketPDA.toBase58());
 
       polarisIx = createSellInstruction(
         programId,
@@ -736,7 +744,6 @@ export default function Home() {
       );
     }
 
-
     transaction.add(polarisIx);
 
     const { blockhash } = await connection.getLatestBlockhash();
@@ -747,8 +754,7 @@ export default function Home() {
       let signedTransaction = await provider.signTransaction(transaction);
       console.log(signedTransaction);
       const serializedTransaction = signedTransaction.serialize();
-  
-  
+
       const transactionId = await connection.sendRawTransaction(
         serializedTransaction,
         {
@@ -760,17 +766,11 @@ export default function Home() {
       setIsAlertOpen(true); // Trigger the alert with the message
       setIsBuyLoading(null);
       console.log(transactionId);
-      
     } catch (error) {
       setAlertMessage("Transaction Cancelled");
       setIsAlertOpen(true); // Trigger the alert with the message
       setIsBuyLoading(null);
-
     }
-
-
-
-
   }
 
   const buttonPressed = (tab) => {
@@ -778,42 +778,38 @@ export default function Home() {
     // Any other logic you want to perform when a tab is pressed
   };
 
-
-  
-
-
-
   return (
-    <div style={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
+    <div style={{ position: "relative", height: "100vh", overflow: "hidden" }}>
       {isLoading && (
         <div
           style={{
-            position: 'fixed',
+            position: "fixed",
             top: 0,
             left: 0,
-            width: '100vw',
-            height: '100vh',
-            backgroundImage: 'url("https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmhybWU4bDhrODJtb3ZydWIxZ3ZpNXg3azc3YTJjNnIyajMzc2xqNiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ilu6c4Ohog14k4WHHy/giphy-downsized-large.gif")',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            backgroundColor: 'rgba(0, 0, 0, 0.85)',
-            backgroundBlendMode: 'overlay',
+            width: "100vw",
+            height: "100vh",
+            backgroundImage:
+              'url("https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExYmhybWU4bDhrODJtb3ZydWIxZ3ZpNXg3azc3YTJjNnIyajMzc2xqNiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Ilu6c4Ohog14k4WHHy/giphy-downsized-large.gif")',
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundColor: "rgba(0, 0, 0, 0.85)",
+            backgroundBlendMode: "overlay",
             zIndex: 9999,
-            pointerEvents: 'none',
-            display: 'flex',          // Flexbox container
-            justifyContent: 'center', // Center horizontally
-            alignItems: 'center',     // Center vertically
-            textAlign: 'center',      // Center text inside the flex container
+            pointerEvents: "none",
+            display: "flex", // Flexbox container
+            justifyContent: "center", // Center horizontally
+            alignItems: "center", // Center vertically
+            textAlign: "center", // Center text inside the flex container
           }}
         >
           <div>
             <h1 style={{ margin: 0 }}>Polaris Fuel</h1>
-            <h4 style={{ margin: '10px 0' }}>loading...</h4>
+            <h4 style={{ margin: "10px 0" }}>loading...</h4>
           </div>
         </div>
       )}
-  
+
       {isDesktop ? (
         <div className="desktopVersion">
           <MyAlert
@@ -866,8 +862,4 @@ export default function Home() {
       )}
     </div>
   );
-  
-  
-
 }
-
