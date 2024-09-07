@@ -471,7 +471,7 @@ export default function Scroller({
                                   ? "SOLD OUT"
                                   : activeTab === "Buy"
                                   ? `Buy ${subAsset.name}`
-                                  : `Sell ${asset.name}`}
+                                  : `Sell ${subAsset.name}`}
                               </button>
                             </div>
                           );
