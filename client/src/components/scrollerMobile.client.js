@@ -219,7 +219,14 @@ export default function Scroller({
                             </div>
                           )}
                         </div>
-                        {asset.image && (
+                        {asset.soldOut ? (
+                          <img
+                            draggable={false}
+                            src={`${asset.image.slice(0, -4)}so.png`}
+                            alt={asset.name}
+                            className={styles.assetImage}
+                          />
+                        ) : (
                           <img
                             draggable={false}
                             src={asset.image}
