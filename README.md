@@ -29,7 +29,7 @@ Notably, the Polaris Fuel dApp is coded entirely from scratch on the Solana netw
 
 - Blockchain: Solana
 - Frontend: [Next.js]
-- Backend: [Node.js, JabaScript]
+- Backend: [JabaScript, CSS]
 - Smart Contracts: [Rust]
 
 ## Getting Started
