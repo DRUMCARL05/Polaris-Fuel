@@ -19,8 +19,8 @@ Polaris Fuel is a decentralized application (dApp) designed to revolutionize res
 
 - Blockchain: Solana
 - Frontend: [Next.js]
-- Backend: [Your backend technology, e.g., Node.js, Python]
-- Smart Contracts: [Language used, e.g., Rust]
+- Backend: [Node.js, Python]
+- Smart Contracts: [Rust]
 
 
 
