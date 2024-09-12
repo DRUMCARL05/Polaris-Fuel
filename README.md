@@ -29,7 +29,7 @@ Notably, the Polaris Fuel dApp is coded entirely from scratch on the Solana netw
 
 - Blockchain: Solana
 - Frontend: [Next.js]
-- Backend: [Node.js, Python]
+- Backend: [Node.js, JabaScript]
 - Smart Contracts: [Rust]
 
 ## Getting Started
@@ -64,6 +64,4 @@ Using the Polaris Fuel app is straightforward. Users can:
 
 For questions please contact DRUMCARL05 in our discord server: [https://discord.gg/vVmSm7meF3](https://discord.gg/vVmSm7meF3)
 
----
 
-Polaris Fuel: Empowering the backbone of the Star Atlas economy.
