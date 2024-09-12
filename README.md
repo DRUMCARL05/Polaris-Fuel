@@ -1,5 +1,13 @@
 # Polaris Fuel dApp: Empowering the backbone of the Star Atlas economy.
 
+## Table of Contents
+- [About Polaris Fuel](#about-polaris-fuel)
+- [Key Features](#key-features)
+- [Technology Stack](#technology-stack)
+- [Getting Started](#getting-started)
+- [Contributing](#contributing)
+- [Contact](#contact)
+
 ## About Polaris Fuel
 
 Polaris Fuel is a decentralized application (dApp) designed to revolutionize resource trading in the Star Atlas universe. Our platform serves as a wholesale marketplace, connecting major resource providers with bulk buyers to streamline large-scale operations within the game's economy.
@@ -9,7 +17,7 @@ Polaris Fuel is a decentralized application (dApp) designed to revolutionize res
 - **Wholesale Trading**: Facilitate bulk transactions of Star Atlas resources.
 - **Comprehensive Resource Coverage**: Trade all raw resources and main consumables.
 - **User-Friendly Interface**: Intuitive design optimized for both desktop and mobile use.
-- **Dynamic Pricing Model**: Real-time price adjustments based on market conditions. (coming soon)
+- **Dynamic Pricing Model**: Real-time price adjustments based on market conditions.  (*coming soon*)
 - **Polaris Experience Points (PXP)**: Reward system for liquidity providers.
 - **Membership Tiers**: Unlock exclusive benefits and governance rights.
 - **Solana Blockchain Integration**: Secure and efficient transactions.
@@ -21,8 +29,6 @@ Polaris Fuel is a decentralized application (dApp) designed to revolutionize res
 - Frontend: [Next.js]
 - Backend: [Node.js, Python]
 - Smart Contracts: [Rust]
-
-
 
 ## Getting Started
 
@@ -44,16 +50,17 @@ Using the Polaris Fuel app is straightforward. Users can:
 3. Place orders and complete transactions.
 4. Access support and FAQs for assistance.
 
-
-## Contact
-
-[If you have any questions please contact DRUMCARL05 in our discord server](https://discord.gg/vVmSm7meF3)]
-
----
-
-
-## Team Members
+## Contributing
 
 - **Developer Studio:** Seal6 Studio
 - **Project Manager:** azuldev
 - **Project Owner:** Polaris Fuel DAC - DRUMCARL05
+
+
+## Contact
+
+[Contact information or links to your community channels]
+
+---
+
+Polaris Fuel: Empowering the backbone of the Star Atlas economy.
