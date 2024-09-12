@@ -11,7 +11,8 @@
 ## About Polaris Fuel
 
 Polaris Fuel is a decentralized application (dApp) designed to revolutionize resource trading in the Star Atlas universe. Our platform serves as a wholesale marketplace, connecting major resource providers with bulk buyers to streamline large-scale operations within the game's economy. 
-Importantly, the Polaris Fuel dApp is coded entirely from scratch on the Solana network and operates independently from the official Star Atlas marketplace. This custom-built approach allows us to offer specialized features tailored specifically for wholesale trading, while maintaining the security and efficiency of the Solana blockchain.
+
+Notably, the Polaris Fuel dApp is coded entirely from scratch on the Solana network and operates independently from the official Star Atlas marketplace. This custom-built approach allows us to offer specialized features tailored specifically for wholesale trading, while maintaining the security and efficiency of the Solana blockchain.
 
 ## Key Features
 
