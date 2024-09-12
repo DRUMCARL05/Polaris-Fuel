@@ -10,7 +10,8 @@
 
 ## About Polaris Fuel
 
-Polaris Fuel is a decentralized application (dApp) designed to revolutionize resource trading in the Star Atlas universe. Our platform serves as a wholesale marketplace, connecting major resource providers with bulk buyers to streamline large-scale operations within the game's economy.
+Polaris Fuel is a decentralized application (dApp) designed to revolutionize resource trading in the Star Atlas universe. Our platform serves as a wholesale marketplace, connecting major resource providers with bulk buyers to streamline large-scale operations within the game's economy. 
+Importantly, the Polaris Fuel dApp is coded entirely from scratch on the Solana network and operates independently from the official Star Atlas marketplace. This custom-built approach allows us to offer specialized features tailored specifically for wholesale trading, while maintaining the security and efficiency of the Solana blockchain.
 
 ## Key Features
 
@@ -45,10 +46,11 @@ To install and run the Polaris Fuel app locally, follow these steps:
 
 Using the Polaris Fuel app is straightforward. Users can:
 
-1. Connect their Solana wallets.
-2. Select the direction of the transaction (Buy or Sell) for resources.
-3. Place orders and complete transactions.
-4. Access support and FAQs for assistance.
+1. Go to HTTP://www.polarisfuel.space
+2. Connect their Solana wallets.
+3. Select the direction of the transaction (Buy or Sell) for resources.
+4. Place orders and complete transactions.
+5. Access support and FAQs for assistance.
 
 ## Contributing
 
