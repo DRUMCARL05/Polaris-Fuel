@@ -47,7 +47,7 @@ To install and run the Polaris Fuel app locally, follow these steps:
 
 Using the Polaris Fuel app is straightforward. Users can:
 
-1. Go to HTTP://www.polarisfuel.space
+1. Go to http://www.polarisfuel.space
 2. Connect their Solana wallets.
 3. Select the direction of the transaction (Buy or Sell) for resources.
 4. Place orders and complete transactions.
