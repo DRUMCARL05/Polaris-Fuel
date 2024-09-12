@@ -59,7 +59,7 @@ Using the Polaris Fuel app is straightforward. Users can:
 
 ## Contact
 
-[Contact information or links to your community channels]
+For questions please contact DRUMCARL05 in our discord server: [https://discord.gg/vVmSm7meF3](https://discord.gg/vVmSm7meF3)
 
 ---
 
