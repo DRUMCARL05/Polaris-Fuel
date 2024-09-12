@@ -1,23 +1,30 @@
-# Polaris Fuel - Resource Trading App for Star Atlas
+# Polaris Fuel dApp: Empowering the backbone of the Star Atlas economy.
 
-## Description
+## About Polaris Fuel
 
-The Polaris Fuel app is designed to facilitate the trading of primary resources in Star Atlas, essential for operating spaceships within the game. It leverages blockchain technology on the Solana network to create a marketplace for seamless resource exchange.
+Polaris Fuel is a decentralized application (dApp) designed to revolutionize resource trading in the Star Atlas universe. Our platform serves as a wholesale marketplace, connecting major resource providers with bulk buyers to streamline large-scale operations within the game's economy.
 
-Our project aims to:
-- Streamline resource trading in Star Atlas.
-- Utilize blockchain for secure and transparent transactions.
-- Enhance the gaming experience by ensuring a stable supply of vital resources.
-- Foster a community of resource providers and consumers.
+## Key Features
 
-We chose this approach to empower players, improve accessibility to resources, and contribute to a fairer in-game economy. Our roadmap includes continuous updates and features to address challenges and offer an even better trading experience.
+- **Wholesale Trading**: Facilitate bulk transactions of Star Atlas resources.
+- **Comprehensive Resource Coverage**: Trade all raw resources and main consumables.
+- **User-Friendly Interface**: Intuitive design optimized for both desktop and mobile use.
+- **Dynamic Pricing Model**: Real-time price adjustments based on market conditions. (coming soon)
+- **Polaris Experience Points (PXP)**: Reward system for liquidity providers.
+- **Membership Tiers**: Unlock exclusive benefits and governance rights.
+- **Solana Blockchain Integration**: Secure and efficient transactions.
+- **Admin Backend**: Powerful tools for resource and vault management.
 
-## Table of Contents
+## Technology Stack
 
-- [Introduction](#introduction)
-- [Installation Guide](#installation-guide)
-- [How to Use](#how-to-use)
-- [Credits](#credits)
+- Blockchain: Solana
+- Frontend: [Next.js]
+- Backend: [Your backend technology, e.g., Node.js, Python]
+- Smart Contracts: [Language used, e.g., Rust]
+
+
+
+## Getting Started
 
 ## How to Install and Run the Project
 
@@ -36,6 +43,14 @@ Using the Polaris Fuel app is straightforward. Users can:
 2. Select the direction of the transaction (Buy or Sell) for resources.
 3. Place orders and complete transactions.
 4. Access support and FAQs for assistance.
+
+
+## Contact
+
+[If you have any questions please contact DRUMCARL05 in our discord server](https://discord.gg/vVmSm7meF3)]
+
+---
+
 
 ## Team Members
 
